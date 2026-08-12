@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>粵語配音台 · Cantonese Dubbing Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16181D;
+  --panel:#1E212A;
+  --panel-2:#252936;
+  --line:#2E3340;
+  --paper:#E8E6E1;
+  --muted:#8C93A3;
+  --voiceA:#5EC8D8;
+  --voiceB:#D98BA8;
+  --warn:#E8B04B;
+  --bad:#E0685C;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --sans:"Noto Sans TC",system-ui,sans-serif;
+  --serif:"Noto Serif TC",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px 120px}
+
+/* ---------- 頁首 ---------- */
+header.masthead{
+  padding:38px 0 26px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.masthead h1{
+  font-family:var(--serif);font-weight:700;font-size:26px;margin:0;letter-spacing:.02em;
+}
+.masthead .sub{
+  font-family:var(--mono);font-size:11px;color:var(--muted);
+  letter-spacing:.14em;text-transform:uppercase;margin-top:4px;
+}
+.ghost{
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:2px;cursor:pointer;
+}
+.ghost:hover{border-color:var(--voiceA);color:var(--voiceA)}
+
+/* ---------- 階段軌 ---------- */
+.rail{display:flex;gap:0;margin:26px 0 30px;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.rail .st{
+  flex:1;padding:11px 8px;text-align:center;font-family:var(--mono);font-size:11px;
+  color:var(--muted);border-right:1px solid var(--line);letter-spacing:.06em;
+}
+.rail .st:last-child{border-right:none}
+.rail .st .n{display:block;font-size:15px;color:var(--line);line-height:1.2}
+.rail .st.on{background:var(--panel);color:var(--paper)}
+.rail .st.on .n{color:var(--voiceA)}
+.rail .st.done .n{color:var(--voiceA)}
+
+/* ---------- 面板 ---------- */
+section.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:3px;
+  padding:22px;margin-bottom:18px;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 4px;
+}
+.card h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0 0 14px}
+.hint{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+
+label.f{display:block;margin-bottom:13px}
+label.f span{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em;margin-bottom:5px}
+input[type=text],input[type=password],select,textarea{
+  width:100%;background:var(--ink);border:1px solid var(--line);color:var(--paper);
+  font-family:var(--mono);font-size:13px;padding:9px 11px;border-radius:2px;
+}
+textarea{font-family:var(--sans);font-size:14.5px;line-height:1.75;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--voiceA);outline-offset:1px;border-color:transparent}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+
+button.act{
+  background:var(--voiceA);color:#0E1418;border:none;font-family:var(--sans);font-weight:700;
+  font-size:14px;padding:11px 22px;border-radius:2px;cursor:pointer;letter-spacing:.02em;
+}
+button.act:hover{filter:brightness(1.12)}
+button.act:disabled{background:var(--line);color:var(--muted);cursor:not-allowed;filter:none}
+button.act.sec{background:transparent;border:1px solid var(--voiceA);color:var(--voiceA)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* ---------- 拖檔區 ---------- */
+.drop{
+  border:1px dashed var(--line);border-radius:3px;padding:34px 20px;text-align:center;
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+.drop:hover,.drop.hot{border-color:var(--voiceA);background:rgba(94,200,216,.05)}
+.drop .big{font-family:var(--serif);font-size:17px}
+.drop .small{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:6px;letter-spacing:.06em}
+.filemeta{
+  font-family:var(--mono);font-size:12px;color:var(--voiceA);margin-top:14px;
+  padding:10px 12px;background:var(--ink);border-left:2px solid var(--voiceA);
+}
+
+/* ---------- 進度 ---------- */
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin:12px 0 8px}
+.bar > i{display:block;height:100%;background:var(--voiceA);width:0;transition:width .3s}
+.log{
+  font-family:var(--mono);font-size:11.5px;color:var(--muted);max-height:130px;overflow:auto;
+  background:var(--ink);padding:9px 11px;border-radius:2px;white-space:pre-wrap;line-height:1.65;
+}
+.log b{color:var(--paper);font-weight:500}
+.log .err{color:var(--bad)}
+
+/* ---------- 雙軌對白稿（招牌元素） ---------- */
+.script{margin-top:6px}
+.ln{
+  display:grid;grid-template-columns:56px 1fr;gap:12px;padding:9px 0;
+  border-top:1px solid rgba(46,51,64,.55);
+}
+.ln:first-child{border-top:none}
+.ln .tc{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:9px;text-align:right}
+.ln .body{
+  border-left:2px solid var(--voiceA);padding:2px 0 2px 13px;max-width:88%;
+}
+.ln.B .body{border-left-color:var(--voiceB);margin-left:auto}
+.ln .who{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--voiceA);
+  background:none;border:1px solid rgba(94,200,216,.4);border-radius:2px;
+  padding:1px 7px;cursor:pointer;
+}
+.ln.B .who{color:var(--voiceB);border-color:rgba(217,139,168,.4)}
+.ln .who:hover{filter:brightness(1.3)}
+.ln .txt{
+  width:100%;background:transparent;border:none;color:var(--paper);
+  font-family:var(--sans);font-size:15.5px;line-height:1.75;padding:3px 0;resize:none;overflow:hidden;
+}
+.ln .txt:focus{outline:none;background:rgba(255,255,255,.03)}
+.ln .orig{font-size:12.5px;color:var(--muted);margin-top:3px;display:none}
+.ln.showorig .orig{display:block}
+.ln.playing{background:rgba(94,200,216,.07)}
+.ln.bookish .body{border-left-color:var(--warn)}
+.ln.untranslated .body{border-left-color:var(--bad)}
+.ln .flag.bad{color:var(--bad);border-color:rgba(224,104,92,.5)}
+.ln .flag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--warn);
+  border:1px solid rgba(232,176,75,.4);border-radius:2px;padding:1px 5px;
+}
+.ln .mini{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.ln .prev{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px}
+.ln .prev:hover{color:var(--paper)}
+
+/* ---------- 播放器 ---------- */
+.player{background:var(--ink);border:1px solid var(--line);padding:14px;border-radius:3px;margin-top:14px}
+audio{width:100%;margin-top:4px}
+
+.pill{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  padding:2px 8px;border:1px solid var(--line);border-radius:2px;color:var(--muted);
+}
+.hidden{display:none!important}
+.warnbox{
+  border-left:2px solid var(--warn);background:rgba(232,176,75,.07);
+  padding:10px 13px;font-size:13.5px;color:#EBD8AF;margin:12px 0;
+}
+a{color:var(--voiceA)}
+
+@media (max-width:640px){
+  .wrap{padding:0 14px 90px}
+  .grid2{grid-template-columns:1fr}
+  .ln{grid-template-columns:44px 1fr;gap:8px}
+  .ln .body{max-width:100%;margin-left:0!important}
+  .rail .st{font-size:10px;padding:9px 3px}
+  .masthead h1{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div>
+    <h1>粵語配音台</h1>
+    <div class="sub">Mandarin podcast → Cantonese dub · build 2026-08-06 05:05 UTC</div>
+  </div>
+  <button class="ghost" id="btnCfg">設定</button>
+</header>
+
+<div class="rail" id="rail">
+  <div class="st on" data-s="1"><span class="n">1</span>音檔</div>
+  <div class="st" data-s="2"><span class="n">2</span>轉錄</div>
+  <div class="st" data-s="3"><span class="n">3</span>譯稿</div>
+  <div class="st" data-s="4"><span class="n">4</span>校對</div>
+  <div class="st" data-s="5"><span class="n">5</span>合成</div>
+</div>
+
+<div id="envWarn" class="hidden warnbox" style="margin-bottom:18px"></div>
+
+<!-- ══ 設定 ══ -->
+<section class="card hidden" id="cardCfg">
+  <p class="eyebrow">Credentials</p>
+  <h2>API 金鑰</h2>
+  <p class="hint">全部只存喺你部機嘅 localStorage，唔會傳去任何第三方。</p>
+  <div class="warnbox">要用本機伺服器開呢個檔案，直接雙擊 file:// 會被瀏覽器擋住 API 呼叫。<br>
+  將 <code>serve.py</code> 同呢個 HTML 擺埋一齊，行 <code>python3 serve.py</code>，再開 <code>localhost:8000</code>。<br>
+  <code>serve.py</code> 同時做 API 代理，可以繞過 Azure 轉錄嘅 CORS 限制。</div>
+
+  <label class="f"><span>OpenAI API Key — 轉錄用</span>
+    <input type="password" id="kOpenAI" placeholder="sk-...（用 Azure 轉錄就唔使填）"></label>
+
+  <label class="f"><span>翻譯供應商</span>
+    <select id="pProvider">
+      <option value="google">Google Gemini — 有免費額度，唔使信用卡</option>
+      <option value="openrouter">OpenRouter — 一個 key 通所有模型</option>
+      <option value="poe">Poe — 用你嘅 Poe 訂閱點數</option>
+      <option value="anthropic">Anthropic — 直連 Claude</option>
+    </select></label>
+
+  <label class="f kbox" data-p="google"><span>Google AI Studio API Key</span>
+    <input type="password" id="kGoogle" placeholder="AIza..."></label>
+  <label class="f kbox" data-p="openrouter"><span>OpenRouter API Key</span>
+    <input type="password" id="kOpenRouter" placeholder="sk-or-v1-..."></label>
+  <label class="f kbox" data-p="poe"><span>Poe API Key</span>
+    <input type="password" id="kPoe" placeholder="喺 poe.com/api_key 攞"></label>
+  <label class="f kbox" data-p="anthropic"><span>Anthropic API Key</span>
+    <input type="password" id="kAnthropic" placeholder="sk-ant-..."></label>
+
+  <div class="grid2">
+    <label class="f"><span>Azure Speech Key — 語音用</span>
+      <input type="password" id="kAzure" placeholder="..."></label>
+    <label class="f"><span>Azure 區域</span>
+      <input type="text" id="kAzureRegion" placeholder="southeastasia" value=""></label>
+  </div>
+
+  <label class="f"><span>Azure 資源名稱 — 資源頁左上角嗰個大字</span>
+    <input type="text" id="kAzureName" placeholder="wongsir1011"></label>
+  <div class="warnbox">區域要同資源頁「位置/區域」欄一模一樣，例如 <code>southeastasia</code>。
+  對唔上會直接 401。</div>
+
+  <div class="grid2">
+    <label class="f"><span>轉錄引擎</span>
+      <select id="mSTT">
+        <option value="azure-fast">Azure 快速轉錄（分講者 · 每月 5 鐘免費）</option>
+        <option value="gpt-4o-transcribe-diarize">OpenAI gpt-4o-transcribe-diarize（分講者）</option>
+        <option value="whisper-1">OpenAI whisper-1（靠 AI 推斷講者）</option>
+      </select></label>
+    <label class="f"><span>翻譯模型</span>
+      <input type="text" id="mModel" list="modelList" placeholder="gemini-2.5-flash">
+      <datalist id="modelList"></datalist></label>
+    <label class="f"><span>主持人語氣</span>
+      <select id="mTone">
+        <option value="lively">生動活潑 — 節奏明快，多語氣詞</option>
+        <option value="professional">嚴肅專業 — 用詞準確，少修飾</option>
+        <option value="curious">好奇提問 — 多反問，一齊探索</option>
+        <option value="warm">溫和親切 — 從容關懷</option>
+        <option value="faithful" selected>原汁原味 — 貼返原文語氣</option>
+      </select></label>
+    <label class="f"><span>影片：聲畫對齊方式</span>
+      <select id="oLen">
+        <option value="fit" selected>壓縮音軌 — 加快超時句子，音軌啱啱等於影片</option>
+        <option value="extend">延長影片 — 凍結尾格補足，唔改語速</option>
+        <option value="free">唔處理 — 保持自然語速</option>
+      </select></label>
+    <label class="f"><span>字幕內容</span>
+      <select id="oSubSrc">
+        <option value="orig" selected>普通話原文 — 時間碼最準</option>
+        <option value="zh">廣東話譯文 — 同配音一致</option>
+      </select></label>
+    <label class="f"><span>字幕字體</span>
+      <select id="oScript">
+        <option value="trad" selected>繁體中文（香港用字）</option>
+        <option value="simp">保持轉錄原樣</option>
+      </select></label>
+    <label class="f"><span>字幕每行字數</span>
+      <select id="oSubLen">
+        <option value="16">16 字 — 手機睇</option>
+        <option value="20" selected>20 字 — 一般</option>
+        <option value="24">24 字 — 大螢幕</option>
+      </select></label>
+    <label class="f"><span>Azure 定價層</span>
+      <select id="oTier">
+        <option value="f0" selected>F0 免費層 — 每分鐘 20 次，自動放慢</option>
+        <option value="s0">S0 標準層 — 全速</option>
+      </select></label>
+    <label class="f"><span>語速</span>
+      <select id="mRate">
+        <option value="-10%">慢 −10%</option>
+        <option value="0%" selected>正常</option>
+        <option value="+10%">快 +10%</option>
+        <option value="+20%">快 +20%</option>
+      </select></label>
+  </div>
+
+  <div class="hint" id="modelHint" style="margin:-4px 0 14px"></div>
+
+  <div class="grid2">
+    <label class="f"><span>男聲（講者 A）</span>
+      <select id="vA">
+        <option value="zh-HK-WanLungNeural">WanLung 雲龍</option>
+      </select></label>
+    <label class="f"><span>女聲（講者 B）</span>
+      <select id="vB">
+        <option value="zh-HK-HiuMaanNeural">HiuMaan 曉曼</option>
+        <option value="zh-HK-HiuGaaiNeural">HiuGaai 曉佳</option>
+      </select></label>
+  </div>
+
+  <div class="row"><button class="act" id="btnSaveCfg">儲存</button>
+  <button class="act sec" id="btnTestTrans">測試翻譯</button>
+  <span class="pill" id="cfgState">未填</span></div>
+  <div id="testTransOut" class="hidden warnbox" style="margin-top:14px"></div>
+</section>
+
+<!-- ══ 1 音檔 ══ -->
+<section class="card" id="card1">
+  <p class="eyebrow">Step 01</p>
+  <h2>載入音檔</h2>
+  <p class="hint">支援 mp3 / m4a / wav / ogg。長過 10 分鐘會自動切段送去轉錄。</p>
+
+  <div class="drop" id="drop">
+    <div class="big">拖檔案入嚟，或者撳呢度揀</div>
+    <div class="small">音檔 MP3 · M4A · WAV　／　影片 MP4 · MOV · WEBM</div>
+    <input type="file" id="fileIn" accept="audio/*,video/*" class="hidden">
+  </div>
+  <div class="filemeta hidden" id="fileMeta"></div>
+
+  <div class="row" style="margin-top:16px">
+    <button class="act" id="btnGo" disabled>開始轉錄</button>
+    <span class="pill" id="engineNow" style="cursor:pointer" title="撳一下去改">引擎：—</span>
+    <span class="pill" id="proxyNow">本機代理：—</span>
+    <span class="pill" id="muxNow">影片合成：—</span>
+    <button class="act sec" id="btnPaste">改為貼文字稿</button>
+  </div>
+
+  <div class="hidden" id="pasteWrap" style="margin-top:16px">
+    <label class="f"><span>普通話文字稿（一行一句）</span>
+      <textarea id="pasteTxt" rows="8" placeholder="貼喺呢度…"></textarea></label>
+    <button class="act" id="btnPasteGo">用呢份稿</button>
+  </div>
+</section>
+
+<!-- ══ 2/3 進度 ══ -->
+<section class="card hidden" id="cardWork">
+  <p class="eyebrow">Processing</p>
+  <h2 id="workTitle">處理中</h2>
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="log" id="log"></div>
+</section>
+
+<!-- ══ 4 校對 ══ -->
+<section class="card hidden" id="cardScript">
+  <p class="eyebrow">Step 04</p>
+  <h2>校對譯稿</h2>
+  <p class="hint">撳「男 / 女」可以調換講者，文字可以直接改。機翻粵語一定要執，特別係語氣詞同專有名詞。</p>
+  <div class="row" style="margin-bottom:14px">
+    <button class="ghost" id="btnOrig">顯示原文</button>
+    <button class="ghost" id="btnExportTxt">匯出稿件</button>
+    <button class="ghost" id="btnExportSrt">匯出 SRT</button>
+    <button class="ghost" id="btnToTrad">稿件轉繁體</button>
+    <button class="ghost" id="btnFixBookish">重譯有問題嘅句子</button>
+    <select id="mTone2" style="width:auto;padding:6px 9px;font-size:12px"></select>
+    <button class="ghost" id="btnRetrans">用呢個語氣重譯</button>
+    <span class="pill" id="lineCount"></span>
+  </div>
+  <div id="scriptAlert" class="hidden"></div>
+  <div class="script" id="script"></div>
+  <div class="row" style="margin-top:20px">
+    <button class="act" id="btnSynth">合成廣東話音檔</button>
+  </div>
+</section>
+
+<!-- ══ 5 成品 ══ -->
+<section class="card hidden" id="cardOut">
+  <p class="eyebrow">Step 05</p>
+  <h2>完成</h2>
+  <div class="player">
+    <audio id="outAudio" controls></audio>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <button class="act" id="btnDl">下載 MP3</button>
+    <button class="act sec" id="btnRedo">返去校對</button>
+  </div>
+
+  <div id="videoOpts" class="hidden" style="margin-top:26px;border-top:1px solid var(--line);padding-top:20px">
+    <p class="eyebrow">Video</p>
+    <h2 style="margin-bottom:6px">配返落原片</h2>
+    <p class="hint">廣東話音軌已經按原本嘅時間點對齊。字幕用普通話原文。</p>
+    <div class="grid2">
+      <label class="f"><span>字幕</span>
+        <select id="oBurn">
+          <option value="soft">內嵌字幕軌（快，播放器可開關）</option>
+          <option value="burn">燒錄入畫面（慢，一定睇到）</option>
+          <option value="none">唔要字幕</option>
+        </select></label>
+      <label class="f"><span>保留原聲音量</span>
+        <select id="oBg">
+          <option value="0" selected>唔要原聲</option>
+          <option value="10">10% 墊底</option>
+          <option value="20">20% 墊底</option>
+        </select></label>
+    </div>
+    <div id="muxBlocked" class="hidden warnbox">
+      <b>暫時合成唔到影片。</b><br><span id="muxBlockedMsg"></span><br>
+      裝好之後可以撳返「重新偵測」，唔使重頭做過。
+    </div>
+    <div class="row">
+      <button class="act" id="btnMux">產生影片</button>
+      <button class="ghost" id="btnRedetect">重新偵測</button>
+      <button class="ghost" id="btnDlSrt2">淨係下載字幕檔</button>
+    </div>
+    <div id="videoBox" class="hidden" style="margin-top:18px">
+      <video id="outVideo" controls style="width:100%;border-radius:3px;background:#000"></video>
+      <div class="row" style="margin-top:12px">
+        <button class="act" id="btnDlVideo">下載 MP4</button>
+        <button class="ghost" id="btnDlSrt">下載字幕檔</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+<script>
+/* ══════════ 狀態 ══════════ */
+const S = {
+  file: null,
+  segments: [],   // {start,end,text}
+  lines: [],      // {start,end,orig,zh,spk}
+  audioBlobs: [],
+  outUrl: null
+};
+const CFG_KEY = 'candub.cfg.v1';
+const DOC_KEY = 'candub.doc.v1';
+const $ = id => document.getElementById(id);
+
+/* ══════════ 小工具 ══════════ */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function log(msg, cls) {
+  const el = $('log');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+function progress(p) { $('barFill').style.width = Math.round(p * 100) + '%'; }
+function stage(n) {
+  document.querySelectorAll('#rail .st').forEach(el => {
+    const s = +el.dataset.s;
+    el.classList.toggle('on', s === n);
+    el.classList.toggle('done', s < n);
+  });
+}
+function show(id, on) { $(id).classList.toggle('hidden', !on); }
+function tc(sec) {
+  sec = Math.max(0, sec || 0);
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+function srtTime(sec) {
+  sec = Math.max(0, sec || 0);
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60),
+        s = Math.floor(sec % 60), ms = Math.round((sec % 1) * 1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(3,'0')}`;
+}
+function escXml(t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ══════════ 設定 ══════════ */
+const CFG_FIELDS = ['kOpenAI', 'pProvider', 'kGoogle', 'kOpenRouter', 'kPoe', 'kAnthropic',
+  'kAzure', 'kAzureRegion', 'kAzureName', 'mSTT', 'mModel', 'mTone', 'oLen', 'oSubLen', 'oSubSrc', 'oScript', 'oTier', 'mRate', 'vA', 'vB'];
+
+/* 翻譯供應商。gap = 每批之間最少相隔幾多毫秒，遷就免費層速率限制 */
+const PROVIDERS = {
+  google: {
+    name: 'Google Gemini', keyField: 'kGoogle', defModel: 'gemini-2.5-flash', gap: 7000,
+    hint: '預設 gemini-2.5-flash：免費層每分鐘 10 次、每日 250 次。' +
+          '譯文如果偏書面，用校對頁嘅「重譯有問題嘅句子」修。去 aistudio.google.com 攞 key，唔使信用卡。'
+  },
+  openrouter: {
+    name: 'OpenRouter', keyField: 'kOpenRouter', defModel: 'google/gemini-2.5-flash', gap: 3000,
+    hint: '模型名要連機構前綴，例如 google/gemini-2.5-flash、anthropic/claude-sonnet-4-6。尾綴 :free 嘅係免費模型，但速率較低兼可能排隊。'
+  },
+  poe: {
+    name: 'Poe', keyField: 'kPoe', defModel: 'Claude-Sonnet-4.6', gap: 600,
+    hint: '模型名用 Poe 上嘅 bot 名，例如 Claude-Sonnet-4.6、GPT-5.4。會扣你訂閱嘅點數。'
+  },
+  anthropic: {
+    name: 'Anthropic', keyField: 'kAnthropic', defModel: 'claude-sonnet-5', gap: 600,
+    hint: '例如 claude-sonnet-5、claude-haiku-4-5-20251001。需要 console.anthropic.com 嘅 API credit。'
+  }
+};
+function prov() { return PROVIDERS[cfg().pProvider] || PROVIDERS.google; }
+
+/* Gemini 免費層每分鐘限額因模型而異，間隔要跟返實際用緊嗰個 */
+const GEMINI_RPM = [
+  [/pro/i, 5], [/flash-lite/i, 15], [/flash/i, 10]
+];
+function batchGap() {
+  const p = prov();
+  if (cfg().pProvider !== 'google') return p.gap;
+  const m = cfg().mModel || p.defModel;
+  const hit = GEMINI_RPM.find(([re]) => re.test(m));
+  const rpm = hit ? hit[1] : 10;
+  return Math.ceil(60000 / rpm) + 1000;   // 留一秒緩衝
+}
+
+/* 每個供應商嘅模型命名唔同，用嚟擋住「用 A 家 key 叫 B 家模型」呢種錯 */
+const MODEL_SHAPE = {
+  google: /^(gemini|gemma|learnlm)-[a-z0-9.\-]+$/,   // Google 只收全細楷
+  anthropic: /^claude-[a-z0-9.\-]+$/,                // 同上
+  openrouter: /^[a-z0-9._\-]+\/[A-Za-z0-9._:\-]+$/,  // 一定有機構前綴
+  poe: /^[^\/]*[A-Z]/                                // Poe bot 名有大楷、冇斜線
+};
+function modelFits(provider, model) {
+  const re = MODEL_SHAPE[provider];
+  return !re || re.test(String(model || '').trim());
+}
+/* 目前供應商用得嘅常見模型，畀輸入框做提示 */
+const MODEL_SUGGEST = {
+  google: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+  openrouter: ['google/gemini-2.5-flash', 'anthropic/claude-sonnet-4-6', 'deepseek/deepseek-chat-v3-0324:free'],
+  poe: ['Claude-Sonnet-4.6', 'GPT-5.4'],
+  anthropic: ['claude-sonnet-5', 'claude-opus-5', 'claude-haiku-4-5-20251001']
+};
+function refreshModelList() {
+  const dl = $('modelList');
+  if (!dl) return;
+  dl.innerHTML = '';
+  (MODEL_SUGGEST[cfg().pProvider] || []).forEach(m => {
+    const o = document.createElement('option');
+    o.value = m;
+    dl.appendChild(o);
+  });
+}
+function loadCfg() {
+  let c = {};
+  try { c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch (e) {}
+  CFG_FIELDS.forEach(f => { if (c[f] != null) $(f).value = c[f]; });
+  const pv = c.pProvider || 'google';
+  if (!$('mModel').value.trim() || !modelFits(pv, $('mModel').value)) {
+    $('mModel').value = prov().defModel;
+  }
+  // gemini-2.5-pro 已下架：舊設定自動轉返 flash
+  if (pv === 'google' && /^gemini-2\.5-pro/i.test($('mModel').value)) {
+    $('mModel').value = 'gemini-2.5-flash';
+    saveCfg();
+  }
+  refreshModelList();
+  if ($('mTone2')) $('mTone2').value = $('mTone').value;
+  markCfg();
+  return c;
+}
+function cfg() {
+  const o = {};
+  CFG_FIELDS.forEach(f => o[f] = $(f).value.trim());
+  return o;
+}
+function saveCfg() {
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg()));
+  markCfg();
+}
+function markCfg() {
+  const c = cfg();
+  const p = prov();
+  const need = [];
+  if (c.mSTT !== 'azure-fast' && !c.kOpenAI) need.push('OpenAI');
+  if (!c[p.keyField]) need.push(p.name);
+  if (!c.kAzure) need.push('Azure');
+  if (c.mSTT === 'azure-fast' && !c.kAzureName) need.push('Azure 資源名');
+  const el = $('cfgState');
+  el.textContent = need.length ? '欠 ' + need.join(' / ') : '齊備';
+  el.style.color = need.length ? 'var(--warn)' : 'var(--voiceA)';
+
+  // 只顯示目前供應商嘅金鑰欄
+  document.querySelectorAll('.kbox').forEach(b => {
+    b.classList.toggle('hidden', b.dataset.p !== (c.pProvider || 'google'));
+  });
+  const mh = $('modelHint');
+  if (mh) mh.textContent = p.hint;
+
+  const names = {
+    'azure-fast': 'Azure 快速轉錄',
+    'gpt-4o-transcribe-diarize': 'OpenAI 分講者',
+    'whisper-1': 'OpenAI whisper-1'
+  };
+  const en = $('engineNow');
+  if (en) {
+    en.textContent = '引擎：' + (names[c.mSTT] || c.mSTT || '—');
+    en.style.color = c.mSTT === 'azure-fast' ? 'var(--voiceA)' : 'var(--warn)';
+  }
+}
+
+/* ══════════ 網絡：代理偵測 + 錯誤診斷 ══════════ */
+let PROXY = false;
+
+async function detectProxy() {
+  try {
+    const r = await fetch('/proxy/health', { cache: 'no-store' });
+    PROXY = r.ok;
+  } catch (e) { PROXY = false; }
+  const el = $('proxyNow');
+  if (el) {
+    el.textContent = PROXY ? '本機代理：開' : '本機代理：關';
+    el.style.color = PROXY ? 'var(--voiceA)' : 'var(--muted)';
+  }
+}
+
+function apiUrl(u) { return PROXY ? '/proxy?url=' + encodeURIComponent(u) : u; }
+
+/* no-cors 探測：主機解析得到就代表係 CORS 問題，解析唔到就係網址打錯 */
+async function diagnose(url) {
+  try {
+    await fetch(new URL(url).origin, { mode: 'no-cors', cache: 'no-store' });
+    return 'cors';
+  } catch (e) { return 'dns'; }
+}
+
+async function callApi(url, opts, label) {
+  try {
+    return await fetch(apiUrl(url), opts);
+  } catch (e) {
+    // 各瀏覽器講法唔同：Chrome「Failed to fetch」、Safari「Load failed」、Firefox「NetworkError」
+    const netFail = e && (e.name === 'TypeError' ||
+      /failed to fetch|load failed|networkerror|network request/i.test(e.message || ''));
+    if (netFail) {
+      const kind = await diagnose(url);
+      const host = new URL(url).hostname;
+      const err = new Error(kind === 'dns'
+        ? `${label}：連唔到 ${host}。多數係 Azure 資源名稱或者區域打錯，去設定檢查下。`
+        : `${label}：被瀏覽器 CORS 擋住。用 serve.py 啟動本機代理就解決到——喺同一個資料夾行 python3 serve.py，再開 localhost:8000。`);
+      err.fatal = true;
+      throw err;
+    }
+    throw e;
+  }
+}
+
+/* ══════════ 音檔解碼 + 切段 ══════════ */
+const TARGET_RATE = 16000;
+const CHUNK_SEC = 480; // 8 分鐘 ≈ 15MB WAV，安全喺 Whisper 25MB 上限之內
+
+function resample(data, from, to) {
+  if (Math.abs(from - to) < 1) return data;
+  const ratio = from / to;
+  const out = new Float32Array(Math.floor(data.length / ratio));
+  for (let i = 0; i < out.length; i++) {
+    const pos = i * ratio, i0 = Math.floor(pos), frac = pos - i0;
+    const a = data[i0] || 0, b = data[i0 + 1] != null ? data[i0 + 1] : a;
+    out[i] = a + (b - a) * frac;
+  }
+  return out;
+}
+
+async function decodeAudio(file) {
+  const buf = await file.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error('呢個瀏覽器唔支援 Web Audio，用 Chrome、Edge 或者 Safari 開。');
+  let ctx;
+  try { ctx = new AC({ sampleRate: TARGET_RATE }); }
+  catch (e) { ctx = new AC(); }
+  let ab;
+  try {
+    ab = await ctx.decodeAudioData(buf);
+  } catch (e) {
+    try { ctx.close(); } catch (_) {}
+    throw new Error(S.isVideo
+      ? `瀏覽器解唔到呢個影片嘅音軌（${file.type || '格式未知'}）。裝咗 ffmpeg 就唔會有呢個問題——${muxHelp()}`
+      : `解唔到呢個音檔（${file.type || '格式未知'}）。試下轉成 mp3 或者 wav。`);
+  }
+  let data;
+  if (ab.numberOfChannels > 1) {
+    const a = ab.getChannelData(0), b = ab.getChannelData(1);
+    data = new Float32Array(a.length);
+    for (let i = 0; i < a.length; i++) data[i] = (a[i] + b[i]) * 0.5;
+  } else {
+    data = new Float32Array(ab.getChannelData(0));
+  }
+  const rate = ab.sampleRate;
+  try { ctx.close(); } catch (e) {}
+  return { data: resample(data, rate, TARGET_RATE), rate: TARGET_RATE };
+}
+
+function encodeWav(samples, rate) {
+  const buf = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buf);
+  const w = (off, str) => { for (let i = 0; i < str.length; i++) v.setUint8(off + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); w(8, 'WAVE');
+  w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+  v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, 'data'); v.setUint32(40, samples.length * 2, true);
+  let off = 44;
+  for (let i = 0; i < samples.length; i++, off += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+/* ══════════ 轉錄（Whisper） ══════════ */
+async function transcribe(file) {
+  log('解碼音檔…');
+  const { data, rate } = await decodeAudio(file);
+  const total = data.length / rate;
+  const nChunks = Math.ceil(total / CHUNK_SEC);
+  log(`時長 ${tc(total)}，切成 ${nChunks} 段`);
+
+  const key = cfg().kOpenAI;
+  const engine = cfg().mSTT || 'azure-fast';
+  const isAzure = engine === 'azure-fast';
+  const diarize = isAzure || engine.indexOf('diarize') >= 0;
+  log(isAzure ? '引擎：Azure 快速轉錄（分講者）'
+    : diarize ? '引擎：OpenAI 分講者' : '引擎：whisper-1');
+
+  const segs = [];
+  for (let i = 0; i < nChunks; i++) {
+    const from = i * CHUNK_SEC * rate;
+    const to = Math.min(data.length, (i + 1) * CHUNK_SEC * rate);
+    const wav = encodeWav(data.subarray(from, to), rate);
+    log(`轉錄第 ${i + 1}/${nChunks} 段 (${(wav.size / 1048576).toFixed(1)}MB)…`);
+
+    let list;
+    if (isAzure) {
+      list = await azureTranscribe(wav, i);
+    } else {
+      const fd = new FormData();
+      fd.append('file', wav, `part${i}.wav`);
+      fd.append('model', engine);
+      fd.append('language', 'zh');
+      if (diarize) {
+        fd.append('response_format', 'diarized_json');
+        fd.append('chunking_strategy', 'auto');
+      } else {
+        fd.append('response_format', 'verbose_json');
+        fd.append('prompt', '以下係普通話對談節目嘅內容。');
+      }
+      const json = await withRetry(async () => {
+        const r = await callApi('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST', headers: { Authorization: 'Bearer ' + key }, body: fd
+        }, 'OpenAI 轉錄');
+        if (!r.ok) {
+          const body = (await r.text()).slice(0, 300);
+          if (body.indexOf('insufficient_quota') >= 0) {
+            const e = new Error('OpenAI 戶口冇 API 額度。撳「設定」轉用 Azure 快速轉錄，或者去 platform.openai.com 加 credit。');
+            e.fatal = true;
+            throw e;
+          }
+          throw new Error('轉錄 ' + r.status + '：' + body);
+        }
+        return r.json();
+      }, 3);
+      const raw = json.segments || json.diarized_segments || [];
+      list = raw.length ? raw : [{ start: 0, end: 0, text: json.text || '' }];
+    }
+
+    const offset = i * CHUNK_SEC;
+    // 每段內部先將講者標籤正規化成 A / B（跨段可能唔一致，稍後交畀 AI 同人手校正）
+    const seen = [];
+    list.forEach(s => {
+      const t = (s.text || '').trim();
+      if (!t) return;
+      let spk = null;
+      if (s.speaker != null) {
+        const k = String(s.speaker);
+        if (seen.indexOf(k) < 0) seen.push(k);
+        spk = seen.indexOf(k) === 0 ? 'A' : 'B';
+      }
+      segs.push({ start: (s.start || 0) + offset, end: (s.end || 0) + offset, text: t, spk });
+    });
+    progress((i + 1) / nChunks);
+  }
+  const withSpk = segs.filter(s => s.spk).length;
+  log(`轉錄完成，共 ${segs.length} 句` + (withSpk ? `，其中 ${withSpk} 句有講者標籤` : ''));
+  return segs;
+}
+
+/* Azure 快速轉錄：端點形式同 api-version 因資源而異，自動逐個試，試通就記住 */
+const AZ_API_VERSIONS = ['2024-11-15', '2025-10-15', '2024-05-15-preview'];
+let AZ_WORKING = null;
+
+function azBases(c) {
+  const list = [];
+  if (c.kAzureName) list.push(`https://${c.kAzureName}.cognitiveservices.azure.com`);
+  if (c.kAzureRegion) list.push(`https://${c.kAzureRegion}.api.cognitive.microsoft.com`);
+  return list;
+}
+
+function azBody(wav, idx) {
+  const fd = new FormData();
+  fd.append('audio', wav, `part${idx}.wav`);
+  fd.append('definition', JSON.stringify({
+    locales: ['zh-CN'],
+    diarization: { maxSpeakers: 2, enabled: true }
+  }));
+  return fd;
+}
+
+function azParse(json) {
+  const ph = json.phrases || [];
+  if (!ph.length && json.combinedPhrases) {
+    return [{ start: 0, end: 0, text: (json.combinedPhrases[0] || {}).text || '' }];
+  }
+  return ph.map(p => ({
+    start: (p.offsetMilliseconds || 0) / 1000,
+    end: ((p.offsetMilliseconds || 0) + (p.durationMilliseconds || 0)) / 1000,
+    text: p.text || '',
+    speaker: p.speaker != null ? p.speaker : null
+  }));
+}
+
+async function azOnce(base, ver, wav, idx, key) {
+  const r = await callApi(`${base}/speechtotext/transcriptions:transcribe?api-version=${ver}`, {
+    method: 'POST',
+    headers: { 'Ocp-Apim-Subscription-Key': key },
+    body: azBody(wav, idx)
+  }, 'Azure 轉錄');
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 300);
+    const e = new Error('Azure 轉錄 ' + r.status + '：' + body);
+    // 呢兩類代表組合唔啱，可以換下一個試；401/403 係金鑰問題，唔使再試
+    e.tryNext = r.status === 404 || (r.status === 400 && /api-?version|not found|invalid/i.test(body));
+    e.fatal = r.status === 401 || r.status === 403;
+    if (e.fatal) e.message = `Azure 認證失敗 (${r.status})。檢查金鑰同區域係咪對得上——資源喺邊個地區，區域就要填邊個。`;
+    throw e;
+  }
+  return azParse(await r.json());
+}
+
+async function azureTranscribe(wav, idx) {
+  const c = cfg();
+
+  if (AZ_WORKING) {
+    return azOnce(AZ_WORKING.base, AZ_WORKING.ver, wav, idx, c.kAzure);
+  }
+
+  const bases = azBases(c);
+  if (!bases.length) throw new Error('未填 Azure 資源名稱或者區域');
+
+  let lastErr;
+  for (const base of bases) {
+    for (const ver of AZ_API_VERSIONS) {
+      try {
+        const out = await azOnce(base, ver, wav, idx, c.kAzure);
+        AZ_WORKING = { base, ver };
+        log(`端點試通：${new URL(base).hostname} · ${ver}`);
+        return out;
+      } catch (e) {
+        lastErr = e;
+        if (e.fatal && !/連唔到/.test(e.message)) throw e;
+        continue;
+      }
+    }
+  }
+  throw lastErr;
+}
+
+async function withRetry(fn, times) {
+  let last;
+  for (let i = 0; i < times; i++) {
+    try { return await fn(); }
+    catch (e) {
+      last = e;
+      if (e.fatal) throw e;
+      if (i < times - 1) {
+        const wait = e.wait || 1500 * (i + 1);
+        log(`重試中（等 ${Math.round(wait / 1000)} 秒）… ` + e.message.slice(0, 120), 'err');
+        await sleep(wait);
+      }
+    }
+  }
+  throw last;
+}
+
+/* ══════════ 翻譯 + 分講者（Claude） ══════════ */
+/* 語氣。prompt 會插入系統提示，pitch 用喺 SSML 做輕微配合 */
+const TONES = {
+  lively: {
+    label: '生動活潑',
+    pitch: '+5%',
+    prompt: `語氣要生動活潑，好似兩個朋友興奮咁傾偈。
+- 短句為主，節奏明快，避免長氣嘅複句。
+- 語氣詞用得密啲：喎、囉、㗎喎、係咪先、嘩、哇。
+- 適當用感嘆同反問去提神，例如「你話幾誇張啊」「真係估你唔到」。
+- 但唔好誇張到失真，內容資訊要照樣準確。`
+  },
+  professional: {
+    label: '嚴肅專業',
+    pitch: '0%',
+    prompt: `語氣要嚴肅專業，似電台時事評論節目。
+- 用詞準確，句子完整，避免俚語同誇張表達。
+- 語氣詞減到最少，一段可能先用一個。
+- 保持廣東話口語文法（唔好變返書面中文），但語域偏正式。
+- 數字、機構名、專業術語一定要譯得準。`
+  },
+  curious: {
+    label: '好奇提問',
+    pitch: '+3%',
+    prompt: `語氣要好奇，似兩位主持一齊探索緊一個問題。
+- 多用確認同追問嘅講法：「即係話…」「噉即係點呢」「係咪即係…」「等等，噉…」
+- 原文係陳述句嘅時候，可以譯成帶疑問語氣嘅講法，但唔好改變意思。
+- 保持一種「我哋一齊諗緊」嘅感覺，唔好變成單向講解。`
+  },
+  warm: {
+    label: '溫和親切',
+    pitch: '-2%',
+    prompt: `語氣要溫和親切，似同熟人慢慢傾偈。
+- 節奏從容，句子唔好太急促。
+- 用軟化語氣嘅講法：「其實呢」「我覺得啦」「可能噉講會好啲」。
+- 講到人或者處境嘅時候帶關懷感，避免生硬批判嘅語氣。
+- 適合社福、健康、生活題材。`
+  },
+  faithful: {
+    label: '原汁原味',
+    pitch: '0%',
+    prompt: `語氣貼返原文，唔好額外加色彩。
+- 原文係輕鬆就譯得輕鬆，原文係嚴肅就譯得嚴肅。
+- 語氣詞按自然口語需要加，唔好刻意加多。`
+  }
+};
+function tone() { return TONES[cfg().mTone] || TONES.faithful; }
+
+const SYS_BASE = `你係香港電台配音組嘅資深編劇，專門將普通話對談節目改寫成地道廣東話對白，畀香港聽眾聽。
+
+⚠ 最重要嘅一點：你係「改寫」，唔係「翻譯」。
+唔好保留原文嘅句法骨架逐字換詞——噉樣出嚟一定係書面語。
+正確做法：睇完成句，理解佢想講乜，然後諗「一個香港人講呢個意思會點開口」，重新講一次。
+判斷標準：讀出嚟如果似新聞旁白、似書面文章，就係錯；似兩個香港人喺咖啡店傾偈，先啱。
+
+任務：收到一段普通話逐句文字稿，做兩件事。
+
+一、分辨講者
+節目係一男一女兩位主持輪流對談。標籤 A = 男主持，B = 女主持。
+如果句子前面已經有 [A] 或者 [B]，即係語音系統分好咗，一般照跟。
+但明顯錯亂就要改返啱——例如一問一答被標成同一個人。
+完全無標籤就靠問答關係、語氣、話題轉換推斷。
+同一個人通常連講兩三句先換人。開場白一般由 A 講起。
+
+二、改寫成香港口語
+
+【必改嘅書面語標記】呢啲字一出現就代表未改乾淨：
+的→嘅　是→係　不→唔　了→咗　在→喺　他/她→佢　們→哋　很→好　也→都
+沒有→冇　要不要→使唔使　可以→得/可以　這→呢　那→嗰　什麼→乜嘢/咩
+為什麼→點解　怎麼→點　現在→而家　知道→知　覺得→覺得/我諗
+一些→啲　非常→好/超　已經→已經/都　如果→如果/噉樣　但是→不過
+喜歡→鍾意　東西→嘢　時候→時候/陣　地方→地方　問題→問題
+應該→應該/都係　可能→可能/唔知係咪　開始→開始　完成→搞掂
+
+【句式亦要改，唔係淨係換字】
+「我認為這是一個非常重要的問題」
+　✘ 我認為呢個係一個非常重要嘅問題　（換咗字但句式仍然書面）
+　✔ 我覺得呢樣嘢好緊要
+
+「這項政策對他們的就業有正面影響」
+　✘ 呢項政策對佢哋嘅就業有正面影響
+　✔ 呢個政策對佢哋搵工幾有幫助
+
+「根據統計數據顯示，數字上升了兩成」
+　✘ 根據統計數據顯示，數字上升咗兩成
+　✔ 睇返啲數字，升咗兩成
+
+「我們需要更多的支援服務」
+　✘ 我哋需要更多嘅支援服務
+　✔ 我哋要多啲支援服務先得
+
+【語氣詞】自然加返：呀、㗎、喇、囉、喎、啦、嘞、㗎喎、係咪、啩、嘅啫
+一句最多一個，唔好每句都加，過量會假。
+
+【保留唔改】人名、機構名、數字、英文術語、專有名詞照原樣。
+
+【其他規則】
+- 一句對一句，唔好加新內容、唔好刪、唔好總結。
+- 全部用繁體字。
+- 原句係語氣詞或者碎音（「嗯」「對」「係啊」），照樣譯短句，唔好丟空。
+- 唔好將粗略嘅口語修飾到過分整齊——真人講嘢係會有重複同轉折嘅。
+
+輸出格式：淨係輸出一個 JSON array，唔好有任何解釋、唔好有 markdown 圍欄。
+每個元素：{"i":原句編號,"s":"A"或"B","t":"廣東話譯文"}
+數量必須同輸入句數完全一樣。`;
+
+/* 幾個示範，令模型睇到「改寫」同「換字」嘅分別 */
+const FEWSHOT_IN = `0. [A] 大家好，欢迎收听我们今天的节目。
+1. [A] 我们今天要讨论的是一个非常重要的话题。
+2. [B] 是的，我看完那份报告之后觉得挺震惊的。
+3. [B] 根据统计数据显示，参与培训计划的人数上升了两成。
+4. [A] 那么这对残疾人士的就业有什么样的实际影响呢？`;
+
+const FEWSHOT_OUT = `[{"i":0,"s":"A","t":"大家好，歡迎收聽我哋今日個節目。"},
+{"i":1,"s":"A","t":"我哋今日想傾嘅呢樣嘢，真係幾緊要。"},
+{"i":2,"s":"B","t":"係呀，我睇完份報告都幾震驚㗎。"},
+{"i":3,"s":"B","t":"睇返啲數字，參加培訓嘅人升咗兩成。"},
+{"i":4,"s":"A","t":"噉即係話，對殘疾人士搵工實際有咩幫助呢？"}]`;
+
+function sysPrompt() {
+  const t = tone();
+  return SYS_BASE + `\n\n三、語氣要求（${t.label}）\n` + t.prompt;
+}
+
+/* 書面語殘留偵測。呢啲字喺地道廣東話入面幾乎唔會出現，
+   出現得多就代表模型行返咗「逐字換詞」嘅路。 */
+const BOOKISH = [
+  ['的', /的/g], ['是', /是(?!但)/g], ['不', /不(?!過|如|妨|論|少)/g],
+  ['了', /了/g], ['很', /很/g], ['沒有', /沒有/g], ['我們', /我們/g],
+  ['他們', /他們/g], ['你們', /你們/g], ['這個', /這個/g], ['那個', /那個/g],
+  ['什麼', /什麼/g], ['怎麼', /怎麼/g], ['非常', /非常/g], ['因為.*所以', /因為[^，。]*所以/g]
+];
+
+function bookishScore(text) {
+  let hits = 0;
+  const found = [];
+  BOOKISH.forEach(([label, re]) => {
+    const m = String(text).match(re);
+    if (m) { hits += m.length; found.push(label + '×' + m.length); }
+  });
+  const chars = String(text).replace(/[^\u4e00-\u9fff]/g, '').length || 1;
+  return { rate: hits / chars, hits, found };
+}
+
+/* 統一錯誤判讀：分辨「冇錢」「認證錯」「撞速率」三類 */
+function providerError(status, body, pname) {
+  let e;
+  if (/credit balance|insufficient_quota|billing|exceeded your current quota|out of credit/i.test(body)) {
+    e = new Error(`${pname} 冇額度或者 credit 用完。換個供應商，或者去該平台增值。你嘅轉錄結果已保留，之後撳「重新翻譯」就得。`);
+    e.fatal = true;
+  } else if (status === 401 || status === 403) {
+    e = new Error(`${pname} 認證失敗 (${status})。檢查 API key 係咪貼漏或者貼錯咗。`);
+    e.fatal = true;
+  } else if (status === 404 || /not found|does not exist|no such model|invalid model/i.test(body)) {
+    e = new Error(`${pname} 揾唔到呢個模型。去設定改個啱嘅模型名——輸入框有下拉建議。`);
+    e.fatal = true;
+  } else if (status === 429) {
+    e = new Error(`${pname} 撞到速率限制 (429)，自動等一陣再試`);
+    e.wait = 35000;
+  } else {
+    e = new Error(`${pname} ${status}：${body}`);
+  }
+  return e;
+}
+
+async function askGoogle(model, key, sys, user, pname) {
+  // Gemini 2.5 係思考型模型，思考 token 同可見輸出共用 maxOutputTokens。
+  // 唔限制思考預算兼且額度細，個回應會變空白——係咁就會靜靜咁跌返原文。
+  // Pro 唔接受 thinkingBudget 0（會報錯），最低 128；Flash 可以直接關掉。
+  const cfgGen = {
+    maxOutputTokens: 32000,
+    temperature: 0.7,
+    thinkingConfig: { thinkingBudget: /pro/i.test(model) ? 256 : 0 }
+  };
+  const doPost = gen => callApi(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: sys }] },
+        contents: [
+          { role: 'user', parts: [{ text: '【要處理嘅句子】\n' + FEWSHOT_IN }] },
+          { role: 'model', parts: [{ text: FEWSHOT_OUT }] },
+          { role: 'user', parts: [{ text: user }] }
+        ],
+        generationConfig: gen
+      })
+    }, pname);
+
+  let r = await doPost(cfgGen);
+  if (!r.ok && r.status === 400) {
+    // 某啲模型／API 版本唔接受 thinkingConfig，會成個請求 400。除咗佢再試。
+    const body = await r.text();
+    if (/thinking|unknown field|invalid argument|unrecognized/i.test(body)) {
+      const { thinkingConfig, ...rest } = cfgGen;
+      r = await doPost(rest);
+    } else {
+      throw providerError(400, body.slice(0, 300), pname);
+    }
+  }
+  if (!r.ok) throw providerError(r.status, (await r.text()).slice(0, 300), pname);
+  const j = await r.json();
+  const cand = (j.candidates || [])[0];
+  if (!cand) {
+    const fb = j.promptFeedback ? JSON.stringify(j.promptFeedback) : JSON.stringify(j).slice(0, 200);
+    throw new Error(`${pname} 冇回覆內容：${fb}`);
+  }
+  const txt = ((cand.content && cand.content.parts) || []).map(p => p.text || '').join('');
+  const um = j.usageMetadata || {};
+  const think = um.thoughtsTokenCount || 0;
+  if (!txt) {
+    throw new Error(`${pname} 回覆空白（finishReason: ${cand.finishReason || '未知'}` +
+      (think ? `，思考用咗 ${think} token` : '') + '）。');
+  }
+  if (cand.finishReason && cand.finishReason !== 'STOP') {
+    throw new Error(`${pname} 回覆被截斷（finishReason: ${cand.finishReason}` +
+      (think ? `，思考用咗 ${think} token` : '') + '）');
+  }
+  return txt;
+}
+
+async function askOpenAICompat(baseUrl, model, key, sys, user, pname) {
+  const r = await callApi(baseUrl + '/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
+    body: JSON.stringify({
+      model, max_tokens: 8000, temperature: 0.7,
+      messages: [
+        { role: 'system', content: sys },
+        { role: 'user', content: '【要處理嘅句子】\n' + FEWSHOT_IN },
+        { role: 'assistant', content: FEWSHOT_OUT },
+        { role: 'user', content: user }
+      ]
+    })
+  }, pname);
+  if (!r.ok) throw providerError(r.status, (await r.text()).slice(0, 300), pname);
+  const j = await r.json();
+  return (((j.choices || [])[0] || {}).message || {}).content || '';
+}
+
+async function askAnthropic(model, key, sys, user, pname) {
+  const r = await callApi('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model, max_tokens: 8000, system: sys, temperature: 0.7,
+      messages: [
+        { role: 'user', content: '【要處理嘅句子】\n' + FEWSHOT_IN },
+        { role: 'assistant', content: FEWSHOT_OUT },
+        { role: 'user', content: user }
+      ]
+    })
+  }, pname);
+  if (!r.ok) throw providerError(r.status, (await r.text()).slice(0, 300), pname);
+  const j = await r.json();
+  return (j.content || []).map(c => c.text || '').join('');
+}
+
+async function translateBatch(batch, prevCtx, model, provider, key) {
+  const p = PROVIDERS[provider] || PROVIDERS.google;
+  const user =
+    (prevCtx ? `【前文參考，唔使譯】\n${prevCtx}\n\n` : '') +
+    `【要處理嘅句子】\n` +
+    batch.map(b => `${b.i}. ${b.spk ? '[' + b.spk + '] ' : ''}${b.text}`).join('\n');
+
+  const txt = await withRetry(async () => {
+    if (provider === 'google') return askGoogle(model, key, sysPrompt(), user, p.name);
+    if (provider === 'anthropic') return askAnthropic(model, key, sysPrompt(), user, p.name);
+    const base = provider === 'poe' ? 'https://api.poe.com/v1' : 'https://openrouter.ai/api/v1';
+    return askOpenAICompat(base, model, key, sysPrompt(), user, p.name);
+  }, 3);
+
+  let out = String(txt).trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+  const a = out.indexOf('['), b = out.lastIndexOf(']');
+  if (a >= 0 && b > a) out = out.slice(a, b + 1);
+  try {
+    return JSON.parse(out);
+  } catch (e) {
+    throw new Error('回覆解析唔到。原始開頭：' + String(txt).slice(0, 200));
+  }
+}
+
+/* 將模型回覆塞返落 out。模型嘅編號唔可信——可能係字串、
+   可能每批由 0 重新數，所以位置對應優先，編號只做後備。 */
+function absorb(res, batch, out) {
+  if (!Array.isArray(res) || !res.length) return { filled: 0, how: '回覆唔係陣列' };
+
+  const pick = r => String((r && (r.t != null ? r.t : r.text != null ? r.text : r.zh)) || '').trim();
+  const spk = r => (r && String(r.s || r.speaker || '').toUpperCase() === 'B') ? 'B' : 'A';
+
+  // 一、數量啱曬 → 直接按位置對應，最可靠
+  if (res.length === batch.length) {
+    let n = 0;
+    res.forEach((r, k) => {
+      const zh = pick(r);
+      if (zh) { out[batch[k].i] = { spk: spk(r), zh }; n++; }
+    });
+    return { filled: n, how: '位置對應' };
+  }
+
+  // 二、數量唔啱 → 靠編號，容許字串同「每批由 0 開始」兩種寫法
+  const base = batch[0].i;
+  const nums = res.map(r => Number(r && r.i)).filter(v => Number.isFinite(v));
+  const relative = nums.length && Math.max.apply(null, nums) < batch.length && base > 0;
+  let n = 0;
+  res.forEach(r => {
+    const raw = Number(r && r.i);
+    if (!Number.isFinite(raw)) return;
+    const idx = relative ? base + raw : raw;
+    const zh = pick(r);
+    if (zh && idx >= 0 && idx < out.length) { out[idx] = { spk: spk(r), zh }; n++; }
+  });
+  return { filled: n, how: relative ? '相對編號對應' : '絕對編號對應' };
+}
+
+async function translateAll(segs) {
+  const c = cfg();
+  const provider = c.pProvider || 'google';
+  const p = PROVIDERS[provider] || PROVIDERS.google;
+  const model = c.mModel || p.defModel;
+  const key = c[p.keyField];
+  let useModel = model;
+  if (!modelFits(provider, useModel)) {
+    log(`「${useModel}」唔係 ${p.name} 嘅模型，自動改用 ${p.defModel}`, 'err');
+    useModel = p.defModel;
+    $('mModel').value = useModel;
+    saveCfg();
+  }
+  const BATCH = 15;
+  const nBatch = Math.ceil(segs.length / BATCH);
+  const gap = batchGap();
+  log(`翻譯供應商：${p.name} · ${useModel} · 語氣：${tone().label}`);
+  if (nBatch > 1 && gap > 5000) {
+    const mins = Math.ceil(nBatch * gap / 60000);
+    log(`${segs.length} 句分 ${nBatch} 批，每批相隔 ${(gap / 1000).toFixed(0)} 秒遷就免費層限額，` +
+        `預計約 ${mins} 分鐘。`);
+  }
+  const out = new Array(segs.length).fill(null);
+  const failed = new Set();
+  let prevCtx = '';
+
+  for (let i = 0; i < segs.length; i += BATCH) {
+    const batch = segs.slice(i, i + BATCH).map((s, k) => ({ i: i + k, text: s.text, spk: s.spk }));
+    log(`翻譯第 ${i + 1}–${Math.min(i + BATCH, segs.length)} 句…`);
+    let res;
+    try {
+      res = await translateBatch(batch, prevCtx, useModel, provider, key);
+    } catch (e) {
+      if (e.fatal) throw e;
+      log('呢批失敗，保留原文：' + e.message.slice(0, 150), 'err');
+      batch.forEach(b => failed.add(b.i));
+      res = batch.map((b, k) => ({ i: b.i, s: b.spk || (k % 2 ? 'B' : 'A'), t: b.text }));
+    }
+    const info = absorb(res, batch, out);
+    if (info.filled < batch.length) {
+      log(`  ⚠ 呢批 ${batch.length} 句，只對應到 ${info.filled} 句（${info.how}）`, 'err');
+      if (!info.filled) log('  模型回覆：' + JSON.stringify(res).slice(0, 200), 'err');
+    }
+    prevCtx = res.slice(-3)
+      .map(r => `${r && r.s ? r.s : 'A'}：${(r && (r.t || r.text)) || ''}`).join('\n');
+    progress(Math.min(1, (i + BATCH) / segs.length));
+    if (i + BATCH < segs.length) await sleep(batchGap());
+  }
+
+  const done = out.filter(Boolean).length;
+  const same = segs.filter((s, i) => out[i] && out[i].zh.trim() === s.text.trim()).length;
+  log(`翻譯完成：${done}/${segs.length} 句成功` + (same ? `，其中 ${same} 句同原文一樣` : ''));
+
+  // 書面語體檢：地道廣東話幾乎唔會出現「的、是、不、了、我們」呢啲
+  const joined = out.filter(Boolean).map(o => o.zh).join('');
+  const bs = bookishScore(joined);
+  if (bs.rate > 0.02) {
+    log(`⚠ 譯文偏書面語（每 100 字有 ${(bs.rate * 100).toFixed(1)} 個書面語標記）`, 'err');
+    log(`  出現最多：${bs.found.slice(0, 6).join('、')}`, 'err');
+    log('  撳「用呢個語氣重譯」再試一次，或者用「測試翻譯」睇下實際錯誤。', 'err');
+  } else if (done) {
+    log(`✔ 口語化檢查通過（書面語標記 ${(bs.rate * 100).toFixed(1)}%）`);
+  }
+  if (done === 0) {
+    log('⚠ 一句都譯唔到，成份稿會係普通話原文。上面嘅錯誤訊息係主因。', 'err');
+  } else if (done < segs.length * 0.6 || same > done * 0.5) {
+    log('⚠ 譯得唔完整。可以撳「用呢個語氣重譯」再試一次。', 'err');
+  }
+
+  S.untranslated = failed.size + (segs.length - done);
+  return segs.map((s, i) => ({
+    start: s.start, end: s.end, orig: s.text,
+    zh: out[i] ? out[i].zh : s.text,
+    spk: out[i] ? out[i].spk : (s.spk || (i % 2 ? 'B' : 'A')),
+    raw: !out[i] || failed.has(i) || out[i].zh.trim() === s.text.trim()
+  }));
+}
+
+/* ══════════ 稿件編輯 ══════════ */
+function renderScript() {
+  const box = $('script');
+  box.innerHTML = '';
+  S.lines.forEach((ln, idx) => {
+    const row = document.createElement('div');
+    row.className = 'ln ' + ln.spk;
+    row.dataset.i = idx;
+    row.innerHTML =
+      `<div class="tc">${tc(ln.start)}</div>
+       <div class="body">
+         <div class="mini">
+           <button class="who">${ln.spk === 'A' ? '男 A' : '女 B'}</button>
+           <button class="prev" title="試聽呢句">▶</button>
+           <button class="prev flip" title="由呢句起全部調轉男女">⇅</button>
+         </div>
+         <textarea class="txt" rows="1"></textarea>
+         <div class="orig"></div>
+       </div>`;
+    const ta = row.querySelector('.txt');
+    ta.value = ln.zh;
+    if (ln.raw) {
+      row.classList.add('untranslated');
+      row.querySelector('.mini').insertAdjacentHTML('beforeend',
+        '<span class="flag bad" title="呢句冇譯到，仍然係普通話">未譯</span>');
+    } else if (bookishScore(ln.zh).rate > 0.03) {
+      row.classList.add('bookish');
+      row.querySelector('.mini').insertAdjacentHTML('beforeend',
+        '<span class="flag" title="呢句偏書面語">書面語</span>');
+    }
+    row.querySelector('.orig').textContent = '原：' + ln.orig;
+    ta.addEventListener('input', () => { autoGrow(ta); S.lines[idx].zh = ta.value; saveDoc(); });
+    row.querySelector('.who').addEventListener('click', () => {
+      S.lines[idx].spk = S.lines[idx].spk === 'A' ? 'B' : 'A';
+      row.className = 'ln ' + S.lines[idx].spk + (box.classList.contains('so') ? ' showorig' : '');
+      row.querySelector('.who').textContent = S.lines[idx].spk === 'A' ? '男 A' : '女 B';
+      saveDoc();
+    });
+    row.querySelector('.prev').addEventListener('click', e => previewLine(idx, e.target));
+    row.querySelector('.flip').addEventListener('click', () => {
+      for (let j = idx; j < S.lines.length; j++) S.lines[j].spk = S.lines[j].spk === 'A' ? 'B' : 'A';
+      saveDoc(); renderScript();
+    });
+    box.appendChild(row);
+    autoGrow(ta);
+  });
+  $('lineCount').textContent = S.lines.length + ' 句';
+
+  const raw = S.lines.filter(l => l.raw).length;
+  const bad = S.lines.filter(l => !l.raw && bookishScore(l.zh).rate > 0.03).length;
+  const alertBox = $('scriptAlert');
+  if (raw >= S.lines.length * 0.5) {
+    alertBox.className = 'warnbox';
+    alertBox.style.borderLeftColor = 'var(--bad)';
+    alertBox.innerHTML = `<b>⚠ ${raw} / ${S.lines.length} 句冇譯到，仍然係普通話原文。</b><br>
+      唔好落去合成——出嚟會係普通話。<br><br>
+      多數係模型回應失敗。睇返上一頁嘅紅色錯誤訊息，然後：<br>
+      · 設定 → 翻譯模型改做 <code>gemini-2.5-flash</code>（最穩陣）<br>
+      · 或者換個供應商<br>
+      改完撳「用呢個語氣重譯」。`;
+  } else if (raw) {
+    alertBox.className = 'warnbox';
+    alertBox.style.borderLeftColor = 'var(--warn)';
+    alertBox.innerHTML = `${raw} 句冇譯到（紅色標示），${bad ? `另外 ${bad} 句偏書面語（黃色標示）。` : ''}
+      撳「重譯有問題嘅句子」可以一次過修返。`;
+  } else if (bad) {
+    alertBox.className = 'warnbox';
+    alertBox.style.borderLeftColor = 'var(--warn)';
+    alertBox.innerHTML = `${bad} 句偏書面語（黃色標示）。撳「重譯有問題嘅句子」重譯呢啲句子。`;
+  } else {
+    alertBox.className = 'hidden';
+  }
+}
+function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+
+let saveTimer;
+function saveDoc() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(DOC_KEY, JSON.stringify(S.lines)); } catch (e) {}
+  }, 600);
+}
+
+/* ══════════ 語音合成（Azure） ══════════ */
+/* Azure 節流。F0 免費層每 60 秒只准 20 次，並發上限亦好低。 */
+const AZ_TIER = {
+  f0: { name: 'F0 免費層', gap: 3200, conc: 1, batch: 8 },
+  s0: { name: 'S0 標準層', gap: 120, conc: 3, batch: 12 }
+};
+function azTier() { return AZ_TIER[cfg().oTier] || AZ_TIER.f0; }
+
+let azNext = 0;
+async function azThrottle() {
+  const gap = azTier().gap;
+  const now = Date.now();
+  const wait = Math.max(0, azNext - now);
+  azNext = Math.max(now, azNext) + gap;
+  if (wait > 0) await sleep(wait);
+}
+
+function ssmlFor(line, c) {
+  const voice = line.spk === 'A' ? c.vA : c.vB;
+  const t = TONES[c.mTone] || TONES.faithful;
+  // zh-HK 神經語音唔支援 mstts:express-as 情緒風格，所以只用通用嘅 rate / pitch
+  const pitch = t.pitch && t.pitch !== '0%' ? ` pitch="${t.pitch}"` : '';
+  const brk = c.mTone === 'lively' ? 260 : c.mTone === 'warm' ? 480 : 380;
+  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-HK">` +
+    `<voice name="${voice}"><prosody rate="${c.mRate || '0%'}"${pitch}>${escXml(line.zh)}</prosody>` +
+    `<break time="${brk}ms"/></voice></speak>`;
+}
+
+/* 一個 <speak> 入面可以有多個 <voice>，Azure 會合成埋一條音檔。
+   純音檔模式唔需要逐句時長，所以可以噉樣慳好多請求。 */
+function ssmlBatch(lines, c) {
+  const t = TONES[c.mTone] || TONES.faithful;
+  const pitch = t.pitch && t.pitch !== '0%' ? ` pitch="${t.pitch}"` : '';
+  const brk = c.mTone === 'lively' ? 260 : c.mTone === 'warm' ? 480 : 380;
+  const body = lines.map(l =>
+    `<voice name="${l.spk === 'A' ? c.vA : c.vB}">` +
+    `<prosody rate="${c.mRate || '0%'}"${pitch}>${escXml(l.zh)}</prosody>` +
+    `<break time="${brk}ms"/></voice>`).join('');
+  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-HK">${body}</speak>`;
+}
+
+async function azPost(ssml, c) {
+  await azThrottle();
+  const r = await callApi(`https://${c.kAzureRegion}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+    method: 'POST',
+    headers: {
+      'Ocp-Apim-Subscription-Key': c.kAzure,
+      'Content-Type': 'application/ssml+xml',
+      'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3'
+    },
+    body: ssml
+  }, 'Azure 語音');
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 200);
+    const e = new Error(r.status === 429
+      ? `Azure 語音撞到速率限制，${azTier().name}每分鐘上限已到，放慢重試…`
+      : `Azure 語音 ${r.status}：${body}`);
+    if (r.status === 429) { e.wait = 30000; azNext = Date.now() + 30000; }
+    if (r.status === 401 || r.status === 403) e.fatal = true;
+    throw e;
+  }
+  return r.blob();
+}
+
+async function speakBatch(lines, c) {
+  return withRetry(() => azPost(ssmlBatch(lines, c), c), 4);
+}
+
+async function speak(line, c) {
+  return withRetry(() => azPost(ssmlFor(line, c), c), 4);
+}
+
+async function previewLine(idx, btn) {
+  const c = cfg();
+  const old = btn.textContent;
+  btn.textContent = '…';
+  try {
+    const blob = await speak(S.lines[idx], c);
+    const a = new Audio(URL.createObjectURL(blob));
+    a.play();
+  } catch (e) { alert('試聽失敗：' + e.message); }
+  btn.textContent = old;
+}
+
+async function synthesizeParts() {
+  const c = cfg();
+  const t = azTier();
+  const lines = S.lines.filter(l => l.zh.trim());
+  log(`逐句合成 ${lines.length} 句（${t.name}，並發 ${t.conc}，每 ${(t.gap / 1000).toFixed(1)} 秒一個）`);
+  if (t.gap * lines.length > 120000) {
+    log(`影片模式要逐句計時，唔可以合併請求，預計約 ${Math.ceil(t.gap * lines.length / 60000)} 分鐘。`);
+  }
+  const blobs = new Array(lines.length);
+  let done = 0;
+  const CONC = azTier().conc;
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < lines.length) {
+      const my = cursor++;
+      blobs[my] = await speak(lines[my], c);
+      done++;
+      progress(done / lines.length);
+      if (done % 5 === 0 || done === lines.length) log(`合成 ${done}/${lines.length} 句`);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(CONC, lines.length) }, worker));
+  return blobs;
+}
+
+/* 純音檔模式：一次過講幾句，請求數大減，先至頂得住免費層限額 */
+async function synthesizeBatched() {
+  const c = cfg();
+  const t = azTier();
+  const lines = S.lines.filter(l => l.zh.trim());
+  const groups = [];
+  for (let i = 0; i < lines.length; i += t.batch) groups.push(lines.slice(i, i + t.batch));
+  log(`${lines.length} 句合併成 ${groups.length} 個請求（${t.name}，每 ${(t.gap / 1000).toFixed(1)} 秒一個）`);
+
+  const out = [];
+  for (let g = 0; g < groups.length; g++) {
+    out.push(await speakBatch(groups[g], c));
+    progress((g + 1) / groups.length);
+    log(`合成 ${Math.min((g + 1) * t.batch, lines.length)}/${lines.length} 句`);
+  }
+  return out;
+}
+
+/* ══════════ 匯出 ══════════ */
+function exportTxt() {
+  const t = S.lines.map(l => `[${tc(l.start)}] ${l.spk === 'A' ? '男' : '女'}：${l.zh}`).join('\n');
+  download(new Blob([t], { type: 'text/plain;charset=utf-8' }), '廣東話稿.txt');
+}
+function exportSrt() {
+  download(new Blob([srtOriginal(S.lines, true)], { type: 'text/plain;charset=utf-8' }),
+    '廣東話字幕.srt');
+}
+
+/* ══════════ 流程 ══════════ */
+function checkKeys(need) {
+  const c = cfg();
+  const miss = need.filter(k => !c[k]);
+  if (miss.length) { show('cardCfg', true); alert('請先填 API 金鑰'); return false; }
+  return true;
+}
+
+async function runFromAudio() {
+  const need = cfg().mSTT === 'azure-fast'
+    ? ['kAzure', 'kAzureName', prov().keyField]
+    : ['kOpenAI', prov().keyField];
+  if (!checkKeys(need)) return;
+  show('card1', false); show('cardWork', true);
+  $('log').innerHTML = '';
+  try {
+    stage(2); $('workTitle').textContent = '轉錄普通話'; progress(0);
+    let src = S.file;
+    if (S.isVideo) {
+      if (MUX.ffmpeg) {
+        src = await extractAudioFromVideo(S.file);
+        S.videoUploaded = true;
+      } else {
+        log('冇 ffmpeg，改用瀏覽器直接解碼影片嘅音軌…', 'err');
+        log(muxHelp(), 'err');
+        log('（照樣可以出廣東話音檔同字幕檔，只係唔可以自動配返落原片）');
+      }
+    }
+    S.segments = await transcribe(src);
+    if (!S.segments.length) throw new Error('轉錄唔到內容，檢查下音檔');
+    await runTranslate();
+  } catch (e) {
+    log('停低咗：' + e.message, 'err');
+  }
+}
+
+async function runTranslate() {
+  stage(3); $('workTitle').textContent = '翻譯成廣東話'; progress(0);
+  // 先用原文墊底存起，就算翻譯中途死都唔會白轉錄一次
+  S.lines = S.segments.map(s => ({
+    start: s.start, end: s.end, orig: s.text, zh: s.text, spk: s.spk || 'A'
+  }));
+  saveDoc();
+  try {
+    S.lines = await translateAll(S.segments);
+  } catch (e) {
+    log(e.message, 'err');
+    log('轉錄結果已保留。增值之後喺下面撳「重新翻譯」即可，唔使再轉錄。');
+  }
+  saveDoc();
+  stage(4);
+  show('cardWork', false); show('cardScript', true);
+  renderScript();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* 由現有稿件嘅原文重新翻譯一次，唔使再轉錄 */
+async function retranslate() {
+  if (!checkKeys([prov().keyField])) return;
+  if (!S.lines.length) return;
+  S.segments = S.lines.map(l => ({ start: l.start, end: l.end, text: l.orig, spk: l.spk }));
+  show('cardScript', false); show('cardWork', true);
+  $('log').innerHTML = '';
+  await runTranslate();
+}
+
+async function runSynth() {
+  if (!checkKeys(['kAzure', 'kAzureRegion'])) return;
+  stage(5);
+  show('cardScript', false); show('cardWork', true);
+  $('log').innerHTML = ''; $('workTitle').textContent = '合成粵語語音'; progress(0);
+  try {
+    let blobs = S.isVideo ? await synthesizeParts() : await synthesizeBatched();
+
+    if (S.isVideo) {
+      $('workTitle').textContent = '對齊時間軸';
+      progress(0);
+      const spoken = S.lines.filter(l => l.zh.trim());
+      const vdur = S.duration || 0;
+      const mode = cfg().oLen || 'fit';
+      if (mode === 'fit') blobs = await fitToSlots(blobs, spoken, cfg(), vdur);
+
+      const tl = await buildTimeline(blobs, spoken, vdur);
+      S.timelineWav = tl.wav;
+      S.audioOverrun = Math.max(0, tl.drift);
+
+      log(`影片 ${tc(vdur)} · 語音自然長度 ${tc(tl.dur)} · 輸出音軌 ${tc(tl.rendered)}`);
+      if (tl.pushed) log(`${tl.pushed} 句因為廣東話講耐咗而順延`);
+
+      if (mode === 'fit') {
+        if (tl.cut) {
+          log(`⚠ 壓縮到上限仍然超出 ${tl.drift.toFixed(1)} 秒，尾段被裁走。` +
+              `可以改用「延長影片」，或者喺設定加快整體語速。`, 'err');
+        } else {
+          log('✔ 音軌長度已經等於影片');
+        }
+      } else if (mode === 'extend' && tl.drift > 0.2) {
+        log(`音軌長 ${tl.drift.toFixed(1)} 秒，合成時會凍結最後一格補足`);
+      } else if (mode === 'free' && tl.drift > 1.5) {
+        log(`⚠ 音軌比影片長 ${tl.drift.toFixed(1)} 秒，合成時尾段會被裁走`, 'err');
+      }
+    }
+
+    const blob = new Blob(blobs, { type: 'audio/mpeg' });
+    if (S.outUrl) URL.revokeObjectURL(S.outUrl);
+    S.outUrl = URL.createObjectURL(blob);
+    S.outBlob = blob;
+    $('outAudio').src = S.outUrl;
+    show('cardWork', false); show('cardOut', true);
+    show('videoOpts', !!S.isVideo);
+    show('muxBlocked', !!(S.isVideo && !MUX.ffmpeg));
+    if (S.isVideo && !MUX.ffmpeg) $('muxBlockedMsg').textContent = muxHelp();
+    log('完成');
+  } catch (e) {
+    log('合成失敗：' + e.message, 'err');
+    show('cardScript', true);
+  }
+}
+
+/* ══════════ 事件綁定 ══════════ */
+function init() {
+  loadCfg();
+  Promise.all([detectProxy(), detectMux()]).then(envCheck);
+  CFG_FIELDS.forEach(f => $(f).addEventListener('change', saveCfg));
+  $('pProvider').addEventListener('change', () => {
+    const pv = $('pProvider').value;
+    if (!modelFits(pv, $('mModel').value)) $('mModel').value = PROVIDERS[pv].defModel;
+    refreshModelList();
+    saveCfg();
+  });
+
+  $('btnCfg').addEventListener('click', () => {
+    const c = $('cardCfg');
+    c.classList.toggle('hidden');
+    if (!c.classList.contains('hidden')) c.scrollIntoView({ behavior: 'smooth' });
+  });
+  $('btnSaveCfg').addEventListener('click', () => { saveCfg(); show('cardCfg', false); });
+  $('btnTestTrans').addEventListener('click', async () => {
+    const out = $('testTransOut');
+    out.classList.remove('hidden');
+    out.textContent = '測試緊…（譯一句：「你有沒有過這種感覺？」）';
+    const c = cfg();
+    const p = prov();
+    if (!c[p.keyField]) { out.textContent = '未填 ' + p.name + ' 嘅 API key。'; return; }
+    try {
+      const res = await translateBatch(
+        [{ i: 0, text: '你有沒有過這種感覺？我們今天要來聊一種很不一樣的生活方式。', spk: 'A' }],
+        '', c.mModel || p.defModel, c.pProvider || 'google', c[p.keyField]);
+      const t = res && res[0] && (res[0].t || res[0].text);
+      out.innerHTML = t
+        ? `<b style="color:var(--voiceA)">✔ 翻譯正常</b><br>譯文：${t}<br><br>` +
+          `如果稿件仲係普通話，去校對頁撳「用呢個語氣重譯」。`
+        : `<b style="color:var(--bad)">✘ 有回應但解析唔到</b><br>` + JSON.stringify(res).slice(0, 300);
+    } catch (e) {
+      out.innerHTML = `<b style="color:var(--bad)">✘ 翻譯失敗</b><br>完整錯誤：<br>` +
+        `<span style="font-family:var(--mono);font-size:12px">${String(e.message).replace(/</g, '&lt;')}</span><br><br>` +
+        `將呢段錯誤原文貼返俾開發者就可以對症。`;
+    }
+  });
+
+  const drop = $('drop'), fileIn = $('fileIn');
+  drop.addEventListener('click', () => fileIn.click());
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('hot'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('hot'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault(); drop.classList.remove('hot');
+    if (e.dataTransfer.files[0]) takeFile(e.dataTransfer.files[0]);
+  });
+  fileIn.addEventListener('change', () => { if (fileIn.files[0]) takeFile(fileIn.files[0]); });
+
+  $('btnGo').addEventListener('click', runFromAudio);
+  $('engineNow').addEventListener('click', () => {
+    const c = $('cardCfg');
+    c.classList.remove('hidden');
+    c.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  $('btnPaste').addEventListener('click', () => $('pasteWrap').classList.toggle('hidden'));
+  $('btnPasteGo').addEventListener('click', async () => {
+    if (!checkKeys([prov().keyField])) return;
+    const rows = $('pasteTxt').value.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!rows.length) { alert('未有文字'); return; }
+    S.segments = rows.map((t, i) => ({ start: i * 4, end: i * 4 + 4, text: t }));
+    show('card1', false); show('cardWork', true); $('log').innerHTML = '';
+    try { await runTranslate(); } catch (e) { log('停低咗：' + e.message, 'err'); }
+  });
+
+  $('btnOrig').addEventListener('click', () => {
+    const box = $('script');
+    box.classList.toggle('so');
+    const on = box.classList.contains('so');
+    box.querySelectorAll('.ln').forEach(r => r.classList.toggle('showorig', on));
+    $('btnOrig').textContent = on ? '收起原文' : '顯示原文';
+  });
+  $('btnFixBookish').addEventListener('click', async () => {
+    const bad = [];
+    S.lines.forEach((l, i) => {
+      if (l.raw || bookishScore(l.zh).rate > 0.03) bad.push(i);
+    });
+    if (!bad.length) { alert('冇偵測到未譯或者書面語嘅句子。'); return; }
+
+    const c0 = cfg();
+    const cur = c0.mModel || prov().defModel;
+    if (!confirm(`${bad.length} 句有問題（未譯或者偏書面語），用 ${cur} 重譯呢啲句子？\n（其他句子唔會變）`)) return;
+
+    if (!checkKeys([prov().keyField])) return;
+    show('cardScript', false); show('cardWork', true);
+    $('log').innerHTML = ''; $('workTitle').textContent = '重譯書面語句子'; progress(0);
+
+    const c = cfg();
+    const p = PROVIDERS[c.pProvider || 'google'] || PROVIDERS.google;
+    const model = c.mModel || p.defModel;
+    const key = c[p.keyField];
+    const BATCH = 15;
+    let fixed = 0;
+    log(`用 ${model} 重譯 ${bad.length} 句`);
+
+    try {
+      for (let k = 0; k < bad.length; k += BATCH) {
+        const idxs = bad.slice(k, k + BATCH);
+        const batch = idxs.map(i => ({ i, text: S.lines[i].orig, spk: S.lines[i].spk }));
+        log(`重譯 ${k + 1}–${Math.min(k + BATCH, bad.length)} / ${bad.length} 句…`);
+        const res = await translateBatch(batch, '', model, c.pProvider || 'google', key);
+        if (Array.isArray(res) && res.length === batch.length) {
+          res.forEach((r, n) => {
+            const t = String((r && (r.t || r.text)) || '').trim();
+            if (!t) return;
+            const L = S.lines[idxs[n]];
+            const before = L.raw ? Infinity : bookishScore(L.zh).rate;
+            if (bookishScore(t).rate <= before) { L.zh = t; L.raw = false; fixed++; }
+          });
+        }
+        progress(Math.min(1, (k + BATCH) / bad.length));
+        if (k + BATCH < bad.length) {
+          const rpm = /pro/i.test(model) ? 5 : /flash-lite/i.test(model) ? 15 : 10;
+          await sleep(Math.ceil(60000 / rpm) + 1000);
+        }
+      }
+      log(`完成，改善咗 ${fixed} 句`);
+    } catch (e) {
+      log('重譯失敗：' + e.message, 'err');
+    }
+    saveDoc();
+    show('cardWork', false); show('cardScript', true);
+    renderScript();
+  });
+
+  $('btnToTrad').addEventListener('click', () => {
+    let n = 0;
+    S.lines.forEach(l => {
+      const o = toTraditional(l.orig), z = toTraditional(l.zh);
+      if (o !== l.orig || z !== l.zh) n++;
+      l.orig = o; l.zh = z;
+    });
+    saveDoc(); renderScript();
+    alert(n ? `${n} 句已轉做繁體。` : '本身已經全部係繁體。');
+  });
+  $('btnExportTxt').addEventListener('click', exportTxt);
+  $('btnExportSrt').addEventListener('click', exportSrt);
+  // 校對頁嘅語氣選單同設定嗰個係同一個值
+  const t2 = $('mTone2');
+  Object.keys(TONES).forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = TONES[k].label;
+    t2.appendChild(o);
+  });
+  const syncTone = from => {
+    const v = from.value;
+    $('mTone').value = v; t2.value = v;
+    saveCfg();
+  };
+  t2.addEventListener('change', () => syncTone(t2));
+  $('mTone').addEventListener('change', () => syncTone($('mTone')));
+  t2.value = $('mTone').value;
+
+  $('btnRetrans').addEventListener('click', retranslate);
+  $('btnSynth').addEventListener('click', () => {
+    const raw = S.lines.filter(l => l.raw).length;
+    if (raw >= S.lines.length * 0.3) {
+      if (!confirm(`${raw} / ${S.lines.length} 句仲係普通話原文，合成出嚟會用粵語聲讀普通話。\n\n` +
+                   `建議先修好翻譯。真係要繼續？`)) return;
+    }
+    runSynth();
+  });
+  $('btnDl').addEventListener('click', () => {
+    if (S.outBlob) download(S.outBlob, '廣東話配音.mp3');
+  });
+  $('btnMux').addEventListener('click', runVideoMux);
+  $('btnRedetect').addEventListener('click', async () => {
+    await detectMux();
+    envCheck();
+    show('muxBlocked', !MUX.ffmpeg);
+    $('muxBlockedMsg').textContent = muxHelp();
+    if (MUX.ffmpeg) alert('偵測到 ffmpeg，可以撳「產生影片」喇。');
+  });
+  $('btnDlSrt2').addEventListener('click', () => {
+    download(new Blob([srtOriginal(S.lines)], { type: 'text/plain;charset=utf-8' }), '字幕.srt');
+  });
+  $('btnDlVideo').addEventListener('click', () => {
+    if (S.outVideo) download(S.outVideo, '廣東話配音.mp4');
+  });
+  $('btnDlSrt').addEventListener('click', () => {
+    download(new Blob([srtOriginal(S.lines)], { type: 'text/plain;charset=utf-8' }), '字幕.srt');
+  });
+  $('btnRedo').addEventListener('click', () => {
+    show('cardOut', false); show('cardScript', true); stage(4);
+  });
+
+  // 復原上次未完成嘅稿
+  try {
+    const saved = JSON.parse(localStorage.getItem(DOC_KEY) || 'null');
+    if (saved && saved.length) {
+      const meta = $('fileMeta');
+      meta.classList.remove('hidden');
+      meta.innerHTML = `上次有 ${saved.length} 句未處理完 · <a href="#" id="resume">繼續校對</a>`;
+      $('resume').addEventListener('click', e => {
+        e.preventDefault();
+        S.lines = saved;
+        show('card1', false); show('cardScript', true);
+        stage(4); renderScript();
+      });
+    }
+  } catch (e) {}
+}
+
+function takeFile(f) {
+  S.file = f;
+  S.isVideo = /^video\//.test(f.type) || /\.(mp4|mov|webm|mkv|m4v)$/i.test(f.name);
+  S.videoUploaded = false;
+  const meta = $('fileMeta');
+  meta.classList.remove('hidden');
+  const size = (f.size / 1048576).toFixed(1);
+  meta.textContent = `${f.name} · ${size} MB`;
+  $('btnGo').disabled = false;
+
+  const el = S.isVideo ? document.createElement('video') : new Audio();
+  el.preload = 'metadata';
+  el.src = URL.createObjectURL(f);
+  el.addEventListener('loadedmetadata', () => {
+    S.duration = el.duration;
+    meta.textContent = `${S.isVideo ? '影片' : '音檔'} · ${f.name} · ${tc(el.duration)} · ${size} MB`;
+    if (S.isVideo && !MUX.ffmpeg) {
+      meta.innerHTML += '<br><span style="color:var(--warn)">部機未有 ffmpeg，影片合成用唔到。' +
+        '仍然可以出廣東話音檔同字幕檔。</span>';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+/* ══════════════════════════════════════════════════════════
+   影片模式：抽音 → 走原有管線 → 時間軸對齊 → 合成返落原片
+   ══════════════════════════════════════════════════════════ */
+let MUX = { state: 'unknown', ffmpeg: false };
+const SID = 'v' + Math.random().toString(36).slice(2, 12);
+
+async function detectMux() {
+  try {
+    const r = await fetch('/mux/health', { cache: 'no-store' });
+    if (!r.ok) {
+      MUX = { state: 'old-server', ffmpeg: false };
+    } else {
+      const j = await r.json();
+      MUX = { state: j.ffmpeg ? 'ok' : 'no-ffmpeg', ffmpeg: !!j.ffmpeg, version: j.version };
+    }
+  } catch (e) {
+    MUX = { state: 'no-server', ffmpeg: false };
+  }
+  const label = {
+    ok: '影片合成：可用',
+    'no-ffmpeg': '影片合成：未裝 ffmpeg',
+    'old-server': '影片合成：serve.py 要更新',
+    'no-server': '影片合成：serve.py 未行'
+  }[MUX.state] || '影片合成：—';
+  const el = $('muxNow');
+  if (el) {
+    el.textContent = label;
+    el.style.color = MUX.ffmpeg ? 'var(--voiceA)' : 'var(--warn)';
+    el.title = MUX.version || '';
+  }
+}
+
+function muxHelp() {
+  return {
+    'no-ffmpeg': '部機未裝 ffmpeg。Windows 行 winget install Gyan.FFmpeg，Mac 行 brew install ffmpeg，裝完重開 serve.py。',
+    'old-server': '你行緊嘅 serve.py 係舊版，冇影片功能。換返新嗰個 serve.py 再重開。',
+    'no-server': 'serve.py 未行起。喺檔案資料夾行 python3 serve.py，再開 localhost:8000。',
+    unknown: '未偵測到本機伺服器狀態。'
+  }[MUX.state] || '';
+}
+
+async function uploadPart(name, blob) {
+  const r = await fetch(`/upload?session=${SID}&name=${name}`, { method: 'POST', body: blob });
+  if (!r.ok) throw new Error(`上載 ${name} 失敗：` + (await r.text()).slice(0, 200));
+}
+
+/* 由影片抽 16k 單聲道音軌，交返瀏覽器行原有嘅切段流程 */
+async function extractAudioFromVideo(file) {
+  log('上載影片到本機伺服器…');
+  await uploadPart('video', file);
+  log('用 ffmpeg 抽取音軌…');
+  const r = await fetch(`/extract?session=${SID}`, { method: 'POST' });
+  if (!r.ok) throw new Error('抽取音軌失敗：' + (await r.text()).slice(0, 200));
+  const wav = await r.blob();
+  log(`抽到 ${(wav.size / 1048576).toFixed(1)}MB 音軌`);
+  return new File([wav], 'extracted.wav', { type: 'audio/wav' });
+}
+
+/* ── 字幕斷行 ─────────────────────────────────────────
+   中文冇空格，可以任何位置斷，但喺標點後斷最順眼。
+   小數點同千分位唔可以當標點，否則 23.5% 會斷成兩橛。 */
+function isBreakAt(t, i) {
+  const ch = t[i];
+  if (/[，。！？、；：…!?;:]/.test(ch)) return true;
+  if (ch === '.' || ch === ',') {
+    return !(/\d/.test(t[i - 1] || '') && /\d/.test(t[i + 1] || ''));
+  }
+  return false;
+}
+
+function wrapCJK(text, perLine) {
+  const t = String(text).replace(/\s+/g, ' ').trim();
+  if (!t) return [];
+  const segs = [];
+  let cur = '';
+  for (let i = 0; i < t.length; i++) {
+    cur += t[i];
+    if (isBreakAt(t, i)) { segs.push(cur); cur = ''; }
+  }
+  if (cur) segs.push(cur);
+
+  const lines = [];
+  let line = '';
+  for (let seg of segs) {
+    while (seg.length > perLine) {
+      if (line) { lines.push(line); line = ''; }
+      lines.push(seg.slice(0, perLine));
+      seg = seg.slice(perLine);
+      // 硬斷之後唔好留個標點喺下一行開頭
+      while (seg && /^[，。！？、；：…,.!?;:%）」』]/.test(seg[0]) && lines.length) {
+        lines[lines.length - 1] += seg[0];
+        seg = seg.slice(1);
+      }
+    }
+    if (!seg) continue;
+    if (!line) line = seg;
+    else if (line.length + seg.length <= perLine) line += seg;
+    else { lines.push(line); line = seg; }
+  }
+  if (line) lines.push(line);
+
+  // 尾巴太短就併返上一行，好過孤零零佔一格
+  if (lines.length > 1 && lines[lines.length - 1].length <= 4) {
+    const tail = lines.pop();
+    if (lines[lines.length - 1].length + tail.length <= perLine + 4) {
+      lines[lines.length - 1] += tail;
+    } else lines.push(tail);
+  }
+  return lines;
+}
+
+/* 一句拆成若干字幕格：每格最多兩行，時間按字數分配，唔會撞落下一句 */
+function toCues(text, start, end, limit, perLine, maxLines) {
+  const lines = wrapCJK(text, perLine);
+  if (!lines.length) return [];
+  const groups = [];
+  for (let i = 0; i < lines.length; i += maxLines) groups.push(lines.slice(i, i + maxLines));
+
+  const hardEnd = Math.max(start + 0.8,
+    Math.min(end > start ? end : start + 2.5, (limit || Infinity) - 0.05));
+  const span = hardEnd - start;
+  const total = groups.reduce((a, g) => a + g.join('').length, 0) || 1;
+  const cues = [];
+  let t = start;
+  groups.forEach((g, i) => {
+    let e = i === groups.length - 1 ? hardEnd : t + span * (g.join('').length / total);
+    if (e - t < 0.7) e = Math.min(hardEnd, t + 0.7);
+    cues.push({ start: t, end: e, text: g.join('\n') });
+    t = e;
+  });
+  return cues;
+}
+
+/* 字幕用返普通話原文，時間碼用轉錄嗰陣嘅原始時間 */
+function srtOriginal(lines, useZh) {
+  if (useZh === undefined) useZh = cfg().oSubSrc === 'zh';
+  const perLine = parseInt(cfg().oSubLen, 10) || 20;
+  const trad = cfg().oScript !== 'simp';
+  const out = [];
+  lines.forEach((l, i) => {
+    let txt = useZh ? l.zh : l.orig;
+    if (!txt || !txt.trim()) return;
+    if (trad) txt = toTraditional(txt);
+    const limit = i + 1 < lines.length ? lines[i + 1].start : Infinity;
+    toCues(txt, l.start, l.end, limit, perLine, 2)
+      .forEach(c => out.push(c));
+  });
+  return out.map((c, i) =>
+    `${i + 1}\n${srtTime(c.start)} --> ${srtTime(c.end)}\n${c.text}\n`).join('\n');
+}
+
+/* 逐句擺返原本嘅時間點。廣東話講耐咗就順延，遇到原片嘅停頓位會自動追返。 */
+async function buildTimeline(blobs, lines, totalSec) {
+  const RATE = 24000;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const dec = new AC({ sampleRate: RATE });
+
+  log('解碼語音片段…');
+  const bufs = [];
+  for (let i = 0; i < blobs.length; i++) {
+    bufs.push(await dec.decodeAudioData(await blobs[i].arrayBuffer()));
+    if (i % 40 === 39) progress(i / blobs.length * 0.5);
+  }
+  try { dec.close(); } catch (e) {}
+
+  // 先算擺位，先知總長度
+  const plan = [];
+  let cursor = 0, pushed = 0;
+  for (let i = 0; i < bufs.length; i++) {
+    const at = Math.max(lines[i].start, cursor);
+    if (at > lines[i].start + 0.05) pushed++;
+    plan.push(at);
+    cursor = at + bufs[i].duration;
+  }
+  const strict = cfg().oLen === 'fit' && totalSec > 0;
+  const need = strict ? totalSec : Math.max(totalSec, cursor) + 0.4;
+
+  log('混音到時間軸…');
+  const ctx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(
+    1, Math.ceil(need * RATE), RATE);
+  bufs.forEach((b, i) => {
+    const s = ctx.createBufferSource();
+    s.buffer = b;
+    s.connect(ctx.destination);
+    s.start(plan[i]);
+  });
+  const out = await ctx.startRendering();
+  progress(1);
+
+  const rendered = out.length / RATE;
+  return {
+    wav: encodeWav(out.getChannelData(0), RATE),
+    drift: cursor - totalSec, pushed,
+    dur: cursor, rendered, cut: strict && cursor > totalSec + 0.05
+  };
+}
+
+/* 每句真正可用嘅空間：由自己開始，去到下一句開始為止（包埋中間停頓） */
+function slotOf(lines, i, total) {
+  const next = i + 1 < lines.length ? lines[i + 1].start : (total || lines[i].end || 0);
+  return Math.max(0.3, next - lines[i].start - 0.08);
+}
+
+async function measure(blobs) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const dec = new AC({ sampleRate: 24000 });
+  const out = [];
+  for (const b of blobs) {
+    const ab = await b.arrayBuffer();
+    out.push((await dec.decodeAudioData(ab.slice(0))).duration);
+  }
+  try { dec.close(); } catch (e) {}
+  return out;
+}
+
+/* 超出槽位嘅句子加快語速重合成。行兩轉，因為 Azure 嘅實際加速同要求值有出入。 */
+async function fitToSlots(blobs, lines, c, total, cap) {
+  cap = cap || 0.5;
+  for (let pass = 1; pass <= 2; pass++) {
+    const durs = await measure(blobs);
+    const fixes = [];
+    durs.forEach((d, i) => {
+      const slot = slotOf(lines, i, total);
+      if (d > slot * 1.02) {
+        const need = Math.min(cap, d / slot - 1);
+        if (need > 0.03) fixes.push({ i, pct: Math.round(need * 100) });
+      }
+    });
+    if (!fixes.length) {
+      log(pass === 1 ? '全部句子啱槽位，唔使調整' : '第二轉之後全部啱曬');
+      return blobs;
+    }
+    log(`第 ${pass} 轉：${fixes.length} 句超出槽位，加快語速重新合成…`);
+    let n = 0;
+    for (const f of fixes) {
+      const base = parseInt(c.mRate, 10) || 0;
+      const cc = Object.assign({}, c, { mRate: (base + f.pct >= 0 ? '+' : '') + (base + f.pct) + '%' });
+      try { blobs[f.i] = await speak(lines[f.i], cc); } catch (e) {}
+      if (++n % 15 === 0) { log(`  ${n}/${fixes.length}`); progress(n / fixes.length); }
+    }
+  }
+  return blobs;
+}
+
+async function runVideoMux() {
+  if (!MUX.ffmpeg) {
+    await detectMux();
+    if (!MUX.ffmpeg) { alert(muxHelp()); return; }
+  }
+  const burn = $('oBurn').value;
+  const bg = parseInt($('oBg').value, 10) || 0;
+  show('cardOut', false); show('cardWork', true);
+  $('log').innerHTML = ''; $('workTitle').textContent = '合成影片'; progress(0);
+  try {
+    if (burn !== 'none') {
+      log('上載字幕（普通話原文）…');
+      await uploadPart('srt', new Blob([srtOriginal(S.lines)], { type: 'text/plain;charset=utf-8' }));
+    }
+    log('上載廣東話音軌…');
+    await uploadPart('audio', S.timelineWav);
+    if (!S.videoUploaded) { log('上載影片…'); await uploadPart('video', S.file); S.videoUploaded = true; }
+
+    log(burn === 'burn' ? '合成中（燒錄字幕要重新編碼，慢啲）…' : '合成中…');
+    progress(0.5);
+    const extend = cfg().oLen === 'extend' && S.audioOverrun > 0.2 ? 1 : 0;
+    if (extend) log('影片會延長，需要重新編碼，慢啲…');
+    const r = await fetch(
+      `/mux?session=${SID}&burn=${burn === 'burn' ? 1 : 0}&bg=${bg}&extend=${extend}`,
+      { method: 'POST' });
+    if (!r.ok) throw new Error((await r.text()).slice(0, 400));
+    const mp4 = await r.blob();
+    progress(1);
+    S.outVideo = mp4;
+    if (S.videoUrl) URL.revokeObjectURL(S.videoUrl);
+    S.videoUrl = URL.createObjectURL(mp4);
+    $('outVideo').src = S.videoUrl;
+    log(`完成 · ${(mp4.size / 1048576).toFixed(1)}MB`);
+    show('cardWork', false); show('cardOut', true); show('videoBox', true);
+  } catch (e) {
+    log('合成失敗：' + e.message, 'err');
+    show('cardWork', false); show('cardOut', true);
+  }
+}
+
+/* ══════════ 環境自檢：最常撞嘅係開錯網址 ══════════ */
+function envCheck() {
+  const box = $('envWarn');
+  if (!box) return;
+  const where = location.protocol === 'file:'
+    ? location.href.split('/').slice(0, -1).join('/') + '/'
+    : location.origin;
+  let msg = '';
+
+  const local = /^(localhost|127\.0\.0\.1|\[::1\]|.*\.local)$/i.test(location.hostname);
+
+  if (location.protocol === 'file:') {
+    msg = `<b>你係直接開檔案，唔係經本機伺服器。</b><br>
+      目前網址：<code>${where}</code><br><br>
+      噉樣所有 API 呼叫、代理同影片功能都會失效。<br>
+      解決：喺檔案資料夾行 <code>python3 serve.py</code>，然後喺瀏覽器輸入
+      <code>http://localhost:8000</code>，喺嗰度開返呢一頁。`;
+  } else if (!local && !PROXY) {
+    msg = `<b>呢個 app 唔係設計嚟部署上網嘅。</b><br>
+      目前網址：<code>${where}</code><br><br>
+      靜態網頁寄存（GitHub Pages、Vercel、Netlify 等）冇 Python 亦冇 ffmpeg，所以：<br>
+      · 影片功能完全用唔到<br>
+      · API 呼叫冇代理，好可能被 CORS 擋<br><br>
+      正確用法係下載返部機，同 <code>serve.py</code> 擺埋一齊，行
+      <code>python3 serve.py</code> 再開 <code>http://localhost:8000</code>。<br>
+      GitHub 適合用嚟存放同分享程式碼，唔適合直接運行。`;
+  } else if (MUX.state === 'no-server' && !PROXY) {
+    msg = `<b>連唔到 serve.py。</b><br>
+      呢一頁嘅網址係 <code>${where}</code>。<br><br>
+      serve.py 啟動嗰陣印住邊個埠，就要開嗰個網址。預設係
+      <code>http://localhost:8000</code>。<br>
+      如果你用緊 VS Code Live Server 或者其他伺服器，換返去 serve.py 嗰個。`;
+  } else if (MUX.state === 'old-server') {
+    msg = `<b>serve.py 係舊版。</b><br>目前網址 <code>${where}</code> 有伺服器回應，
+      但冇影片端點。換返新嗰個 serve.py 再重開。`;
+  } else if (MUX.state === 'no-ffmpeg') {
+    msg = `<b>serve.py 行緊，但揾唔到 ffmpeg。</b><br>
+      Windows 用 <code>winget install Gyan.FFmpeg</code>，Mac 用 <code>brew install ffmpeg</code>。<br>
+      裝完要開<b>新嘅終端機視窗</b>再行 serve.py，舊視窗食唔到新 PATH。`;
+  }
+
+  box.innerHTML = msg;
+  box.classList.toggle('hidden', !msg);
+}
+
+/* ══════════ 簡繁轉換 ══════════ */
+/* 簡→繁轉換表（源自 zhconv 嘅 MediaWiki 轉換表，香港用字）
+   單字 2797 對；詞組 4539 條（只保留逐字轉換會出錯嗰啲） */
+const S2T_F = "‘’“”㐷㐹㐽㑇㑈㑔㑩㓥㓰㔉㖊㖞㘎㚯㛀㛣㛤㟆㟥㡎㤖㤘㤭㤽㥪㧏㧐㧑㧛㧟㧰㨫㭎㭏㭤㭴㱩㱮㲿㳔㳕㳠㳡㳽㴋㶉㶶㶽㺍㻅䀥䁖䂵䃅䅉䅟䇲䉤䌶䌷䌸䌹䌺䌻䌼䌽䌾䌿䍀䍁䍠䎬䏝䓓䓕䓖䓨䗖䙌䙓䛓䜣䜤䜧䜩䝙䞍䞐䟢䥺䥽䥾䦂䦃䦅䦆䦶䦷䩄䯄䯅䲝䲟䲠䲡䲢䲣䲤䴓䴔䴕䴖䴗䴘䴙䶮万与丑专业丛东丝丢两严丧个丰临为丽举么义乌乐乔习乡书买乱争于亏云亘亚产亩亲亵亸亿仅仆从仑仓仪们价众优伙会伛伞伟传伡伣伤伥伦伧伪伫体余佣佥侠侣侥侦侧侨侩侪侬侭俣俦俨俩俪俫俭债倾偬偻偾偿傤傥傧储傩儿兑兖党兰关兴兹养兽冁内冈册写军农冯冲决况冻净凄准凉减凑凛几凤凫凭凯凶击凿刍划刘则刚创删别刬刭刹刽刾刿剀剂剐剑剥剧劝办务劢动励劲劳势勋勚匀匦匮区医华协单卖占卢卤卧卫却卺厂厅历厉压厌厍厐厕厘厢厣厦厨厩厮县叁参叆叇双发变叙叠台叶号叹叽吁吃后吓吕吗吣吨听启吴呐呒呓呕呖呗员呙呛呜咏咙咛咝咤咨咸响哑哒哓哔哕哗哙哜哝哟唇唛唝唠唡唢唤啧啬啭啮啯啰啴啸喂喷喽喾嗫嗳嘘嘤嘱噜嚣团园囱围囵国图圆圣圹场坏块坚坛坜坝坞坟坠垄垅垆垒垦垩垫垭垯垱垲垴埘埙埚堑堕塆墙壮声壳壶壸处备复够头夸夹夺奁奂奋奖奥妆妇妈妩妪妫姗姹娄娅娆娇娈娱娲娴婳婴婵婶媪媭嫒嫔嫱嬷孙学孪宁宝实宠审宪宫宽宾寝对寻导寿将尔尘尝尧尴尸尽层屃屉届属屡屦屿岁岂岖岗岘岚岛岩岭岳岽岿峃峄峡峣峤峥峦峰崂崃崄崭嵘嵚嵝巅巩巯币帅师帏帐帘帜带帧帮帱帻帼幂干并广庄庆床庐庑库应庙庞废庼廪开异弃弑张弥弪弯弹强归当录彟彦彨彻征径徕忆忏忧忾怀态怂怃怄怅怆怜总怼怿恋恒恳恶恸恹恺恻恼恽悦悫悬悭悮悯惊惧惨惩惫惬惭惮惯愠愤愦愿慑慭懑懒懔戆戋戏戗战戬戯户扑托执扩扪扫扬扰抚抛抟抠抡抢护报担拟拢拣拥拦拧拨择挂挚挛挜挝挞挟挠挡挢挣挤挥挦捝捞损捡换捣据掳掴掷掸掺掼揽揾揿搀搁搂搄搅携摄摅摆摇摈摊撄撑撵撷撸撺擜擞攒敌敚敛敩数斋斓斗斩断无旧时旷旸昙昵昼昽显晋晒晓晔晕晖暂暧术朴机杀杂权杠条来杨杩杰极构枞枢枣枥枧枨枪枫枭柜柠柽栀栅标栈栉栊栋栌栎栏树栖栗样栾桠桡桢档桤桥桦桧桨桩桪梦梼梾梿检棁棂椁椝椟椠椢椤椫椭椮楼榄榅榇榈榉榝槚槛槟槠横樯樱橥橱橹橼檩欢欤欧歼殁殇残殒殓殚殡殴毁毂毕毙毡毵氇气氢氩氲汇汉汤汹沟没沣沤沥沦沧沨沩沪泞泪泶泷泸泺泻泼泽泾洁洒洼浃浅浆浇浈浉浊测浍济浏浐浑浒浓浔浕涂涌涚涛涝涞涟涠涡涢涣涤润涧涨涩淀渊渌渍渎渐渑渔渖渗温游湾湿溁溃溅溆溇滗滚滞滟滠满滢滤滥滦滨滩滪漤潆潇潋潍潜潴澛澜濑濒灏灭灯灵灶灾灿炀炉炖炜炝点炼炽烁烂烃烛烟烦烧烨烩烫烬热焕焖焘煴熏爱爷牍牦牵牺犊状犷犸犹狈狝狞独狭狮狯狰狱狲猃猎猕猡猪猫猬献獭玑玙玚玛玮环现玱玺珐珑珰珲琎琏琐琼瑶瑷瑸璎瓒瓮瓯电画畅畴疖疗疟疠疡疬疭疮疯疱疴痈痉痒痖痨痪痫痳痴瘅瘆瘗瘘瘪瘫瘾瘿癞癣癫皂皑皱皲盏盐监盖盗盘眍眦眬睁睐睑瞆瞒瞩矫矶矾矿砀码砖砗砚砜砺砻砾础硁硕硖硗硙硚确硵硷碍碛碜碱礼祃祎祢祯祷祸禀禄禅离秃秆种秘积称秽秾稆税稣稳穑穞穷窃窍窎窑窜窝窥窦窭竖竞笃笋笔笕笺笼笾筑筚筛筜筝筹筼签筿简箓箦箧箨箩箪箫篑篓篮篯篱簖籁籴类籼粜粝粤粪粮粽糁糇糍紧絷緼縆纟纠纡红纣纤纥约级纨纩纪纫纬纭纮纯纰纱纲纳纴纵纶纷纸纹纺纻纼纽纾线绀绁绂练组绅细织终绉绊绋绌绍绎经绐绑绒结绔绕绖绗绘给绚绛络绝绞统绠绡绢绣绤绥绦继绨绩绪绫绬续绮绯绰绱绲绳维绵绶绷绸绹绺绻综绽绾绿缀缁缂缃缄缅缆缇缈缉缊缋缌缍缎缏缐缑缒缓缔缕编缗缘缙缚缛缜缝缞缟缠缡缢缣缤缥缦缧缨缩缪缫缬缭缮缯缰缱缲缳缴缵罂网罗罚罢罴羁羟羡群翘翙翚耢耧耸耻聂聋职聍联聩聪肃肠肤肮肴肾肿胀胁胆胜胧胨胪胫胶脉脍脏脐脑脓脔脚脱脶脸腊腌腘腭腻腼腽腾膑膻臜舆舣舰舱舻艰艳艺节芈芗芜芦苁苇苈苋苌苍苎苏苧苹范茎茏茑茔茕茧荆荐荙荚荛荜荝荞荟荠荡荣荤荥荦荧荨荩荪荫荬荭荮药莅莱莲莳莴莶获莸莹莺莼萚萝萤营萦萧萨葱蒀蒇蒉蒋蒌蒏蓝蓟蓠蓣蓥蓦蔂蔷蔹蔺蔼蕰蕲蕴薮藓藴蘖虏虑虚虫虬虮虱虽虾虿蚀蚁蚂蚃蚕蚝蚬蛊蛎蛏蛮蛰蛱蛲蛳蛴蜕蜗蜡蝇蝈蝉蝎蝼蝾螀螨蟏衅衔补衬衮袄袅袆袜袭袯装裆裈裢裣裤裥褛褴襕见观觃规觅视觇览觉觊觋觌觍觎觏觐觑觞触觯訚詟誉誊讠计订讣认讥讦讧讨让讪讫讬训议讯记讱讲讳讴讵讶讷许讹论讻讼讽设访诀证诂诃评诅识诇诈诉诊诋诌词诎诏诐译诒诓诔试诖诗诘诙诚诛诜话诞诟诠诡询诣诤该详诧诨诩诪诫诬语诮误诰诱诲诳说诵诶请诸诹诺读诼诽课诿谀谁谂调谄谅谆谇谈谉谊谋谌谍谎谏谐谑谒谓谔谕谖谗谘谙谚谛谜谝谞谟谠谡谢谣谤谥谦谧谨谩谪谫谬谭谮谯谰谱谲谳谴谵谶豮贝贞负贠贡财责贤败账货质贩贪贫贬购贮贯贰贱贲贳贴贵贶贷贸费贺贻贼贽贾贿赀赁赂赃资赅赆赇赈赉赊赋赌赍赎赏赐赑赒赓赔赕赖赗赘赙赚赛赜赝赞赟赠赡赢赣赪赵赶趋趱趸跃跄跖跞践跶跷跸跹跻踊踌踪踬踯蹑蹒蹰蹿躏躜躯輼车轧轨轩轪轫转轭轮软轰轱轲轳轴轵轶轷轸轹轺轻轼载轾轿辀辁辂较辄辅辆辇辈辉辊辋辌辍辎辏辐辑辒输辔辕辖辗辘辙辚辞辟辩辫边辽达迁过迈运还这进远违连迟迩迳迹适选逊递逦逻遗遥邓邝邬邮邹邺邻郁郏郐郑郓郦郧郸酂酝酦酱酽酾酿醖采释里鉴銮錾钅钆钇针钉钊钋钌钍钎钏钐钑钒钓钔钕钖钗钘钙钚钛钜钝钞钟钠钡钢钣钤钥钦钧钨钩钪钫钬钭钮钯钰钱钲钳钴钵钶钷钸钹钺钻钼钽钾钿铀铁铂铃铄铅铆铇铈铉铊铋铌铍铎铏铐铑铒铓铔铕铖铗铘铙铚铛铜铝铞铟铠铡铢铣铤铥铦铧铨铩铪铫铬铭铮铯铰铱铲铳铴铵银铷铸铹铺铻铼铽链铿销锁锂锃锄锅锆锇锈锉锊锋锌锍锎锏锐锑锒锓锔锕锖锗锘错锚锛锜锝锞锟锠锡锢锣锤锥锦锧锨锩锪锫锬锭键锯锰锱锲锳锴锵锶锷锸锹锺锻锼锽锾锿镀镁镂镃镄镅镆镇镈镉镊镋镌镍镎镏镐镑镒镓镔镕镖镗镘镙镚镛镜镝镞镟镠镡镢镣镤镥镦镧镨镩镪镫镬镭镮镯镰镱镲镳镴镵镶长门闩闪闫闬闭问闯闰闱闲闳间闵闶闷闸闹闺闻闼闽闾闿阀阁阂阃阄阅阆阇阈阉阊阋阌阍阎阏阐阑阒阓阔阕阖阗阘阙阚阛队阳阴阵阶际陆陇陈陉陕陦陧陨险随隐隶隽难雇雏雠雳雾霁霉霡霭靓靔静靥鞑鞒鞯鞲韦韧韨韩韪韫韬韵页顶顷顸项顺须顼顽顾顿颀颁颂颃预颅领颇颈颉颊颋颌颍颎颏颐频颒颓颔颕颖颗题颙颚颛颜额颞颟颠颡颢颣颤颥颦颧风飏飐飑飒飓飔飕飖飗飘飙飚飞飨餍饣饤饥饦饧饨饩饪饫饬饭饮饯饰饱饲饳饴饵饶饷饸饹饺饻饼饽饾饿馀馁馂馃馄馅馆馇馈馉馊馋馌馍馎馏馐馑馒馓馔馕马驭驮驯驰驱驲驳驴驵驶驷驸驹驺驻驼驽驾驿骀骁骂骃骄骅骆骇骈骉骊骋验骍骎骏骐骑骒骓骔骕骖骗骘骙骚骛骜骝骞骟骠骡骢骣骤骥骦骧髅髋髌鬓鬶魇魉鱼鱽鱾鱿鲀鲁鲂鲃鲄鲅鲆鲇鲈鲉鲊鲋鲌鲍鲎鲏鲐鲑鲒鲓鲔鲕鲖鲗鲘鲙鲚鲛鲜鲝鲞鲟鲠鲡鲢鲣鲤鲥鲦鲧鲨鲩鲪鲫鲬鲭鲮鲯鲰鲱鲲鲳鲴鲵鲶鲷鲸鲹鲺鲻鲼鲽鲾鲿鳀鳁鳂鳃鳄鳅鳆鳇鳈鳉鳊鳋鳌鳍鳎鳏鳐鳑鳒鳓鳔鳕鳖鳗鳘鳙鳚鳛鳜鳝鳞鳟鳠鳡鳢鳣鳤鸟鸠鸡鸢鸣鸤鸥鸦鸧鸨鸩鸪鸫鸬鸭鸮鸯鸰鸱鸲鸳鸴鸵鸶鸷鸸鸹鸺鸻鸼鸽鸾鸿鹀鹁鹂鹃鹄鹅鹆鹇鹈鹉鹊鹋鹌鹍鹎鹏鹐鹑鹒鹓鹔鹕鹖鹗鹘鹙鹚鹛鹜鹝鹞鹟鹠鹡鹢鹣鹤鹥鹦鹧鹨鹩鹪鹫鹬鹭鹮鹯鹰鹱鹲鹳鹴鹾麦麸麹麺麽黄黉黡黩黪黾鼋鼌鼍鼗鼹齐齑齿龀龁龂龃龄龅龆龇龈龉龊龋龌龙龚龛龟鿎鿏鿒鿔鿭僞兌叄喫囪媼嬀幺悅慍戶才拐挩搵擡敓敘柺核梲棱榲檯氳汙涗溫溼潙潨熅爲癡皁硅祕稅竈糉縕纔脣脫膃臥臺菸蒕蔥蔿蘊蛻衆衛裡覈說轀醞醯鉢鉤銳鍼閱鰮";
+const S2T_T = "『』「」傌㑶偑㑳倲㑯儸劏劃劚噚喎㘚㜄媰㜏孋㠏嵾幓懧㥮憍懤慺掆㩳撝擥擓擽㩜棡椲樢樫殰殨瀇濧灡澾濄瀰潚鸂燶煱獱璯䁻瞜碽磾稏穇筴籔䊷紬縳絅䋙䋚綐綵䋻䋹繿繸䍦䎱膞薵薳藭罃螮䙡襬譼訢鿁䜀讌貙䝼賰躎釾鏺䥱䥇鐯鐥钁䦛䦟靦騧䯀䱽鮣鰆鰌鰧䱷鿐鳾鵁鴷鶄鶪鷉鸊龑萬與醜專業叢東絲丟兩嚴喪個豐臨為麗舉麼義烏樂喬習鄉書買亂爭於虧雲亙亞產畝親褻嚲億僅僕從侖倉儀們價眾優夥會傴傘偉傳俥俔傷倀倫傖偽佇體餘傭僉俠侶僥偵側僑儈儕儂儘俁儔儼倆儷倈儉債傾傯僂僨償儎儻儐儲儺兒兑兗黨蘭關興茲養獸囅內岡冊寫軍農馮衝決況凍淨悽準涼減湊凜幾鳳鳧憑凱兇擊鑿芻劃劉則剛創刪別剗剄剎劊㓨劌剴劑剮劍剝劇勸辦務勱動勵勁勞勢勳勩勻匭匱區醫華協單賣佔盧滷卧衞卻巹廠廳歷厲壓厭厙龎廁釐廂厴廈廚廄廝縣叁參靉靆雙發變敍疊台葉號嘆嘰籲吃後嚇呂嗎唚噸聽啓吳吶嘸囈嘔嚦唄員咼嗆嗚詠嚨嚀噝吒諮鹹響啞噠嘵嗶噦譁噲嚌噥喲唇嘜嗊嘮啢嗩喚嘖嗇囀齧嘓囉嘽嘯餵噴嘍嚳囁噯噓嚶囑嚕囂團園囱圍圇國圖圓聖壙場壞塊堅壇壢壩塢墳墜壟壠壚壘墾堊墊埡墶壋塏堖塒壎堝塹墮壪牆壯聲殼壺壼處備復夠頭誇夾奪奩奐奮獎奧妝婦媽嫵嫗媯姍奼婁婭嬈嬌孌娛媧嫺嫿嬰嬋嬸媪嬃嬡嬪嬙嬤孫學孿寧寶實寵審憲宮寬賓寢對尋導壽將爾塵嘗堯尷屍盡層屓屜屆屬屢屨嶼歲豈嶇崗峴嵐島巖嶺嶽崬巋嶨嶧峽嶢嶠崢巒峯嶗崍嶮嶄嶸嶔嶁巔鞏巰幣帥師幃帳簾幟帶幀幫幬幘幗冪幹並廣莊慶牀廬廡庫應廟龐廢廎廩開異棄弒張彌弳彎彈強歸當錄彠彥彲徹徵徑徠憶懺憂愾懷態慫憮慪悵愴憐總懟懌戀恆懇惡慟懨愷惻惱惲悦愨懸慳悞憫驚懼慘懲憊愜慚憚慣愠憤憒願懾憖懣懶懍戇戔戲戧戰戩戱户撲託執擴捫掃揚擾撫拋摶摳掄搶護報擔擬攏揀擁攔擰撥擇掛摯攣掗撾撻挾撓擋撟掙擠揮撏捝撈損撿換搗據擄摑擲撣摻摜攬揾撳攙擱摟揯攪攜攝攄擺搖擯攤攖撐攆擷擼攛㩵擻攢敵敚斂斆數齋斕鬥斬斷無舊時曠暘曇暱晝曨顯晉曬曉曄暈暉暫曖術樸機殺雜權槓條來楊榪傑極構樅樞棗櫪梘棖槍楓梟櫃檸檉梔柵標棧櫛櫳棟櫨櫟欄樹棲慄樣欒椏橈楨檔榿橋樺檜槳樁樳夢檮棶槤檢棁欞槨槼櫝槧槶欏樿橢槮樓欖榅櫬櫚櫸樧檟檻檳櫧橫檣櫻櫫櫥櫓櫞檁歡歟歐殲歿殤殘殞殮殫殯毆毀轂畢斃氈毿氌氣氫氬氲匯漢湯洶溝沒灃漚瀝淪滄渢溈滬濘淚澩瀧瀘濼瀉潑澤涇潔灑窪浹淺漿澆湞溮濁測澮濟瀏滻渾滸濃潯濜塗湧涚濤澇淶漣潿渦溳渙滌潤澗漲澀澱淵淥漬瀆漸澠漁瀋滲温遊灣濕濚潰濺漵漊潷滾滯灩灄滿瀅濾濫灤濱灘澦灠瀠瀟瀲濰潛瀦瀂瀾瀨瀕灝滅燈靈灶災燦煬爐燉煒熗點煉熾爍爛烴燭煙煩燒燁燴燙燼熱煥燜燾煴燻愛爺牘犛牽犧犢狀獷獁猶狽獮獰獨狹獅獪猙獄猻獫獵獼玀豬貓蝟獻獺璣璵瑒瑪瑋環現瑲璽琺瓏璫琿璡璉瑣瓊瑤璦璸瓔瓚甕甌電畫暢疇癤療瘧癘瘍癧瘲瘡瘋皰痾癰痙癢瘂癆瘓癇痲痴癉瘮瘞瘻癟癱癮癭癩癬癲皂皚皺皸盞鹽監蓋盜盤瞘眥矓睜睞瞼瞶瞞矚矯磯礬礦碭碼磚硨硯碸礪礱礫礎硜碩硤磽磑礄確磠礆礙磧磣鹼禮禡禕禰禎禱禍稟祿禪離禿稈種秘積稱穢穠穭税穌穩穡穭窮竊竅窵窯竄窩窺竇窶豎競篤筍筆筧箋籠籩築篳篩簹箏籌篔籤篠簡籙簀篋籜籮簞簫簣簍籃籛籬籪籟糴類秈糶糲粵糞糧粽糝餱餈緊縶緼緪糹糾紆紅紂纖紇約級紈纊紀紉緯紜紘純紕紗綱納紝縱綸紛紙紋紡紵紖紐紓線紺紲紱練組紳細織終縐絆紼絀紹繹經紿綁絨結絝繞絰絎繪給絢絳絡絕絞統綆綃絹繡綌綏絛繼綈績緒綾緓續綺緋綽鞝緄繩維綿綬繃綢綯綹綣綜綻綰綠綴緇緙緗緘緬纜緹緲緝緼繢緦綞緞緶線緱縋緩締縷編緡緣縉縛縟縝縫縗縞纏縭縊縑繽縹縵縲纓縮繆繅纈繚繕繒繮繾繰繯繳纘罌網羅罰罷羆羈羥羨羣翹翽翬耮耬聳恥聶聾職聹聯聵聰肅腸膚骯餚腎腫脹脅膽勝朧腖臚脛膠脈膾髒臍腦膿臠腳脱腡臉臘醃膕齶膩靦腽騰臏羶臢輿艤艦艙艫艱豔藝節羋薌蕪蘆蓯葦藶莧萇蒼薴蘇薴蘋範莖蘢蔦塋煢繭荊薦薘莢蕘蓽萴蕎薈薺蕩榮葷滎犖熒蕁藎蓀蔭蕒葒葤藥蒞萊蓮蒔萵薟獲蕕瑩鶯蓴蘀蘿螢營縈蕭薩葱蒀蕆蕢蔣蔞醟藍薊蘺蕷鎣驀虆薔蘞藺藹薀蘄藴藪蘚藴櫱虜慮虛蟲虯蟣蝨雖蝦蠆蝕蟻螞蠁蠶蠔蜆蠱蠣蟶蠻蟄蛺蟯螄蠐蜕蝸蠟蠅蟈蟬蠍螻蠑螿蟎蠨釁銜補襯袞襖嫋褘襪襲襏裝襠褌褳襝褲襉褸襤襴見觀覎規覓視覘覽覺覬覡覿覥覦覯覲覷觴觸觶誾讋譽謄訁計訂訃認譏訐訌討讓訕訖託訓議訊記訒講諱謳詎訝訥許訛論訩訟諷設訪訣證詁訶評詛識詗詐訴診詆謅詞詘詔詖譯詒誆誄試詿詩詰詼誠誅詵話誕詬詮詭詢詣諍該詳詫諢詡譸誡誣語誚誤誥誘誨誑説誦誒請諸諏諾讀諑誹課諉諛誰諗調諂諒諄誶談讅誼謀諶諜謊諫諧謔謁謂諤諭諼讒諮諳諺諦謎諞諝謨讜謖謝謠謗諡謙謐謹謾謫譾謬譚譖譙讕譜譎讞譴譫讖豶貝貞負貟貢財責賢敗賬貨質販貪貧貶購貯貫貳賤賁貰貼貴貺貸貿費賀貽賊贄賈賄貲賃賂贓資賅贐賕賑賚賒賦賭齎贖賞賜贔賙賡賠賧賴賵贅賻賺賽賾贗贊贇贈贍贏贛赬趙趕趨趲躉躍蹌蹠躒踐躂蹺蹕躚躋踴躊蹤躓躑躡蹣躕躥躪躦軀輼車軋軌軒軑軔轉軛輪軟轟軲軻轤軸軹軼軤軫轢軺輕軾載輊轎輈輇輅較輒輔輛輦輩輝輥輞輬輟輜輳輻輯輼輸轡轅轄輾轆轍轔辭闢辯辮邊遼達遷過邁運還這進遠違連遲邇逕跡適選遜遞邐邏遺遙鄧鄺鄔郵鄒鄴鄰鬱郟鄶鄭鄆酈鄖鄲酇醖醱醬釅釃釀醖採釋裏鑑鑾鏨釒釓釔針釘釗釙釕釷釺釧釤鈒釩釣鍆釹鍚釵鈃鈣鈈鈦鉅鈍鈔鍾鈉鋇鋼鈑鈐鑰欽鈞鎢鈎鈧鈁鈥鈄鈕鈀鈺錢鉦鉗鈷缽鈳鉕鈽鈸鉞鑽鉬鉭鉀鈿鈾鐵鉑鈴鑠鉛鉚鉋鈰鉉鉈鉍鈮鈹鐸鉶銬銠鉺鋩錏銪鋮鋏鋣鐃銍鐺銅鋁銱銦鎧鍘銖銑鋌銩銛鏵銓鎩鉿銚鉻銘錚銫鉸銥鏟銃鐋銨銀銣鑄鐒鋪鋙錸鋱鏈鏗銷鎖鋰鋥鋤鍋鋯鋨鏽銼鋝鋒鋅鋶鐦鐧鋭銻鋃鋟鋦錒錆鍺鍩錯錨錛錡鍀錁錕錩錫錮鑼錘錐錦鑕鍁錈鍃錇錟錠鍵鋸錳錙鍥鍈鍇鏘鍶鍔鍤鍬鍾鍛鎪鍠鍰鎄鍍鎂鏤鎡鐨鎇鏌鎮鎛鎘鑷钂鐫鎳鎿鎦鎬鎊鎰鎵鑌鎔鏢鏜鏝鏍鏰鏞鏡鏑鏃鏇鏐鐔钁鐐鏷鑥鐓鑭鐠鑹鏹鐙鑊鐳鐶鐲鐮鐿鑔鑣鑞鑱鑲長門閂閃閆閈閉問闖閏闈閒閎間閔閌悶閘鬧閨聞闥閩閭闓閥閣閡閫鬮閲閬闍閾閹閶鬩閿閽閻閼闡闌闃闠闊闋闔闐闒闕闞闤隊陽陰陣階際陸隴陳陘陝隯隉隕險隨隱隸雋難僱雛讎靂霧霽黴霢靄靚靝靜靨韃鞽韉韝韋韌韍韓韙韞韜韻頁頂頃頇項順須頊頑顧頓頎頒頌頏預顱領頗頸頡頰頲頜潁熲頦頤頻頮頹頷頴穎顆題顒顎顓顏額顳顢顛顙顥纇顫顬顰顴風颺颭颮颯颶颸颼颻飀飄飆飈飛饗饜飠飣飢飥餳飩餼飪飫飭飯飲餞飾飽飼飿飴餌饒餉餄餎餃餏餅餑餖餓餘餒餕餜餛餡館餷饋餶餿饞饁饃餺餾饈饉饅饊饌饢馬馭馱馴馳驅馹駁驢駔駛駟駙駒騶駐駝駑駕驛駘驍罵駰驕驊駱駭駢驫驪騁驗騂駸駿騏騎騍騅騌驌驂騙騭騤騷騖驁騮騫騸驃騾驄驏驟驥驦驤髏髖髕鬢鬹魘魎魚魛魢魷魨魯魴䰾魺鮁鮃鮎鱸鮋鮓鮒鮊鮑鱟鮍鮐鮭鮚鮳鮪鮞鮦鰂鮜鱠鱭鮫鮮鮺鯗鱘鯁鱺鰱鰹鯉鰣鰷鯀鯊鯇鮶鯽鯒鯖鯪鯕鯫鯡鯤鯧鯝鯢鯰鯛鯨鰺鯴鯔鱝鰈鰏鱨鯷鰛鰃鰓鱷鰍鰒鰉鰁鱂鯿鰠鰲鰭鰨鰥鰩鰟鰜鰳鰾鱈鱉鰻鰵鱅䲁鰼鱖鱔鱗鱒鱯鱤鱧鱣䲘鳥鳩雞鳶鳴鳲鷗鴉鶬鴇鴆鴣鶇鸕鴨鴞鴦鴒鴟鴝鴛鷽鴕鷥鷙鴯鴰鵂鴴鵃鴿鸞鴻鵐鵓鸝鵑鵠鵝鵒鷳鵜鵡鵲鶓鵪鵾鵯鵬鵮鶉鶊鵷鷫鶘鶡鶚鶻鶖鷀鶥鶩鷊鷂鶲鶹鶺鷁鶼鶴鷖鸚鷓鷚鷯鷦鷲鷸鷺䴉鸇鷹鸌鸏鸛鸘鹺麥麩麴麪麼黃黌黶黷黲黽黿鼂鼉鞀鼴齊齏齒齔齕齗齟齡齙齠齜齦齬齪齲齷龍龔龕龜䃮䥑鿓鎶鉨偽兑叁吃囱媪媯么悦愠户才枴捝揾抬敚敍枴核棁稜榅枱氲污涚温濕溈潀煴為痴皂矽秘税灶粽緼才唇脱腽卧台煙蒀葱蒍藴蜕眾衞裏核説輼醖酰缽鈎鋭針閲鰛";
+const S2T_P = "中国国际信托投资公司>中國國際信托投資公司|塞爾維亞與蒙特內哥羅>塞爾維亞和黑山|波士尼亞與赫塞哥維納>波斯尼亞和黑塞哥維那|聖克里斯多福及尼維斯>聖吉斯納域斯|南斯拉夫聯邦共和國>南斯拉夫聯盟共和國|斯蒂芬·斯皮尔伯格>史提芬·史匹堡|不列颠哥伦比亚省>卑詩省|寮人民民主共和國>老撾人民民主共和國|玻利維亞多民族國>多民族玻利維亞國|聖文森及格瑞那丁>聖文森特和格林納丁斯|阿拉伯聯合大公國>阿拉伯聯合酋長國|于斯納爾斯貝里>于斯納爾斯貝里|于斯纳尔斯贝里>于斯納爾斯貝里|吾为之范我驰驱>吾爲之範我馳驅|解铃仍须系铃人>解鈴仍須繫鈴人|解铃还须系铃人>解鈴還須繫鈴人|千里達及托巴哥>特立尼達和多巴哥|史蒂芬·史匹柏>史提芬·史匹堡|吉尼斯世界纪录>健力士世界紀錄|唐纳德·特朗普>當勞·特朗普|圣基茨和尼维斯>聖吉斯納域斯|安地卡及巴布達>安提瓜和巴布達|東南亞國家協會>東南亞國家聯盟|聖多美普林西比>聖多美和普林西比|于克-兰多县>于克-蘭多縣|于克-蘭多縣>于克-蘭多縣|传位于四太子>傳位于四太子|傳位于四太子>傳位于四太子|后发FK型星>后髮FK型星|后髮FK型星>后髮FK型星|姜还是老的辣>薑還是老的辣|抱朴而长吟兮>抱朴而長吟兮|拉克施尔德钟>拉克施爾德鐘|水里高級商工>水里高級商工|神奈川冲浪里>神奈川沖浪裏|车里雅宾斯克>車里雅賓斯克|钢之炼金术师>鋼之鍊金術師|万历朝鲜战争>萬曆朝鮮戰爭|乔治·奥威尔>喬治·歐威爾|伊斯蘭瑪巴德>伊斯蘭堡|奥黛丽·赫本>柯德莉·夏萍|奧黛莉·朵杜>柯德莉·塔圖|奧黛麗·赫本>柯德莉·夏萍|巴尔米拉环礁>帕邁拉環礁|布拉提斯拉瓦>布拉迪斯拉發|德蕾莎·梅伊>文翠珊|撒拉威阿拉伯>阿拉伯撒哈拉|斯堪地那維亞>斯堪的納維亞|沙烏地阿拉伯>沙特阿拉伯|獅子山共和國>塞拉利昂共和國|獨立國家國協>獨立國家聯合體|移动应用程序>流動應用程式|移动操作系统>流動作業系統|罗纳尔迪尼奥>朗拿甸奴|罗纳德·里根>朗奴·列根|肖斯塔科维奇>蕭士達高維契|艾里爾·夏隆>阿里埃勒·沙龍|芮氏地震規模>黎克特制地震震級|蕭士塔高維奇>蕭士達高維契|行動作業系統>流動作業系統|行動應用程式>流動應用程式|谢丽·布莱尔>彭雪玲|迈克尔·欧文>米高·奧雲|里氏地震规模>黎克特制地震震級|金氏世界紀錄>健力士世界紀錄|阿迪斯阿貝巴>亞的斯亞貝巴|马拉特·萨芬>馬拉特·沙芬|一物克一物>一物剋一物|中型钟表面>中型鐘表面|于奇库杜克>于奇庫杜克|于奇庫杜克>于奇庫杜克|于韋斯屈萊>于韋斯屈萊|于韦斯屈莱>于韋斯屈萊|伊尔汗历表>伊爾汗曆表|伊斯兰教历>伊斯蘭教曆|儒略改革历>儒略改革曆|划着独木舟>划着獨木舟|划着獨木舟>划着獨木舟|发为血之本>髮為血之本|只占神问卜>只占神問卜|后发星系团>后髮星系團|后髮星系團>后髮星系團|喧哗两成败>喧嘩兩成敗|复活节历表>復活節曆表|大型钟表面>大型鐘表面|姜是老的辣>薑是老的辣|小型钟表面>小型鐘表面|干白葡萄酒>乾白葡萄酒|干红葡萄酒>乾紅葡萄酒|并发型模式>併發型模式|张乐于张徐>張樂于張徐|張樂于張徐>張樂于張徐|愛河里花子>愛河里花子|扁拟谷盗虫>扁擬穀盜蟲|有发头陀寺>有髮頭陀寺|格里高利历>格里高利曆|模范棒棒堂>模范棒棒堂|水里濁水溪>水里濁水溪|深山何处钟>深山何處鐘|滨田里佳子>濱田里佳子|爱河里花子>愛河里花子|穆罕默德历>穆罕默德曆|钟不扣不鸣>鐘不扣不鳴|钟不撞不鸣>鐘不撞不鳴|钟不敲不响>鐘不敲不響|钟不空则哑>鐘不空則啞|亞里斯多德>亞里士多德|什勒斯維希>石勒蘇益格|克羅埃西亞>克羅地亞|切尔诺贝利>切爾諾貝爾|列支敦斯登>列支敦士登|加泰隆尼亞>加泰羅尼亞|卡普里亚蒂>卡佩雅蒂|吉力馬札羅>乞力馬札羅|哥斯大黎加>哥斯達黎加|唐納·川普>當勞·特朗普|喬治亞字母>格魯吉亞字母|夢有五不占>夢有五不占|太阳微系统>太陽電腦|尼日共和國>尼日爾共和國|布吉納法索>布基納法索|布里斯托尔>布里斯托|帕拉林匹克>殘疾人奧林匹克|幾內亞比索>幾內亞比紹|戈登·布朗>白高敦|数字照相机>数碼照相機|數位照相機>数碼照相機|斯坦福大学>史丹福大學|斯洛維尼亞>斯洛文尼亞|斯皮尔伯格>史匹堡|普利托利亞>比勒陀利亞|智慧機器人>智能機械人|智慧財產權>知識產權|梦有五不占>夢有五不占|沙地阿拉伯>沙特阿拉伯|泰坦尼克号>鐵達尼號|特蕾莎·梅>文翠珊|玻里尼西亞>波利尼西亞|約翰尼斯堡>約翰內斯堡|索尔仁尼琴>索贊尼辛|索羅門群島>所羅門群島|约翰斯顿岛>強斯頓環礁|茅利塔尼亞>毛里塔尼亞|莫尔斯比港>莫士比港|菲利普亲王>菲臘親王|菲利普親王>菲臘親王|蒙特內哥羅>黑山|计算机程序>電腦程式|貝南共和國>貝寧共和國|首席执行官>行政總裁|馬利共和國>馬里共和國|0出电影>0齣電影|一出喜剧>一齣喜劇|一出好戏>一齣好戲|一出悲剧>一齣悲劇|一出电影>一齣電影|一发千钧>一髮千鈞|一哄而散>一鬨而散|一干二净>一乾二淨|一干家中>一干家中|一干弟兄>一干弟兄|一干弟子>一干弟子|一干部下>一干部下|一树百获>一樹百穫|七情六欲>七情六慾|万年历表>萬年曆錶|三征七辟>三徵七辟|不占凶吉>不占凶吉|不占吉凶>不占吉凶|不好干涉>不好干涉|不好干預>不好干預|不好干预>不好干預|不干不净>不乾不淨|不负所托>不負所托|不通吊庆>不通弔慶|不食乾腊>不食乾腊|不食干腊>不食乾腊|世纪钟表>世紀鐘錶|丝恩发怨>絲恩髮怨|个中原因>箇中原因|个中好手>箇中好手|个中强手>箇中強手|个中滋味>箇中滋味|个中玄机>箇中玄機|个中理由>箇中理由|个中翘楚>箇中翹楚|个中道理>箇中道理|个中高手>箇中高手|中型钟表>中型鐘錶|中型钟面>中型鐘面|丰标不凡>丰標不凡|丰標不凡>丰標不凡|主钟曲线>主鐘曲線|之子于归>之子于歸|之子于歸>之子于歸|九世之仇>九世之讎|了若指掌>瞭若指掌|二缶钟惑>二缶鐘惑|于余曲折>于餘曲折|于尔里克>于爾里克|于忠肃集>于忠肅集|于忠肅集>于忠肅集|于斯塔德>于斯塔德|于斯达尔>于斯達爾|于斯達爾>于斯達爾|于爾里克>于爾里克|云南个旧>雲南箇舊|五行生克>五行生剋|人生天里>人生天里|伊于湖底>伊于湖底|伊斯兰历>伊斯蘭曆|伊达里子>伊達里子|伐罪吊民>伐罪弔民|依依不舍>依依不捨|信托贸易>信托貿易|俭确之教>儉确之教|借箸代筹>藉箸代籌|儉确之教>儉确之教|公寓里弄>公寓里弄|六楼后座>六樓后座|六樓后座>六樓后座|其次辟地>其次辟地|冲冠发怒>沖冠髮怒|几净窗明>几淨窗明|几淨窗明>几淨窗明|凤凰于飞>鳳凰于飛|凶相毕露>凶相畢露|划了一会>划了一會|划了一會>划了一會|划來划去>划來划去|划到江心>划到江心|划来划去>划來划去|划着竹筏>划着竹筏|北回铁路>北迴鐵路|北山索面>北山索麵|千回百折>千迴百折|千回百转>千迴百轉|千钧一发>千鈞一髮|南京钟表>南京鐘錶|南回铁路>南迴鐵路|南屏晚钟>南屏晚鐘|博杰普尔>博杰普爾|博杰普爾>博杰普爾|卫后庄公>衛後莊公|印累绶若>印纍綬若|卷土重来>捲土重來|历物之意>厤物之意|反反复复>反反覆覆|反应制得>反應製得|发上冲冠>髮上沖冠|发上指冠>髮上指冠|发光可鉴>髮光可鑑|发已霜白>髮已霜白|发引千钧>髮引千鈞|发短心长>髮短心長|发踊冲冠>髮踴沖冠|口燥唇干>口燥唇乾|口腹之欲>口腹之慾|古人有云>古人有云|只手遮天>隻手遮天|只言片语>隻言片語|叮叮当当>叮叮噹噹|可紧可松>可緊可鬆|可能干預>可能干預|可能干预>可能干預|叶不二子>叶不二子|吃板刀面>吃板刀麵|吉凶庆吊>吉凶慶弔|吊者大悦>弔者大悅|吊脚儿事>弔腳兒事|吊腰撒跨>弔腰撒跨|吊贺迎送>弔賀迎送|后翼弃兵>后翼棄兵|后翼棄兵>后翼棄兵|吐哺捉发>吐哺捉髮|吐哺握发>吐哺握髮|含齿戴发>含齒戴髮|和制英语>和製英語|和平之后>和平之后|咬姜呷醋>咬薑呷醋|唾面自干>唾面自乾|商标准许>商標准許|啰啰苏苏>囉囉囌囌|喂了一声>喂了一聲|喂了一聲>喂了一聲|噙齿戴发>噙齒戴髮|四杆铁笔>四桿鐵筆|四舍五入>四捨五入|四舍六入>四捨六入|回光返照>迴光返照|回复帖子>回覆帖子|回复意见>回覆意見|回复邮件>回覆郵件|回文序列>迴文序列|回文构词>迴文構詞|回文结构>迴文結構|回肠荡气>迴腸盪氣|国之桢干>國之楨榦|地心历表>地心曆表|坛坛罐罐>罈罈罐罐|埃及艳后>埃及豔后|塞耳盗钟>塞耳盜鐘|复变函数>複變函數|外强中干>外強中乾|多出电影>多齣電影|大型钟表>大型鐘錶|大型钟面>大型鐘面|大病初愈>大病初癒|大目干连>大目乾連|大言非夸>大言非夸|大金发苔>大金髮苔|天文历表>天文曆表|天文学钟>天文學鐘|天神之后>天神之后|夸强说会>誇強說會|如饥似渴>如饑似渴|子之丰兮>子之丰兮|安沈铁路>安瀋鐵路|官地为采>官地為寀|寸发千金>寸髮千金|对准钟表>對準鐘錶|小型钟表>小型鐘錶|小型钟面>小型鐘面|尸位素餐>尸位素餐|尸居余气>尸居餘氣|尸罗精舍>尸羅精舍|尸羅精舍>尸羅精舍|尽其所有>儘其所有|山崩钟应>山崩鐘應|山重水复>山重水複|岁聿云暮>歲聿云暮|差之毫厘>差之毫厘|布谷鸟钟>布穀鳥鐘|希伯来历>希伯來曆|带发修行>帶髮修行|干圆洁净>乾圓潔淨|干干净净>乾乾淨淨|干柴烈火>乾柴烈火|干球温度>幹球溫度|干群关系>幹群關係|并一不二>併一不二|并为一体>併為一體|并为一家>併為一家|并发模式>併發模式|并发重症>併發重症|并日而食>并日而食|庄内地方>庄內地方|弄鬼吊猴>弄鬼弔猴|弥山遍野>瀰山遍野|形单影只>形單影隻|往日无仇>往日無讎|得到回复>得到回覆|心细如发>心細如髮|心脏痳痹>心臟痲痺|心长发短>心長髮短|忙里偷闲>忙裡偷閒|忠人之托>忠人之托|怒发冲冠>怒髮衝冠|恋恋不舍>戀戀不捨|恕乏价催>恕乏价催|意大利面>意大利麵|戴发含齿>戴髮含齒|手冢治虫>手塚治虫|手塚治虫>手塚治虫|扑作教刑>扑作教刑|打出吊入>打出弔入|批准确定>批准確定|扼肮拊背>搤肮拊背|披头散发>披頭散髮|拂钟无声>拂鐘無聲|捣鬼吊白>搗鬼弔白|推托之词>推托之詞|提心吊胆>提心弔膽|敌忾同仇>敵愾同讎|数字钟表>數字鐘錶|数罪并罚>數罪併罰|整出电影>整齣電影|整发用品>整髮用品|文采郁郁>文采郁郁|断发文身>斷髮文身|新井里美>新井里美|无业游民>無業游民|日心历表>日心曆表|昊天不吊>昊天不弔|明目张胆>明目張胆|明窗净几>明窗淨几|昔人有云>昔人有云|显示钟表>顯示鐘錶|月球历表>月球曆表|木偶戏扎>木偶戲紮|木材干馏>木材乾餾|朱理安历>朱理安曆|朴茨茅斯>樸茨茅夫|机械钟表>機械鐘錶|杂合面儿>雜合麵兒|杜老志道>杜老誌道|松一口气>鬆一口氣|模范七棒>模范七棒|模范三军>模范三軍|模范三軍>模范三軍|欲令智昏>慾令智昏|欲壑难填>慾壑難填|歲聿云暮>歲聿云暮|殿钟自鸣>殿鐘自鳴|毁钟为铎>毀鐘為鐸|毗婆尸佛>毗婆尸佛|气冲斗牛>氣沖斗牛|水里商工>水里商工|水里鳳林>水里鳳林|永志不忘>永誌不忘|汉弥登钟>漢彌登鐘|沈丹客运>瀋丹客運|沈丹铁路>瀋丹鐵路|沈大铁路>瀋大鐵路|沈大高速>瀋大高速|沈山铁路>瀋山鐵路|沈海铁路>瀋海鐵路|沈海高速>瀋海高速|没干没净>沒乾沒淨|注生娘娘>註生娘娘|泸州大曲>瀘州大麯|洋河大曲>洋河大麯|洛钟东应>洛鐘東應|海淀山后>海淀山後|海淀山後>海淀山後|温洛克期>溫洛克期|湖南岳阳>湖南岳陽|满头洋发>滿頭洋髮|潜水钟表>潛水鐘錶|烫一个发>燙一個髮|烫一次发>燙一次髮|照相干片>照相乾片|爰定祥历>爰定祥厤|片言只语>片言隻語|狄那里克>狄那里克|狐借虎威>狐藉虎威|猜三划五>猜三划五|理一个发>理一個髮|理一次发>理一次髮|田庄英雄>田庄英雄|电子制表>電子製表|电子钟表>電子鐘錶|石英钟表>石英鐘錶|秃妃之发>禿妃之髮|秦沈客运>秦瀋客運|积谷防饥>積穀防饑|穷追不舍>窮追不捨|窃钟掩耳>竊鐘掩耳|窗明几亮>窗明几亮|窗明几净>窗明几淨|笔秃墨干>筆禿墨乾|粪秽蔑面>糞穢衊面|系上安全>繫上安全|系于一发>繫於一髮|系风捕影>繫風捕影|紅后假說>紅后假說|紧追不舍>緊追不捨|累瓦结绳>纍瓦結繩|红后假说>紅后假說|红绳系足>紅繩繫足|细不容发>細不容髮|绷扒吊拷>繃扒弔拷|美发沙龙>美髮沙龍|美容美发>美容美髮|耶律术烈>耶律朮烈|聚药雄蕊>聚葯雄蕊|肥筑方言>肥筑方言|臧谷亡羊>臧穀亡羊|自然数里>自然數裡|自觉自愿>自覺自愿|舌干唇焦>舌乾唇焦|舍安就危>捨安就危|舍己为人>捨己為人|舍己为公>捨己為公|舍己为国>捨己為國|舍己从人>捨己從人|舍己救人>捨己救人|舍我其谁>捨我其誰|舍本逐末>捨本逐末|舍死忘生>捨死忘生|舍短取长>捨短取長|舍车保帅>捨車保帥|舍近求远>捨近求遠|艸木丰丰>艸木丰丰|花马吊嘴>花馬弔嘴|范文正公>范文正公|荡气回肠>盪氣迴腸|董氏封发>董氏封髮|蒙昧无知>矇昧無知|蒙蒙细雨>濛濛細雨|藏蒙歌儿>藏矇歌兒|虮虱相吊>蟣蝨相弔|蛇发女妖>蛇髮女妖|蝎蝎螫螫>蝎蝎螫螫|被发佯狂>被髮佯狂|被发入山>被髮入山|被发左衽>被髮左衽|被发缨冠>被髮纓冠|被发阳狂>被髮陽狂|见钟不打>見鐘不打|解发佯狂>解髮佯狂|言大而夸>言大而夸|許愿起經>許愿起經|许愿起经>許愿起經|谷保家商>穀保家商|谷贱伤农>穀賤傷農|谷贵饿农>穀貴餓農|赞不绝口>讚不絕口|赤绳系足>赤繩繫足|身体发肤>身體髮膚|转斗千里>轉鬥千里|近日无仇>近日無讎|连三并四>連三併四|迥然回异>迥然迴異|邀天之幸>邀天之倖|郁郁菲菲>郁郁菲菲|郁郁葱葱>鬱鬱蔥蔥|郁郁青青>郁郁青青|采石之役>采石之役|采石之战>采石之戰|采石之戰>采石之戰|里海大学>里海大學|里海大學>里海大學|钟在寺里>鐘在寺裏|锦绣花园>錦綉花園|锲而不舍>鍥而不捨|长发公主>長髮公主|长发姑娘>長髮姑娘|開山辟谷>開山辟谷|闲情逸致>閒情逸緻|间不容发>間不容髮|雕心雁爪>鵰心雁爪|雪窗萤几>雪窗螢几|雪窗螢几>雪窗螢几|霉气冲天>霉氣衝天|青山一发>青山一髮|鞭辟入里>鞭辟入裏|音声如钟>音聲如鐘|顛顛仆仆>顛顛仆仆|额我略历>額我略曆|颠颠仆仆>顛顛仆仆|风卷残云>風捲殘雲|飞刍挽粟>飛芻輓粟|首出电影>首齣電影|馬格里布>馬格里布|马格里布>馬格里布|髮踊沖冠>髮踊沖冠|魂牵梦系>魂牽夢繫|鳳凰于飛>鳳凰于飛|黄干黑瘦>黃乾黑瘦|黄曲毒素>黃麴毒素|齐王舍牛>齊王捨牛|齿危发秀>齒危髮秀|齿落发白>齒落髮白|，并力討>，并力討|，并力讨>，并力討|A型肝炎>甲型肝炎|B型肝炎>乙型肝炎|C型肝炎>丙型肝炎|IP地址>IP位址|三十六著>三十六着|不著痕跡>不着痕跡|不著邊際>不着邊際|亞塞拜然>阿塞拜疆|人工智慧>人工智能|伏地挺身>掌上壓|信息时代>資訊時代|共和联邦>英聯邦|前波莫瑞>前波美拉尼亞|加薩走廊>加沙地帶|单反相机>單鏡反光機|占有五不>占有五不|厄利垂亚>厄立特里亞|厄利垂亞>厄立特里亞|台式电脑>桌上型電腦|史瓦帝尼>斯威士蘭|史瓦濟蘭>斯威士蘭|吉里巴斯>基里巴斯|單眼相機>單鏡反光機|坦尚尼亞>坦桑尼亞|基地组织>阿爾蓋達組織|塞拉耶佛>薩拉熱窩|塞普勒斯>塞浦路斯|塞维利亚>西維爾|大英國協>英聯邦|奈及利亞>尼日利亞|威斯伐倫>威斯特法倫|孟德爾頌>孟德爾遜|宏都拉斯>洪都拉斯|寮保護國>老撾保護國|尖峰時段>繁忙時段|尖峰時間>繁忙時間|巴伦西亚>華倫西亞|巴倫西亞>華倫西亞|巴塞罗那>巴塞隆拿|巴塞隆納>巴塞隆拿|布蘭登堡>勃蘭登堡|布雷封鎖>佈雷封鎖|布雷封锁>佈雷封鎖|布雷速度>佈雷速度|应用程序>應用程式|庫德斯坦>庫爾德斯坦|开诚布公>開誠佈公|得克萨斯>德克薩斯|德勒斯登>德累斯頓|戈巴契夫>戈爾巴喬夫|戏彩娱亲>戲綵娛親|戲彩娛親>戲綵娛親|择日占星>擇日占星|提比里西>第比利斯|搜索引擎>搜尋引擎|摩斯比港>莫士比港|擇日占星>擇日占星|操作系统>作業系統|数字信号>數碼訊號|数字技术>數碼技術|数字电视>數碼電視|数字音乐>數碼音樂|數位技術>數碼技術|數位相機>數碼相機|數位電視>數碼電視|數位音樂>數碼音樂|无梁楼盖>無樑樓蓋|昂山素季>昂山素姬|昇陽電腦>太陽電腦|星罗棋布>星羅棋佈|星羅棋布>星羅棋佈|普利策奖>普立茲獎|智慧手機>智能手機|朝鲜战争>韓戰|杜塞道夫>杜塞爾多夫|東加王國>湯加王國|格瑞那丁>格林納丁斯|格瑞那達>格林納達|格莱美奖>格林美獎|模里西斯>毛里裘斯|樸茨茅斯>樸茨茅夫|正體中文>繁體中文|毛里求斯>毛里裘斯|波士尼亞>波斯尼亞|海上布雷>海上佈雷|海湾布雷>海灣佈雷|海灣布雷>海灣佈雷|火箭布雷>火箭佈雷|無梁樓蓋>無樑樓蓋|版权信息>版權資訊|獨立國協>獨聯體|瓜地馬拉>危地馬拉|瓦倫西亞>華倫西亞|电脑程序>電腦程式|移动支付>流動支付|移动电话>流動電話|移动网络>流動網絡|移动设备>流動裝置|空中客车>空中巴士|空中布雷>空中佈雷|空投布雷>空投佈雷|空气质量>空氣質素|空氣品質>空氣質素|紐幾內亞>新幾內亞|索忍尼辛>索贊尼辛|索馬利亞>索馬里|索馬利里>索馬里|網際網路>互聯網|罗纳尔多>朗拿度|翁山蘇姬>昂山素姬|聖文森國>聖文森特和格林納丁斯|聖露西亞>聖盧西亞|聖馬利諾>聖馬力諾|自行火炮>自走炮|航天飞机>穿梭機|芮氏規模>黎克特制震級|荷尼阿拉>霍尼亞拉|莫三比克>莫桑比克|葛萊美獎>格林美獎|蓋達組織>阿爾蓋達組織|行動支付>流動支付|行動網路>流動網絡|行動裝置>流動裝置|行動電話>流動電話|衣索匹亞>埃塞俄比亞|衣索比亞>埃塞俄比亞|西部数据>威騰電子|貝爾格勒>貝爾格萊德|賓·拉登>本·拉登|賴比瑞亞>利比里亞|賽普勒斯>塞浦路斯|贝克汉姆>碧咸|赫魯雪夫>赫魯曉夫|走為上著>走為上着|跳梁小丑>跳樑小丑|达·芬奇>達·文西|里氏规模>黎克特制震級|里氏震级>黎克特制震級|里瓦尔多>李華度|開誠布公>開誠佈公|门德尔松>孟德爾遜|阿布達比>阿布扎比|雅穆索戈>雅穆蘇克雷|雕梁画栋>雕樑畫棟|雕梁畫棟>雕樑畫棟|霍爾斯坦>荷爾斯泰因|馬拉度納>馬勒當拿|馬斯垂克>馬斯特里赫特|馬爾地夫>馬爾代夫|马拉多纳>馬勒當拿|0出。>0齣。|0出，>0齣，|’re>’re|、面点>、麵點|。个中>。箇中|一伙人>一伙人|一伙头>一伙頭|一伙食>一伙食|一出剧>一齣劇|一出子>一齣子|一出戏>一齣戲|一天钟>一天鐘|一干人>一干人|一斗斗>一斗斗|一碗面>一碗麵|一锅面>一鍋麵|三出戏>三齣戲|三统历>三統曆|上台面>上枱面|上天里>上天里|上签了>上簽了|上签写>上簽寫|上签发>上簽發|上签名>上簽名|上签字>上簽字|上签定>上簽定|上签收>上簽收|上签约>上簽約|上签署>上簽署|上签订>上簽訂|上签证>上簽證|上系上>上繫上|上课钟>上課鐘|下签了>下簽了|下签写>下簽寫|下签发>下簽發|下签名>下簽名|下签字>下簽字|下签定>下簽定|下签收>下簽收|下签约>下簽約|下签署>下簽署|下签订>下簽訂|下签证>下簽證|下课钟>下課鐘|不占卜>不占卜|不占算>不占算|不吊，>不弔，|不干胶>不乾膠|不斗胆>不斗膽|不斗膽>不斗膽|不采声>不采聲|不采聲>不采聲|丑表功>丑表功|世界杯>世界盃|世纪钟>世紀鐘|东周钟>東周鐘|严云农>嚴云農|个中奥>箇中奧|个旧市>箇舊市|个钟表>個鐘錶|中型钟>中型鐘|中境里>中境里|中庄子>中庄子|中签了>中簽了|中签写>中簽寫|中签发>中簽發|中签名>中簽名|中签字>中簽字|中签定>中簽定|中签收>中簽收|中签约>中簽約|中签署>中簽署|中签订>中簽訂|中签证>中簽證|主钟差>主鐘差|么二三>么二三|么蛾子>么蛾子|乌苏里>烏蘇里|乌龙面>烏冬麵|乐器钟>樂器鐘|乱哄哄>亂鬨鬨|乾象历>乾象曆|二里头>二里頭|二里頭>二里頭|于云鹤>于雲鶴|于仁泰>于仁泰|于从濂>于從濂|于仲文>于仲文|于会泳>于會泳|于伟国>于偉國|于佳卉>于佳卉|于來山>于來山|于偉國>于偉國|于光远>于光遠|于光遠>于光遠|于克勒>于克勒|于再清>于再清|于冠华>于冠華|于冠華>于冠華|于凌奎>于凌奎|于凌辰>于凌辰|于凤桐>于鳳桐|于凤至>于鳳至|于化虎>于化虎|于占元>于占元|于友泽>于友澤|于友澤>于友澤|于双戈>于雙戈|于台烟>于台煙|于台煙>于台煙|于右任>于右任|于和伟>于和偉|于和偉>于和偉|于品海>于品海|于国桢>于國楨|于國楨>于國楨|于大宝>于大寶|于大寶>于大寶|于天仁>于天仁|于天龍>于天龍|于天龙>于天龍|于子千>于子千|于孔兼>于孔兼|于学忠>于學忠|于學忠>于學忠|于宝轩>于寶軒|于家堡>于家堡|于寶軒>于寶軒|于小伟>于小偉|于小偉>于小偉|于小彤>于小彤|于小惠>于小惠|于少保>于少保|于尔岑>于爾岑|于尔根>于爾根|于山国>于山國|于山國>于山國|于山岛>于山島|于山島>于山島|于幼军>于幼軍|于幼軍>于幼軍|于广洲>于廣洲|于康震>于康震|于廣洲>于廣洲|于建嵘>于建嶸|于建嶸>于建嶸|于式枚>于式枚|于從濂>于從濂|于德海>于德海|于志宁>于志寧|于志寧>于志寧|于慎行>于慎行|于成龍>于成龍|于成龙>于成龍|于承惠>于承惠|于振武>于振武|于明涛>于明濤|于明濤>于明濤|于是之>于是之|于晨楠>于晨楠|于會泳>于會泳|于来山>于來山|于树洁>于樹潔|于根伟>于根偉|于根偉>于根偉|于榮光>于榮光|于樹潔>于樹潔|于欣源>于欣源|于正昇>于正昇|于正昌>于正昌|于永波>于永波|于汉超>于漢超|于江震>于江震|于泽尔>于澤爾|于洪区>于洪區|于洪區>于洪區|于浩威>于浩威|于湘兰>于湘蘭|于湘蘭>于湘蘭|于漢超>于漢超|于澤爾>于澤爾|于熙珍>于熙珍|于爾岑>于爾岑|于爾根>于爾根|于特森>于特森|于玉立>于玉立|于秀敏>于秀敏|于立成>于立成|于素秋>于素秋|于美人>于美人|于芷山>于芷山|于若木>于若木|于荣光>于榮光|于荫霖>于蔭霖|于蔭霖>于蔭霖|于西翰>于西翰|于貝爾>于貝爾|于贝尔>于貝爾|于远伟>于遠偉|于逸堯>于逸堯|于道泉>于道泉|于遠偉>于遠偉|于都县>于都縣|于都縣>于都縣|于里察>于里察|于雙戈>于雙戈|于雲鶴>于雲鶴|于非暗>于非闇|于非闇>于非闇|于風政>于風政|于风政>于風政|于魁智>于魁智|于鳳桐>于鳳桐|于鳳至>于鳳至|于默奥>于默奧|于默奧>于默奧|云吞面>雲吞麵|人发指>人髮指|人物志>人物誌|什锦面>什錦麵|仙后座>仙后座|代数里>代數裡|伊东怜>伊東怜|伊府面>伊府麵|伊東怜>伊東怜|伊适杰>伊適杰|伊適杰>伊適杰|伊里布>伊里布|会干扰>會干擾|余三勝>余三勝|余三胜>余三勝|余光中>余光中|余光生>余光生|余力为>余力為|余力為>余力為|余威德>余威德|余子明>余子明|余思敏>余思敏|佳里鎮>佳里鎮|保险柜>保險柜|信井里>信井里|修杰楷>修杰楷|修胡刀>修鬍刀|借寇兵>藉寇兵|债累累>債纍纍|儒略历>儒略曆|光致致>光緻緻|党太尉>党太尉|党怀英>党懷英|党懷英>党懷英|八字胡>八字鬍|公仔面>公仔麵|公孙丑>公孫丑|公里海>公里海|兰溪市>蘭谿市|共和历>共和曆|内卷化>內捲化|写字台>寫字枱|农民历>農民曆|冬冬鼓>鼕鼕鼓|冬山庄>冬山庄|冲锋枪>衝鋒鎗|准三后>准三后|准保护>准保護|准保護>准保護|准保释>准保釋|准保釋>准保釋|凌蒙初>凌濛初|几面上>几面上|凤梨干>鳳梨乾|出征收>出征收|分别致>分别致|分半钟>分半鐘|分多钟>分多鐘|分子钟>分子鐘|分钟里>分鐘裏|划一桨>划一槳|划一槳>划一槳|划不來>划不來|划不来>划不來|划到岸>划到岸|划得來>划得來|划得来>划得來|划着船>划着船|划龍舟>划龍舟|划龍船>划龍船|划龙舟>划龍舟|划龙船>划龍船|刘芸后>劉芸后|刮大风>颳大風|刮风后>颳風後|制汉字>製漢字|制表键>製表鍵|刻半钟>刻半鐘|刻多钟>刻多鐘|剪其发>剪其髮|劉芸后>劉芸后|办公台>辦公枱|北仑河>北崙河|北回线>北迴線|华严钟>華嚴鐘|南京钟>南京鐘|南回线>南迴線|南宫适>南宮适|南宮适>南宮适|博尔术>博爾朮|占了卜>占了卜|卫星钟>衛星鐘|卷发布>卷發佈|卷叶蛾>捲葉蛾|卷尾猴>捲尾猴|卷心菜>捲心菜|卷烟盒>捲煙盒|卷积云>捲積雲|卷铺盖>捲鋪蓋|历数书>曆數書|压制出>壓製出|压制机>壓製機|原子钟>原子鐘|双胜类>雙胜類|反复制>反複製|发及腰>髮及腰|发披肩>髮披肩|发网菌>髮網菌|口干冒>口干冒|口干政>口干政|口干涉>口干涉|口干犯>口干犯|口干预>口干預|古书云>古書云|古書云>古書云|古語云>古語云|古语云>古語云|古钟表>古鐘錶|只占卜>只占卜|只占吉>只占吉|只占算>只占算|只采声>只采聲|台静农>臺靜農|台面上>枱面上|台面化>枱面化|台风后>颱風後|叶叶琴>葉叶琴|叶叶琹>葉叶琹|叶志穗>叶志穗|叶恭弘>叶恭弘|叶阳后>葉陽后|吃碗面>吃碗麵|各类钟>各類鐘|合伙人>合伙人|吊膀子>弔膀子|同人志>同人誌|后北街>后北街|后发座>后髮座|后安路>后安路|后平路>后平路|后母戊>后母戊|后海湾>后海灣|后海灣>后海灣|后瑞站>后瑞站|后髮座>后髮座|启发式>啟發式|呆致致>呆緻緻|周惠后>周惠后|和制汉>和製漢|咕咕钟>咕咕鐘|咚咚鼓>鼕鼕鼓|咸菜干>鹹菜乾|哈啰喂>哈囉喂|哈囉喂>哈囉喂|員山庄>員山庄|啮齿类>嚙齒類|喂喂喂>喂喂喂|嚴云農>嚴云農|四分历>四分曆|四面钟>四面鐘|回复中>回覆中|回复你>回覆你|回复说>回覆說|回复：>回覆：|回形夹>迴形夾|回文数>迴文數|回文联>迴文聯|回文诗>迴文詩|回文锦>迴文錦|回纹针>迴紋針|回递性>迴遞性|土索面>土索麵|圣人历>聖人曆|坐如钟>坐如鐘|坑口里>坑口里|埃及历>埃及曆|埔子里>埔子里|堡子里>堡子里|境里程>境里程|墨子里>墨子里|壽天里>壽天里|复元音>複元音|复函数>複函數|复分数>複分數|复分析>複分析|复分解>複分解|复字键>複字鍵|复对数>複對數|复平面>複平面|复读机>複讀機|复辅音>複輔音|夏于乔>夏于喬|夏于喬>夏于喬|夏后氏>夏后氏|大伙儿>大伙兒|大周后>大周后|大周折>大週摺|大型钟>大型鐘|大折儿>大摺兒|大明历>大明曆|大本钟>大本鐘|大笨钟>大笨鐘|大衍历>大衍曆|天保历>天保曆|天后宫>天后宮|天文钟>天文鐘|天里昂>天里昂|天里村>天里村|太初历>太初曆|头乱发>頭亂髮|头长发>頭長髮|好家伙>好傢夥|好斗大>好斗大|好斗室>好斗室|好斗笠>好斗笠|好斗篷>好斗篷|好斗胆>好斗膽|好斗膽>好斗膽|好斗蓬>好斗蓬|姜老辣>薑老辣|子里甲>子里甲|孛里海>孛里海|孝惠后>孝惠后|宇宙志>宇宙誌|宋王台>宋王臺|宗周钟>宗周鐘|实累累>實纍纍|实验里>實驗裡|宽松松>寬鬆鬆|寄托在>寄托在|寶山庄>寶山庄|对准表>對準錶|对准钟>對準鐘|封为后>封為后|封為后>封為后|小井里>小井里|小周后>小周后|小型钟>小型鐘|小米面>小米麵|尔冬升>爾冬陞|尸弃佛>尸棄佛|尸棄佛>尸棄佛|尸魂界>尸魂界|尽可能>儘可能|山仔后>山仔后|山羊胡>山羊鬍|岑子杰>岑子杰|岩松了>岩松了|峇里海>峇里海|工作台>工作枱|已占卜>已占卜|已占算>已占算|巴而术>巴而朮|布谷鸟>布穀鳥|布里海>布里海|帛尸梨>帛尸梨|帝后台>帝后臺|帝后臺>帝后臺|干个够>乾個夠|干刻版>乾刻版|干剥剥>乾剝剝|干回付>乾回付|干女儿>乾女兒|干奴才>乾奴才|干屎橛>乾屎橛|干打雷>乾打雷|干拌面>乾拌麵|干撂台>乾撂台|干撇下>乾撇下|干支剌>乾支剌|干支支>乾支支|干村沙>乾村沙|干灯盏>乾燈盞|干生受>乾生受|干生子>乾生子|干白儿>乾白兒|干瞪眼>乾瞪眼|干篾片>乾篾片|干肉片>乾肉片|干脆面>乾脆麵|干茨腊>乾茨臘|干茶钱>乾茶錢|干血浆>乾血漿|干酵母>乾酵母|干阿奶>乾阿奶|干霍乱>乾霍亂|年里約>年里約|年里约>年里約|并发布>並發佈|并发症>併發症|并合并>並合併|并查集>併查集|并肩子>併肩子|幸运胡>幸運鬍|府干卿>府干卿|府干扰>府干擾|府干擾>府干擾|府干政>府干政|府干涉>府干涉|府干犯>府干犯|府干預>府干預|府干预>府干預|廍子里>廍子里|廓子里>廓子里|张三丰>張三丰|张柏芝>張栢芝|張三丰>張三丰|弹子台>彈子枱|弹珠台>彈珠枱|彭于晏>彭于晏|影相吊>影相弔|律历志>律曆志|心系一>心繫一|心系万>心繫萬|心系世>心繫世|心系东>心繫東|心系两>心繫兩|心系中>心繫中|心系乔>心繫喬|心系五>心繫五|心系京>心繫京|心系人>心繫人|心系他>心繫他|心系伊>心繫伊|心系众>心繫眾|心系传>心繫傳|心系何>心繫何|心系你>心繫你|心系健>心繫健|心系全>心繫全|心系兰>心繫蘭|心系农>心繫农|心系功>心繫功|心系动>心繫動|心系募>心繫募|心系北>心繫北|心系十>心繫十|心系千>心繫千|心系南>心繫南|心系台>心繫台|心系和>心繫和|心系哪>心繫哪|心系唐>心繫唐|心系嘱>心繫囑|心系四>心繫四|心系困>心繫困|心系国>心繫國|心系在>心繫在|心系地>心繫地|心系大>心繫大|心系天>心繫天|心系夫>心繫夫|心系奥>心繫奧|心系女>心繫女|心系她>心繫她|心系妇>心繫婦|心系妻>心繫妻|心系子>心繫子|心系它>心繫它|心系宣>心繫宣|心系家>心繫家|心系富>心繫富|心系小>心繫小|心系山>心繫山|心系川>心繫川|心系幼>心繫幼|心系广>心繫廣|心系彼>心繫彼|心系德>心繫德|心系您>心繫您|心系慈>心繫慈|心系我>心繫我|心系摩>心繫摩|心系故>心繫故|心系新>心繫新|心系日>心繫日|心系昌>心繫昌|心系晓>心繫曉|心系曼>心繫曼|心系林>心繫林|心系母>心繫母|心系民>心繫民|心系江>心繫江|心系汶>心繫汶|心系沈>心繫沈|心系沙>心繫沙|心系泰>心繫泰|心系浙>心繫浙|心系港>心繫港|心系湖>心繫湖|心系澳>心繫澳|心系灾>心繫災|心系父>心繫父|心系生>心繫生|心系病>心繫病|心系百>心繫百|心系的>心繫的|心系社>心繫社|心系祖>心繫祖|心系神>心繫神|心系红>心繫紅|心系美>心繫美|心系群>心繫群|心系老>心繫老|心系舞>心繫舞|心系英>心繫英|心系茶>心繫茶|心系西>心繫西|心系贫>心繫貧|心系输>心繫輸|心系近>心繫近|心系远>心繫遠|心系选>心繫選|心系重>心繫重|心系长>心繫長|心系阮>心繫阮|心系震>心繫震|心系非>心繫非|心系风>心繫風|心系香>心繫香|心系高>心繫高|心系麦>心繫麥|心系黄>心繫黃|心繫农>心繫农|惠文后>惠文后|愿而恭>愿而恭|戲院里>戲院里|所云云>所云云|所占卜>所占卜|所占星>所占星|所占算>所占算|才干休>才干休|才干戈>才干戈|才干扰>才干擾|才干政>才干政|才干涉>才干涉|才干预>才干預|扎带子>紮帶子|扑咚咚>撲鼕鼕|打卡钟>打卡鐘|打干哕>打乾噦|托管国>托管國|托里县>託里縣|担仔面>擔仔麵|担担面>擔擔麵|拿破仑>拿破崙|捏面人>捏麵人|授时历>授時曆|排骨面>排骨麵|提子干>提子乾|搭干铺>搭乾鋪|操作钟>操作鐘|支配欲>支配慾|教学钟>教學鐘|数字钟>數字鐘|整出剧>整齣劇|整出戏>整齣戲|文学志>文學誌|斗别气>鬥彆氣|斗法会>斗法會|斗牛星>斗牛星|斗犀台>鬥犀臺|新庄子>新庄子|方便面>方便麵|旧钟表>舊鐘錶|昆承湖>崑承湖|昭惠后>昭惠后|是发小>是髮小|显示表>顯示錶|显示钟>顯示鐘|普咚咚>普鼕鼕|曲秀才>麴秀才|曲道士>麴道士|曹子里>曹子里|曹廷杰>曹廷杰|會干擾>會干擾|月里来>月裡來|有回复>有回覆|有够赞>有夠讚|有征伐>有征伐|有征战>有征戰|有征戰>有征戰|有征服>有征服|有征討>有征討|有征讨>有征討|有恒街>有恒街|有栖川>有栖川|望后石>望后石|未干涉>未干涉|未干預>未干預|未干预>未干預|本出戏>本齣戲|术虎高>朮虎高|朴子里>朴子里|机械表>機械錶|机械钟>機械鐘|李连杰>李連杰|李連杰>李連杰|杨雅筑>楊雅筑|杰威尔>杰威爾|杰威爾>杰威爾|東湖里>東湖里|松元音>鬆元音|松山庄>松山庄|松松地>鬆鬆地|松溪县>松谿縣|松耦合>鬆耦合|林杰樑>林杰樑|林郁方>林郁方|林鹅峰>林鵞峰|果子干>果子乾|果累累>果纍纍|染殿后>染殿后|柳斌杰>柳斌杰|栉发工>櫛髮工|栗栖溪>栗栖溪|格里历>格里曆|桂圆干>桂圓乾|梁凌杰>梁凌杰|棒子面>棒子麵|椰枣干>椰棗乾|楊雅筑>楊雅筑|樗里子>樗里子|正官庄>正官庄|水并流>水併流|水里溪>水里溪|水里鄉>水里鄉|求知欲>求知慾|江并流>江併流|汤下面>湯下麵|沈丹线>瀋丹線|沈丹高>瀋丹高|沈大线>瀋大線|沈山线>瀋山線|沙坪坝>沙坪垻|沟大曲>溝大麯|没折至>沒摺至|油泼面>油潑麵|波发藻>波髮藻|泳气钟>泳氣鐘|洞里萨>洞里薩|洞里薩>洞里薩|涂善妮>涂善妮|涂壮勋>涂壯勳|涂壯勳>涂壯勳|涂天相>涂天相|涂尔干>涂爾幹|涂序瑄>涂序瑄|涂敏恆>涂敏恆|涂敏恒>涂敏恆|涂泽民>涂澤民|涂澤民>涂澤民|涂爾幹>涂爾幹|涂紹煃>涂紹煃|涂绍煃>涂紹煃|涂羽卿>涂羽卿|涂謹申>涂謹申|涂谨申>涂謹申|涂逢年>涂逢年|涂醒哲>涂醒哲|涂長望>涂長望|涂长望>涂長望|涂鴻欽>涂鴻欽|涂鸿钦>涂鴻欽|涌水塘>涌水塘|淡蒙蒙>淡濛濛|潜水表>潛水錶|潜水钟>潛水鐘|澄江县>澂江縣|火折子>火摺子|灰蒙蒙>灰濛濛|炸酱面>炸醬麵|点个赞>點個讚|点半钟>點半鐘|点多钟>點多鐘|点里程>點里程|炼金术>鍊金術|烫个发>燙個髮|烫完发>燙完髮|烫次发>燙次髮|牵一发>牽一髮|特别致>特别致|狂并潮>狂併潮|狄志杰>狄志杰|王侯后>王侯后|王添灯>王添灯|王田里>王田里|理个发>理個髮|理完发>理完髮|理次发>理次髮|瑞城里>瑞城里|甜水面>甜水麵|甜面酱>甜麵醬|生力面>生力麵|生华发>生華髮|生发剂>生髮劑|生发水>生髮水|生发油>生髮油|生发液>生髮液|生发药>生髮藥|生物钟>生物鐘|田子里>田子里|田里穗>田里穗|甲后路>甲后路|电子钟>電子鐘|电波钟>電波鐘|留长发>留長髮|白干儿>白乾兒|白粉面>白粉麵|百子里>百子里|百花历>百花曆|的个中>的箇中|的发小>的髮小|的回复>的回覆|的长发>的長髮|皇极历>皇極曆|皮托管>皮托管|石英钟>石英鐘|碧河里>碧河里|秀发布>秀發佈|种丹妮>种丹妮|种师中>种師中|种师道>种師道|种師中>种師中|种師道>种師道|程十发>程十髮|竹溪县>竹谿縣|系上。>繫上。|系上丝>繫上絲|系上了>繫上了|系上头>繫上頭|系上红>繫上紅|系上绳>繫上繩|系上黑>繫上黑|系上，>繫上，|系鞋带>繫鞋帶|素数里>素數裡|索馬里>索馬里|索马里>索馬里|經有云>經有云|细如发>細如髮|经有云>經有云|络腮胡>絡腮鬍|综合征>綜合症|罗马历>羅馬曆|美发业>美髮業|美发学>美髮學|美发师>美髮師|美发店>美髮店|美发馆>美髮館|翁子里>翁子里|老爷钟>老爺鐘|老白干>老白乾|肉丝面>肉絲麵|肉羹面>肉羹麵|能干休>能干休|能干戈>能干戈|能干扰>能干擾|能干政>能干政|能干涉>能干涉|能干预>能干預|脱谷机>脫穀機|腾格里>騰格里|臊子面>臊子麵|自干五>自乾五|自由钟>自由鐘|舍不得>捨不得|航海历>航海曆|色长发>色長髮|芒果干>芒果乾|苹果干>蘋果乾|范文同>范文同|范文澜>范文瀾|范文瀾>范文瀾|范文照>范文照|范文程>范文程|范文芳>范文芳|范文藤>范文藤|范文虎>范文虎|范登堡>范登堡|茅于軾>茅于軾|茅于轼>茅于軾|荞麦面>蕎麥麵|药面儿>藥麵兒|菠萝干>菠蘿乾|萝卜干>蘿蔔乾|落腮胡>落腮鬍|葉叶琴>葉叶琴|葉叶琹>葉叶琹|葉陽后>葉陽后|葡萄干>葡萄乾|董家里>董家里|蒙头转>矇頭轉|蒙松雨>矇松雨|蓬松松>蓬鬆鬆|行事历>行事曆|表蒙子>錶蒙子|被卷回>被捲回|被系上>被繫上|西井里>西井里|西周钟>西周鐘|西湖里>西湖里|西西里>西西里|許聖杰>許聖杰|語有云>語有云|謝華后>謝華后|警世钟>警世鐘|警报钟>警報鐘|警示钟>警示鐘|计时表>計時錶|译文里>譯文裡|语有云>語有云|说不准>說不準|调钟表>調鐘錶|谢华后>謝華后|谷城县>穀城縣|豆腐干>豆腐乾|貴子里>貴子里|质数里>質數裡|购买欲>購買慾|赞一个>讚一個|赵威后>趙威后|赵惠后>趙惠后|赶面棍>趕麵棍|超级杯>超級盃|趙威后>趙威后|趙惠后>趙惠后|轻松松>輕鬆鬆|辰溪县>辰谿縣|过水面>過水麵|逆钟向>逆鐘向|通心面>通心麵|遗传钟>遺傳鐘|邱于庭>邱于庭|郑凯云>鄭凱云|部子里>部子里|鄭凱云>鄭凱云|采石矶>采石磯|采石磯>采石磯|里海崖>里海崖|里海茨>里海茨|里面包>裡面包|重罗面>重羅麵|金圣叹>金聖歎|金城里>金城里|金溪县>金谿縣|钟乳洞>鐘乳洞|钟乳石>鐘乳石|钟发音>鐘發音|钟左右>鐘左右|钟形虫>鐘形蟲|钟表停>鐘錶停|钟表盘>鐘錶盤|钟表速>鐘錶速|钟表面>鐘表面|钟陈列>鐘陳列|长发妹>長髮妹|门吊儿>門弔兒|防水表>防水錶|阳春面>陽春麵|陈有后>陳有后|陳士杰>陳士杰|陳有后>陳有后|隆准许>隆准許|雄斗斗>雄斗斗|雙胜類>雙胜類|雨蒙蒙>雨濛濛|雪里红>雪裡紅|雪里蕻>雪裡蕻|面人儿>麵人兒|面制品>麵製品|面包扎>面包紮|面坯儿>麵坯兒|面点、>麵點、|面点师>麵點師|面疙瘩>麵疙瘩|面码儿>麵碼兒|韩国制>韓國製|韶山冲>韶山沖|顺钟向>順鐘向|领袖欲>領袖慾|颛顼历>顓頊曆|风土志>風土誌|风物志>風物誌|飞行钟>飛行鐘|饭后钟>飯後鐘|馄饨面>餛飩麵|香山庄>香山庄|馬占山>馬占山|騰格里>騰格里|马回岭>馬迴嶺|马德钟>馬德鐘|骨灰坛>骨灰罈|高干扰>高干擾|高干预>高干預|高涌泉>高涌泉|高清愿>高清愿|鳥栖市>鳥栖市|鸟栖市>鳥栖市|鸡丝面>雞絲麵|鸡腿面>雞腿麵|鹿場里>鹿場里|麥人杰>麥人杰|麥仁杰>麥仁杰|麻将席>麻將蓆|麻酱面>麻醬麵|黃詩杰>黃詩杰|黃鈺筑>黃鈺筑|黄钰筑>黃鈺筑|黑长发>黑長髮|鼠曲草>鼠麴草|龙眼干>龍眼乾|龙须面>龍鬚麵|龜山庄>龜山庄|，个中>，箇中|0字节>0位元組|1字节>1位元組|2字节>2位元組|3字节>3位元組|4字节>4位元組|5字节>5位元組|6字节>6位元組|7字节>7位元組|8字节>8位元組|9字节>9位元組|三極體>三極管|不萊梅>不來梅|二極體>二極管|亚细安>東盟|亞斯文>阿斯旺|人行道>行人路|代表著>代表着|会占卜>會占卜|伯明罕>伯明翰|保障著>保障着|俯卧撑>掌上壓|克卜勒>開普勒|冰淇淋>雪糕|冰激凌>雪糕|凯瑟琳>嘉芙蓮|凱薩琳>嘉芙蓮|分佈著>分佈着|分布于>分佈於|分布著>分佈着|分辨率>解像度|努力著>努力着|占国桥>占國橋|占國橋>占國橋|占著作>占著作|占著稱>占著稱|占著述>占著述|占著錄>占著錄|卡斯楚>卡斯特羅|卢塞恩>琉森|卢浮宫>羅浮宮|印表機>打印機|厄瓜多>厄瓜多爾|古柯鹼>可卡因|史匹柏>史匹堡|吃不著>吃不着|吃得著>吃得着|吉布地>吉布堤|吐瓦魯>圖瓦盧|哥廷根>格丁根|哥特式>哥德式|喀拉蚩>卡拉奇|喜歡著>喜歡着|嗅不著>嗅不着|嗅得著>嗅得着|因特网>互聯網|土魯斯>圖盧茲|圣乔治>聖佐治|埃博拉>伊波拉|埃菲尔>艾菲爾|堅貞著>堅貞着|堪培拉>坎培拉|塑料袋>膠袋|塔希提>大溪地|塞席爾>塞舌爾|塞維亞>西維爾|太空梭>穿梭機|奈洛比>內羅畢|奧勒岡>俄勒岡|好莱坞>荷里活|好萊塢>荷里活|威尔士>威爾斯|威爾士>威爾斯|存在著>存在着|宇航员>太空人|安哈特>安哈爾特|安地卡>安提瓜|宝莱坞>波里活|密西根>密歇根|富比士>福布斯|寶萊塢>波里活|将占卜>將占卜|將占卜>將占卜|尚比亞>贊比亞|尼克松>尼克遜|工具機>機床|巴士拉>巴斯拉|巴貝多>巴巴多斯|布下了>佈下了|布下的>佈下的|布莱尔>貝理雅|布雷、>佈雷、|布雷。>佈雷。|布雷的>佈雷的|布雷舰>佈雷艦|布雷艇>佈雷艇|布雷艦>佈雷艦|布雷，>佈雷，|布雷；>佈雷；|希冀著>希冀着|希拉蕊>希拉莉|希特勒>希特拉|帕塔亚>芭達亞|席哈克>希拉克|干着急>干着急|庫德人>庫爾德人|庫德族>庫爾德族|形上學>形而上學|彩牌楼>綵牌樓|彩牌樓>綵牌樓|忠貞著>忠貞着|悬臂梁>懸臂樑|愛荷華>艾奧瓦|懸臂梁>懸臂樑|扛大梁>扛大樑|找不著>找不着|找得著>找得着|披头士>披頭四|挑大梁>挑大樑|撒切尔>戴卓爾|收錄著>收錄着|散佈著>散佈着|散布著>散佈着|数字化>數碼化|數位化>數碼化|數據機>調制解調器|旧金山>三藩市|晶体管>電晶體|晶體管>電晶體|智慧卡>智能卡|智慧型>智能|智財權>知識產權|會占卜>會占卜|服务器>伺服器|机器人>機械人|板著臉>板着臉|柏林墙>柏林圍牆|柯林頓>克林頓|柴契爾>戴卓爾|桑巴舞>森巴舞|標志著>標志着|標誌著>標誌着|機器人>機械人|歐巴馬>奧巴馬|沃尓沃>富豪|波札那>博茨瓦納|流露著>流露着|海洛因>海洛英|湊合著>湊合着|源代码>原始碼|溫荷克>溫得和克|演化論>進化論|漢諾瓦>漢諾威|烏龍麵>烏冬麵|爱荷华>艾奧瓦|犯不著>犯不着|犯得著>犯得着|狂牛症>瘋牛症|狄安娜>戴安娜|猶豫著>猶豫着|班傑明>本傑明|瓦文萨>華里沙|甘比亞>岡比亞|用不著>用不着|用得著>用得着|疯牛病>瘋牛症|百慕大>百慕達|盧安達>盧旺達|看不著>看不着|看得著>看得着|真人秀>真人騷|睡不著>睡不着|睡得著>睡得着|矛盾著>矛盾着|福馬林>福爾馬林|程序员>程式設計師|紀錄著>紀錄着|紐澳良>新奧爾良|紐西蘭>新西蘭|維德角>佛得角|羅亞爾>盧瓦爾|義大利>意大利|聖喬治>聖佐治|聞不著>聞不着|聞得著>聞得着|聽不著>聽不着|聽得著>聽得着|肯尼亚>肯雅|肯尼迪>甘迺迪|舊金山>三藩市|舒马赫>舒麥加|芮氏0>黎克特制0|芮氏1>黎克特制1|芮氏2>黎克特制2|芮氏3>黎克特制3|芮氏4>黎克特制4|芮氏5>黎克特制5|芮氏6>黎克特制6|芮氏7>黎克特制7|芮氏8>黎克特制8|芮氏9>黎克特制9|荷姆茲>霍爾木茲|莱特湾>雷伊泰灣|華勒沙>華里沙|萊特灣>雷伊泰灣|萬那杜>瓦努阿圖|葉爾欽>葉利欽|葉里溫>埃里溫|著甚麼>着甚麼|蒙特婁>蒙特利爾|蒲隆地>布隆迪|蓋亞那>圭亞那|薛丁格>薛定諤|蘇利南>蘇里南|蘊涵著>蘊涵着|蘭卡威>浮羅交怡|西洋棋>國際象棋|西臺人>赫梯人|西臺國>赫梯國|西臺帝>赫梯帝|西臺文>赫梯文|西臺族>赫梯族|西臺王>赫梯王|西臺語>赫梯語|要占卜>要占卜|覆蓋著>覆蓋着|解析度>解像度|記錄著>記錄着|說著作>說著作|說著稱>說著稱|說著者>說著者|說著述>說著述|警戒著>警戒着|诺曼底>諾曼第|象徵著>象著着|貝克漢>碧咸|貝里斯>伯利茲|賈伯斯>喬布斯|賓拉登>本拉登|賴索托>萊索托|辛巴威>津巴布韋|达芬奇>達文西|迈克尔>米高|遍佈著>遍佈着|遍布著>遍佈着|過著作>當著作|過著名>當著名|過著書>當著書|過著稱>當著稱|過著者>當著者|過著述>當著述|過著錄>當著錄|配合著>配合着|里氏0>黎克特制0|里氏1>黎克特制1|里氏2>黎克特制2|里氏3>黎克特制3|里氏4>黎克特制4|里氏5>黎克特制5|里氏6>黎克特制6|里氏7>黎克特制7|里氏8>黎克特制8|里氏9>黎克特制9|關係著>關係着|雅爾達>雅爾塔|面包著>面包着|馬拉威>馬拉維|馬自達>萬事得|马恩岛>萌島|马自达>萬事得|高畫質>高清|麦克尔>米高|黛安娜>戴安娜|0只>0隻|1只>1隻|2只>2隻|3只>3隻|4只>4隻|5只>5隻|6只>6隻|7只>7隻|8只>8隻|9只>9隻|·范>·范|’m>’m|’s>’s|’t>’t|〇只>〇隻|一划>一划|一只>一隻|一并>一併|一扎>一紮|丁丑>丁丑|七只>七隻|七扎>七紮|万俟>万俟|万历>萬曆|万只>萬隻|万扎>萬紮|万旗>万旗|三只>三隻|三扎>三紮|不卷>不捲|不谷>不穀|丑三>丑三|丑年>丑年|丑日>丑日|丑旦>丑旦|丑时>丑時|丑月>丑月|丑角>丑角|丝制>絲製|丝发>絲髮|两出>兩齣|两只>兩隻|两扎>兩紮|两杆>兩桿|丧钟>喪鐘|个钟>個鐘|丰仪>丰儀|丰儀>丰儀|丰台>豐臺|丰姿>丰姿|丰容>丰容|丰情>丰情|丰标>丰標|丰標>丰標|丰神>丰神|丰茸>丰茸|丰采>丰采|丰韵>丰韻|丰韻>丰韻|乃系>乃係|么九>么九|么元>么元|么兒>么兒|么半>么半|么叔>么叔|么喝>么喝|么女>么女|么妹>么妹|么姓>么姓|么姨>么姨|么娘>么娘|么媽>么媽|么孃>么孃|么子>么子|么弟>么弟|么正>么正|么氏>么氏|么爸>么爸|么爹>么爹|么爺>么爺|么篇>么篇|么舅>么舅|么雞>么雞|么鳳>么鳳|么麼>么麼|之钟>之鐘|乌发>烏髮|乙丑>乙丑|九只>九隻|九扎>九紮|九谷>九穀|乡愿>鄉愿|了望>瞭望|了然>瞭然|二只>二隻|于于>于于|于冕>于冕|于勒>于勒|于吉>于吉|于坚>于堅|于堅>于堅|于姓>于姓|于娜>于娜|于娟>于娟|于寘>于寘|于帅>于帥|于帥>于帥|于慧>于慧|于振>于振|于敏>于敏|于斌>于斌|于晴>于晴|于枫>于楓|于格>于格|于楓>于楓|于樂>于樂|于欣>于欣|于氏>于氏|于波>于波|于洋>于洋|于涛>于濤|于澄>于澄|于濤>于濤|于田>于田|于禁>于禁|于衡>于衡|于謙>于謙|于謹>于謹|于谦>于謙|于谨>于謹|于贈>于贈|于赠>于贈|于越>于越|于軍>于軍|于闐>于闐|于阗>于闐|于震>于震|于靖>于靖|于鬯>于鬯|云为>云為|云乎>云乎|云云>云云|云何>云何|云尔>云爾|云敞>云敞|云為>云為|云然>云然|云须>雲鬚|云：>云：|五只>五隻|五扎>五紮|五脏>五臟|五谷>五穀|交哄>交鬨|亦云>亦云|京沈>京瀋|亮钟>亮鐘|人云>人云|人欲>人慾|亿只>億隻|仇隙>讎隙|介胄>介冑|仙后>仙后|件钟>件鐘|价川>价川|仿制>仿製|伏几>伏几|伙头>伙頭|会吊>會弔|但云>但云|低洼>低洼|住扎>住紮|何杰>何杰|余干>餘干|余杰>余杰|余温>餘溫|佛历>佛曆|佛钟>佛鐘|佣金>佣金|佣鈿>佣鈿|佣錢>佣錢|佣钱>佣錢|佣钿>佣鈿|來栖>來栖|侥幸>僥倖|侵并>侵併|候复>候覆|倚闲>倚閑|借以>藉以|借助>藉助|借口>藉口|借手>藉手|借故>藉故|借机>藉機|借此>藉此|借由>藉由|借资>藉資|假发>假髮|偎干>偎乾|停制>停製|催并>催併|像赞>像讚|僵尸>殭屍|兀术>兀朮|克剥>剋剝|克扣>剋扣|克星>剋星|克期>剋期|克死>剋死|克薄>剋薄|党姓>党姓|党家>党家|党进>党進|党進>党進|党項>党項|党项>党項|全干>全乾|八只>八隻|八扎>八紮|八蜡>八蜡|公历>公曆|六么>六么|六只>六隻|六扎>六紮|六谷>六穀|关系>關係|养脏>養臟|兼并>兼併|兽欲>獸慾|内制>內製|内哄>內鬨|内脏>內臟|农历>農曆|冤仇>冤讎|冥蒙>冥濛|冲克>衝剋|冲天>沖天|冷面>冷麵|净发>淨髮|凉席>涼蓆|凉面>涼麵|凝炼>凝鍊|几上>几上|几几>几几|几凳>几凳|几出>幾齣|几只>幾隻|几子>几子|几旁>几旁|几杖>几杖|几案>几案|几椅>几椅|几榻>几榻|几筵>几筵|凭借>憑藉|凭几>憑几|凭吊>憑弔|凭折>憑摺|凭闲>憑閑|凶征>凶徵|击扑>擊扑|击钟>擊鐘|分钟>分鐘|划具>划具|划动>划動|划動>划動|划去>划去|划子>划子|划拳>划拳|划桨>划槳|划槳>划槳|划水>划水|划算>划算|划船>划船|划艇>划艇|划著>划著|划行>划行|划走>划走|划起>划起|划过>划過|划进>划進|划進>划進|划過>划過|刚干>剛乾|创制>創製|创获>創穫|利欲>利慾|别扭>彆扭|别拗>彆拗|别气>彆氣|刮了>颳了|刮倒>颳倒|刮得>颳得|刮胡>刮鬍|刮走>颳走|刮起>颳起|刮雪>颳雪|刮风>颳風|制件>製件|制作>製作|制做>製做|制冰>製冰|制冷>製冷|制剂>製劑|制取>製取|制品>製品|制售>製售|制图>製圖|制备>製備|制得>製得|制成>製成|制毒>製毒|制法>製法|制浆>製漿|制片>製片|制版>製版|制盐>製鹽|制程>製程|制糖>製糖|制纸>製紙|制药>製藥|制衣>製衣|制贩>製販|制造>製造|制酒>製酒|制钟>制鐘|制革>製革|制鞋>製鞋|刻钟>刻鐘|剃发>剃髮|剃胡>剃鬍|剃须>剃鬚|削发>削髮|削面>削麵|剥制>剝製|剪发>剪髮|割舍>割捨|包制>包製|包扎>包紮|包谷>包穀|匏系>匏繫|十出>十齣|十只>十隻|十扎>十紮|千只>千隻|千扎>千紮|升州>昇州|升平>昇平|升阳>昇陽|半只>半隻|半干>半乾|单于>單于|南筑>南筑|卤制>滷製|卤面>滷麵|卧游>臥遊|印制>印製|卷云>捲雲|卷住>捲住|卷儿>捲兒|卷入>捲入|卷动>捲動|卷去>捲去|卷发>捲髮|卷图>捲圖|卷地>捲地|卷尺>捲尺|卷帘>捲簾|卷成>捲成|卷曲>捲曲|卷来>捲來|卷款>捲款|卷毛>捲毛|卷烟>捲菸|卷瓣>捲瓣|卷筒>捲筒|卷纸>捲紙|卷缩>捲縮|卷舌>捲舌|卷袖>捲袖|卷走>捲走|卷起>捲起|卷轴>捲軸|卷逃>捲逃|卷须>卷鬚|卷风>捲風|厂部>厂部|历书>曆書|历元>曆元|历命>曆命|历始>曆始|历室>曆室|历尾>曆尾|历局>曆局|历日>曆日|历本>曆本|历法>曆法|历狱>曆獄|历纪>曆紀|历象>曆象|原钟>原鐘|县志>縣誌|参绥>蔘綏|双折>雙摺|双雕>雙鵰|反复>反覆|发丝>髮絲|发乳>髮乳|发匪>髮匪|发卷>髮捲|发型>髮型|发夹>髮夾|发妻>髮妻|发屋>髮屋|发带>髮帶|发干>發乾|发廊>髮廊|发式>髮式|发松>發鬆|发根>髮根|发油>髮油|发漂>髮漂|发状>髮狀|发癣>髮癬|发禁>髮禁|发笺>髮箋|发簪>髮簪|发纱>髮紗|发结>髮結|发肤>髮膚|发胶>髮膠|发脚>髮腳|发菜>髮菜|发蜡>髮蠟|发辫>髮辮|发钗>髮釵|发长>髮長|发际>髮際|发雕>髮雕|发霜>髮霜|发面>發麵|发饰>髮飾|发髻>髮髻|发鬓>髮鬢|取舍>取捨|叠席>疊蓆|口干>口乾|口钟>口鐘|古迹>古蹟|古钟>古鐘|叩钟>叩鐘|只字>隻字|只影>隻影|只眼>隻眼|只身>隻身|叮当>叮噹|台佟>臺佟|台历>枱曆|台灯>枱燈|台球>桌球|台钟>台鐘|台风>颱風|叶音>叶音|叶韵>叶韻|叶韻>叶韻|号志>號誌|吃姜>吃薑|吃面>吃麵|合历>合曆|合并>合併|吊丧>弔喪|吊卷>弔卷|吊取>弔取|吊古>弔古|吊唁>弔唁|吊喉>弔喉|吊喭>弔喭|吊头>弔頭|吊奠>弔奠|吊孝>弔孝|吊客>弔客|吊宴>弔宴|吊影>弔影|吊恤>弔恤|吊慰>弔慰|吊扣>弔扣|吊拷>弔拷|吊撒>弔撒|吊文>弔文|吊旗>弔旗|吊民>弔民|吊祭>弔祭|吊纸>弔紙|吊词>弔詞|吊诡>弔詭|吊谎>弔謊|吊钟>吊鐘|吊问>弔問|吊鹤>弔鶴|后丰>后豐|后冠>后冠|后土>后土|后妃>后妃|后姓>后姓|后庄>后庄|后稷>后稷|后綜>后綜|后羿>后羿|后苍>后蒼|后蒼>后蒼|后街>后街|后角>后角|后豐>后豐|后里>后里|向导>嚮導|向往>嚮往|向慕>嚮慕|向迩>嚮邇|吕后>呂后|吞并>吞併|吧台>吧枱|吸干>吸乾|吹干>吹乾|呂后>呂后|告札>告劄|呗赞>唄讚|呦喂>呦喂|周历>周曆|周后>周后|周杰>周杰|周游>週遊|呵喂>呵喂|和奸>和姦|咪表>咪錶|咯当>咯噹|咸卤>鹹鹵|哀吊>哀弔|哀挽>哀輓|哄动>鬨動|哄堂>鬨堂|哄笑>鬨笑|响钟>響鐘|哟喂>喲喂|唁吊>唁弔|唇干>唇乾|商历>商曆|啊喂>啊喂|啮合>嚙合|啮虫>囓蟲|啰苏>囉囌|啷当>啷噹|喂。>喂。|喂哟>喂喲|喂喂>喂喂|喂喲>喂喲|喂！>喂！|喂，>喂，|喂？>喂？|喝干>喝乾|喧哄>喧鬨|單于>單于|喲喂>喲喂|嘉谷>嘉穀|噜苏>嚕囌|噪诈>譟詐|嚼谷>嚼穀|四只>四隻|四扎>四紮|回佣>回佣|回历>回曆|回响>迴響|回圈>迴圈|回廊>迴廊|回旋>迴旋|回环>迴環|回绕>迴繞|回翔>迴翔|回肠>迴腸|回荡>迴蕩|回诵>迴誦|回路>迴路|回转>迴轉|回避>迴避|回銮>迴鑾|回风>迴風|团子>糰子|困乏>睏乏|困倦>睏倦|困觉>睏覺|国仇>國讎|国历>國曆|土制>土製|圣后>聖后|地志>地誌|坐台>坐枱|坐钟>坐鐘|坚致>堅緻|坛子>罈子|垂发>垂髮|塘栖>塘栖|墓志>墓誌|墨斗>墨斗|墨沈>墨瀋|壮面>壯麵|备注>備註|复习>複習|复信>覆信|复写>複寫|复决>複決|复列>複列|复利>複利|复制>複製|复印>複印|复句>複句|复叶>複葉|复合>複合|复壁>複壁|复姓>複姓|复审>覆審|复式>複式|复数>複數|复方>複方|复本>複本|复杂>複雜|复查>複查|复核>覆核|复次>複次|复比>複比|复流>複流|复测>複測|复目>複目|复眼>複眼|复种>複種|复穗>複穗|复线>複線|复色>複色|复苏>復甦|复议>複議|复评>複評|复诊>複診|复词>複詞|复试>複試|复课>複課|复赛>複賽|复述>複述|复选>複選|复钱>複錢|复阅>複閱|复音>複音|复韵>複韻|夏历>夏曆|外制>外製|多只>多隻|大历>大曆|大只>大隻|大蜡>大蜡|大赞>大讚|大钟>大鐘|天历>天曆|天后>天后|太后>太后|太阁>太閤|头发>頭髮|夸克>夸克|夸父>夸父|夸特>夸特|夸脱>夸脫|夸说>誇說|夸赞>誇讚|夹衣>袷衣|夹裙>袷裙|奇迹>奇蹟|奏折>奏摺|奖杯>獎盃|女丑>女丑|奸夫>姦夫|奸妇>姦婦|奸情>姦情|奸杀>姦殺|奸污>姦污|奸淫>姦淫|好困>好睏|妆台>妝枱|妖后>妖后|姓么>姓么|姜丝>薑絲|姜啤>薑啤|姜末>薑末|姜桂>薑桂|姜母>薑母|姜汁>薑汁|姜汤>薑湯|姜片>薑片|姜糖>薑糖|姜茶>薑茶|姜蓉>薑蓉|姜酮>薑酮|姜饼>薑餅|姜黄>薑黃|嫩姜>嫩薑|嬖幸>嬖倖|子云>子云|字汇>字彙|存折>存摺|孙杰>孫杰|孫杰>孫杰|官历>官曆|定制>定製|宜云>宜云|宝历>寶曆|宣泄>宣洩|家伙>傢伙|宽松>寬鬆|密致>密緻|寇仇>寇讎|寡欲>寡慾|寮采>寮寀|对折>對摺|寺钟>寺鐘|寿面>壽麵|封后>封后|射雕>射鵰|尊后>尊后|小丑>小丑|小价>小价|小几>小几|小只>小隻|尝粪>嚐糞|尸佼>尸佼|尸利>尸利|尸子>尸子|尸祝>尸祝|尸祿>尸祿|尸禄>尸祿|尸罗>尸羅|尸羅>尸羅|尸臣>尸臣|尸谏>尸諫|尸逐>尸逐|尸鳩>尸鳩|尸鸠>尸鳩|尽先>儘先|尽尽>儘儘|尽快>儘快|尽早>儘早|尽是>儘是|尽管>儘管|尽自>儘自|尽速>儘速|尽量>儘量|局促>侷促|局蹐>跼蹐|局躅>跼躅|屯扎>屯紮|峰回>峰迴|峻岭>峻岭|崖姜>崖薑|崖广>崖广|巡回>巡迴|巧历>巧曆|巨制>巨製|己丑>己丑|布谷>布穀|帘子>帘子|帘布>帘布|席卷>席捲|席子>蓆子|干丝>乾絲|干乔>乾喬|干井>乾井|干产>乾產|干亲>乾親|干儿>乾兒|干冰>乾冰|干冷>乾冷|干净>乾淨|干凉>乾涼|干刍>乾芻|干卦>乾卦|干号>乾號|干呕>乾嘔|干咳>乾咳|干咽>乾咽|干哕>乾噦|干哥>乾哥|干哭>乾哭|干唱>乾唱|干啼>乾啼|干嚎>乾嚎|干坞>乾塢|干妈>乾媽|干妹>乾妹|干姊>乾姊|干姐>乾姐|干姜>乾薑|干娘>乾娘|干子>乾子|干季>乾季|干尸>乾屍|干巴>乾巴|干干>乾乾|干式>乾式|干弟>乾弟|干急>乾急|干性>乾性|干折>乾折|干擦>乾擦|干料>乾料|干旱>乾旱|干暖>乾暖|干材>乾材|干杯>乾杯|干果>乾果|干枯>乾枯|干柴>乾柴|干梅>乾梅|干死>乾死|干池>乾池|干沟>乾溝|干没>乾沒|干洗>乾洗|干涩>乾澀|干涸>乾涸|干渠>乾渠|干渴>乾渴|干湿>乾濕|干漆>乾漆|干热>乾熱|干熬>乾熬|干燥>乾燥|干爸>乾爸|干爹>乾爹|干爽>乾爽|干片>乾片|干物>乾物|干田>乾田|干电>乾電|干疥>乾疥|干瘦>乾瘦|干瘪>乾癟|干瘾>乾癮|干癣>乾癬|干眼>乾眼|干礼>乾禮|干稿>乾稿|干笑>乾笑|干等>乾等|干粉>乾粉|干粮>乾糧|干糇>乾餱|干系>干係|干纲>乾綱|干结>乾結|干绷>乾繃|干耗>乾耗|干股>乾股|干肥>乾肥|干脆>乾脆|干花>乾花|干苔>乾苔|干草>乾草|干菜>乾菜|干落>乾落|干薪>乾薪|干虔>乾虔|干衣>乾衣|干裂>乾裂|干贝>乾貝|干货>乾貨|干躁>乾躁|干逼>乾逼|干酪>乾酪|干醋>乾醋|干重>乾重|干量>乾量|干锅>乾鍋|干雷>乾雷|干面>乾麵|干颡>乾顙|干食>乾食|干饭>乾飯|干馆>乾館|干馏>乾餾|干鱼>乾魚|干鲜>乾鮮|年历>年曆|年谷>年穀|并入>併入|并兼>併兼|并到>併到|并力>併力|并叠>併疊|并合>併合|并名>併名|并吞>併吞|并州>并州|并拢>併攏|并案>併案|并科>併科|并线>併線|并网>併網|并购>併購|并迭>并迭|并集>併集|并骨>併骨|幸免>倖免|幸存>倖存|幸幸>倖幸|幽并>幽并|广舍>廣捨|广部>广部|庄內>庄內|庄司>庄司|庆历>慶曆|庆吊>慶弔|床席>床蓆|应钟>應鐘|废后>廢后|座钟>座鐘|廢后>廢后|延历>延曆|开吊>開弔|开哄>開鬨|弃舍>棄捨|弄干>弄乾|弄松>弄鬆|弘历>弘曆|张杰>張杰|弥弥>瀰瀰|弥漫>瀰漫|張杰>張杰|强奸>強姦|归并>歸併|当啷>噹啷|当当>噹噹|录制>錄製|影后>影后|征启>徵啟|征税>徵稅|征辟>徵辟|待复>待覆|很干>很乾|很松>很鬆|後庄>後庄|徒杠>徒杠|御侮>禦侮|御制>御製|御寇>禦寇|御寒>禦寒|御敌>禦敵|心脏>心臟|志哀>誌哀|志喜>誌喜|志庆>誌慶|志异>誌異|怀钟>懷鐘|怜奈>怜奈|性欲>性慾|恒基>恒基|恒生>恒生|恒隆>恒隆|息谷>息穀|恶心>噁心|悬钟>懸鐘|悲筑>悲筑|情欲>情慾|惊赞>驚讚|惊钟>驚鐘|惨淡>慘澹|愈合>癒合|愿朴>愿樸|愿樸>愿樸|慈溪>慈谿|憑几>憑几|懈松>懈鬆|戬谷>戩穀|所云>所云|手折>手摺|手松>手鬆|手表>手錶|手链>手鍊|扎上>紮上|扎下>紮下|扎囮>紮囮|扎好>紮好|扎实>紮實|扎寨>紮寨|扎成>紮成|扎根>紮根|扎紧>紮緊|扎脚>紮腳|扎营>紮營|扎裹>紮裹|扎诈>紮詐|扎起>紮起|扎铁>紮鐵|扑冬>撲鼕|扑咚>撲鼕|扑打>扑打|扑挞>扑撻|扑撻>扑撻|打吨>打吨|打谷>打穀|打钟>打鐘|扯面>扯麵|批准>批准|批复>批覆|批注>批註|扼肮>搤肮|抓奸>抓姦|抓斗>抓斗|抗御>抗禦|折叠>摺疊|折台>摺枱|折奏>摺奏|折子>摺子|折尺>摺尺|折扇>摺扇|折梯>摺梯|折椅>摺椅|折痕>摺痕|折篷>摺篷|折纸>摺紙|折裙>摺裙|抢注>搶註|护发>護髮|披发>披髮|抵御>抵禦|抵牾>牴牾|抵触>牴觸|抹干>抹乾|抽干>抽乾|抿发>抿髮|拈须>拈鬚|拉纤>拉縴|拉面>拉麵|拌面>拌麵|拔发>拔髮|拔须>拔鬚|拗别>拗彆|拚舍>拚捨|拧干>擰乾|拨谷>撥穀|拭干>拭乾|拮据>拮据|拳局>拳跼|拾沈>拾瀋|挂历>掛曆|挂面>掛麵|挽曲>輓曲|挽歌>輓歌|挽联>輓聯|挽词>輓詞|挽诗>輓詩|挽车>輓車|挽输>輓輸|挽辞>輓辭|捆扎>綑紮|捉奸>捉姦|捍御>捍禦|捞干>撈乾|捞面>撈麵|换只>換隻|据云>據云|捵面>捵麵|捶炼>捶鍊|掌柜>掌柜|排干>排乾|握发>握髮|揩干>揩乾|揪发>揪髮|揪须>揪鬚|搋面>搋麵|搤肮>搤肮|摄制>攝製|摆钟>擺鐘|摸钟>摸鐘|撇吊>撇弔|撚须>撚鬚|撞钟>撞鐘|撤并>撤併|擀面>擀麵|擊扑>擊扑|擢发>擢髮|擦干>擦乾|收获>收穫|放松>放鬆|故云>故云|敬挽>敬輓|数只>數隻|敲扑>敲扑|敲钟>敲鐘|整只>整隻|文丑>文丑|文杰>文杰|斗哄>鬥鬨|断发>斷髮|新历>新曆|新扎>新紮|施舍>施捨|旁注>旁註|旋回>旋迴|旋松>旋鬆|日历>日曆|日志>日誌|旧历>舊曆|旧表>舊錶|旧钟>舊鐘|旱干>旱乾|时钟>時鐘|昆仑>崑崙|昆冈>崑岡|昆剧>崑劇|昆山>崑山|昆嵛>崑嵛|昆曲>崑曲|昆腔>崑腔|昆苏>崑蘇|昆调>崑調|星历>星曆|晒干>曬乾|晒谷>曬穀|晚钟>晚鐘|晞发>晞髮|晨钟>晨鐘|晾干>晾乾|曰云>曰云|曲尘>麴塵|曲櫱>麴櫱|曲车>麴車|曲酒>麯酒|曲钱>麴錢|曲霉>麴黴|更钟>更鐘|月历>月曆|有只>有隻|朝钟>朝鐘|木制>木製|木梁>木樑|木钟>木鐘|未干>未乾|本庄>本庄|术忽>朮忽|术赤>朮赤|朱卷>硃卷|朱批>硃批|朱砂>硃砂|朱笔>硃筆|朱谕>硃諭|杂志>雜誌|杂面>雜麵|杆枪>桿槍|杆秤>桿秤|杆菌>桿菌|李适>李适|束发>束髮|杠人>杠人|杠杆>槓桿|杠梁>杠梁|杠毂>杠轂|杠轂>杠轂|来栖>來栖|杯干>杯乾|杯面>杯麵|杰伦>杰倫|杰倫>杰倫|松了>鬆了|松些>鬆些|松动>鬆動|松劲>鬆勁|松化>鬆化|松口>鬆口|松喉>鬆喉|松土>鬆土|松宽>鬆寬|松开>鬆開|松弛>鬆弛|松快>鬆快|松懈>鬆懈|松手>鬆手|松掉>鬆掉|松散>鬆散|松柔>鬆柔|松气>鬆氣|松浮>鬆浮|松紧>鬆緊|松绑>鬆綁|松缓>鬆緩|松脆>鬆脆|松脱>鬆脫|松蛋>鬆蛋|松软>鬆軟|松通>鬆通|松饼>鬆餅|林钟>林鐘|果干>果乾|枪杆>槍桿|枯干>枯乾|架钟>架鐘|某只>某隻|染发>染髮|柜上>柜上|柜台>櫃枱|柜子>柜子|柜柳>柜柳|标志>標誌|标注>標註|标致>標緻|核准>核准|桌几>桌几|桌历>桌曆|桑干>桑乾|梨干>梨乾|械系>械繫|棉制>棉製|植发>植髮|椒面>椒麵|榨干>榨乾|模制>模製|欲念>慾念|欲海>慾海|欲火>慾火|欲障>慾障|欺蒙>欺矇|歌后>歌后|歌钟>歌鐘|正杰>正杰|武丑>武丑|武后>武后|殖谷>殖穀|母后>母后|每只>每隻|毛发>毛髮|毛坏>毛坏|毛姜>毛薑|毫发>毫髮|水表>水錶|永历>永曆|汇丰>滙豐|汇刊>彙刊|汇算>彙算|汇纂>彙纂|汇辑>彙輯|污蔑>污衊|汤卤>汤滷|汤团>湯糰|汤滷>汤滷|汤面>湯麵|沈北>瀋北|沈吉>瀋吉|沈州>瀋州|沈抚>瀋撫|沈水>瀋水|沈河>瀋河|沈阳>瀋陽|沙琅>沙瑯|沙羡>沙羡|沥干>瀝乾|油面>油麵|治愈>治癒|沾化>霑化|沾益>霑益|沿溯>沿泝|泄欲>洩慾|泡制>泡製|泡面>泡麵|注上>註上|注云>注云|注册>註冊|注失>註失|注定>註定|注明>註明|注标>註標|注疏>註疏|注脚>註腳|注解>註解|注记>註記|注译>註譯|注里>註裡|注销>註銷|注：>註：|泪干>淚乾|洒家>洒家|洒淅>洒淅|洒濯>洒濯|洒然>洒然|洗发>洗髮|洗炼>洗鍊|洗练>洗鍊|洪适>洪适|洪钟>洪鐘|浑个>渾箇|浓发>濃髮|浚县>濬縣|浚州>濬州|浮松>浮鬆|海干>海乾|涂坤>涂坤|涂姓>涂姓|涳蒙>涳濛|涸干>涸乾|淫欲>淫慾|淬炼>淬鍊|淳于>淳于|渗漓>滲灕|港制>港製|游离>游離|游说>遊說|湘累>湘纍|溟蒙>溟濛|溲面>溲麵|滑借>滑藉|滩席>灘蓆|滩涂>灘涂|漓水>灕水|漓江>灕江|漓湘>灕湘|漓然>灕然|漕挽>漕輓|漫卷>漫捲|澒蒙>澒濛|澹台>澹臺|灘涂>灘涂|火并>火併|灰蒙>灰濛|灵昆>靈崑|炆面>炆麵|炒面>炒麵|炖制>燉製|炮制>炮製|点札>點劄|点赞>點讚|点钟>點鐘|炼冶>鍊冶|炼制>煉製|炼句>鍊句|炼字>鍊字|炼师>鍊師|炼度>鍊度|炼形>鍊形|炼气>鍊氣|炼汞>鍊汞|炼石>鍊石|炼贫>鍊貧|烘制>烘製|烘干>烘乾|烟卷>煙捲|烟台>煙臺|烤干>烤乾|烧干>燒乾|烩面>燴麵|烫发>燙髮|烫面>燙麵|烹制>烹製|焙干>焙乾|煎面>煎麵|煨干>煨乾|煮制>煮製|煮面>煮麵|熊杰>熊杰|熏习>薰習|熏心>薰心|熏染>薰染|熏沐>薰沐|熏陶>薰陶|熏风>薰風|熏香>薰香|熬制>熬製|燎发>燎髮|燕几>燕几|爱困>愛睏|牛只>牛隻|物欲>物慾|牵系>牽繫|特制>特製|犖确>犖确|玉历>玉曆|王后>王后|珐琅>琺瑯|球台>球枱|理发>理髮|琴钟>琴鐘|瓷制>瓷製|甄后>甄后|生姜>生薑|甩发>甩髮|由余>由余|甲胄>甲冑|电表>電錶|电钟>電鐘|留发>留髮|疏松>疏鬆|疲困>疲睏|病愈>病癒|症结>癥結|痊愈>痊癒|痒疹>痒疹|痒痒>痒痒|痳木>痳木|痳疯>痳瘋|痳疹>痳疹|痳病>痳病|痳痹>痳痺|癸丑>癸丑|白发>白髮|白术>白朮|百只>百隻|百扎>百紮|百炼>百鍊|百谷>百穀|的钟>的鐘|皇历>皇曆|皇后>皇后|皓发>皓髮|皮制>皮製|皮松>皮鬆|皱折>皺摺|盆吊>盆弔|监制>監製|盗钟>盜鐘|盘回>盤迴|盛赞>盛讚|相克>相剋|相干>相干|相并>相併|盼复>盼覆|看钟>看鐘|真个>真箇|眼帘>眼帘|眼干>眼乾|瞎蒙>瞎矇|瞳蒙>瞳矇|短发>短髮|短须>短鬚|矮几>矮几|石几>石几|石杠>石杠|石梁>石樑|石钟>石鐘|码表>碼錶|研制>研製|砰当>砰噹|砻谷>礱穀|硗确>磽确|确瘠>确瘠|确系>確係|碑志>碑誌|碰钟>碰鐘|磁制>磁製|磨制>磨製|磨炼>磨鍊|磨蝎>磨蝎|磨面>磨麵|磬钟>磬鐘|磽确>磽确|礼赞>禮讚|祝发>祝髮|祝赞>祝讚|神雕>神鵰|祭吊>祭弔|禁欲>禁慾|禾谷>禾穀|秀发>秀髮|私欲>私慾|秃发>禿髮|秋千>鞦韆|种放>种放|种谷>種穀|科斗>科斗|秒钟>秒鐘|秤杆>秤桿|积谷>積穀|称赞>稱讚|稀松>稀鬆|稳扎>穩紮|稻谷>稻穀|穷发>窮髮|空蒙>空濛|空钟>空鐘|窒欲>窒慾|竹几>竹几|竹制>竹製|竹席>竹蓆|笋干>筍乾|笔杆>筆桿|筑前>筑前|筑北>筑北|筑后>筑後|筑州>筑州|筑後>筑後|筑波>筑波|筑紫>筑紫|筑肥>筑肥|筑西>筑西|筑邦>筑邦|筑阳>筑陽|筑陽>筑陽|答复>答覆|筵几>筵几|简并>簡併|算历>算曆|米团>米糰|米沈>米瀋|米面>米麵|粗制>粗製|精制>精製|精松>精鬆|精致>精緻|糕干>糕乾|系为>係為|系于>繫於|系到>繫到|系囚>繫囚|系心>繫心|系念>繫念|系怀>繫懷|系恋>繫戀|系指>係指|系着>繫着|系紧>繫緊|系累>繫纍|系结>繫結|系绳>繫繩|系膜>繫膜|系舟>繫舟|系船>繫船|系辞>繫辭|素发>素髮|素面>素麵|索面>索麵|紧致>緊緻|紫姜>紫薑|累囚>纍囚|累堆>纍堆|累绁>纍紲|累臣>纍臣|繁复>繁複|繁钟>繁鐘|纡回>紆迴|红发>紅髮|红钟>紅鐘|纤夫>縴夫|纤手>縴手|纤绳>縴繩|纪历>紀曆|纵欲>縱慾|纸扎>紙紮|细炼>細鍊|细致>細緻|绑扎>綁紮|结发>結髮|结扎>結紮|绘制>繪製|绞干>絞乾|维系>維繫|绾发>綰髮|绿发>綠髮|编钟>編鐘|缜致>縝緻|缝制>縫製|网志>網誌|羁系>羈繫|群丑>群醜|義联>義联|翻松>翻鬆|老么>老么|老姜>老薑|老干>老乾|老板>老闆|耕获>耕穫|联系>聯繫|聖后>聖后|肉干>肉乾|肉松>肉鬆|肉欲>肉慾|肉面>肉麵|肝脏>肝臟|肠脏>腸臟|肺脏>肺臟|肾脏>腎臟|胃脏>胃臟|胎发>胎髮|胜肽>胜肽|胜鍵>胜鍵|胜键>胜鍵|胡云>胡云|胡子>鬍子|胡杰>胡杰|胡梢>鬍梢|胡渣>鬍渣|胡须>鬍鬚|胡髭>鬍髭|胡髯>鬍髯|胰脏>胰臟|胶制>膠製|胶卷>膠捲|脏器>臟器|脏胸>臟胸|脏腑>臟腑|脚注>腳註|脱发>脫髮|脺脏>脺臟|脾脏>脾臟|腊味>腊味|腊毒>腊毒|腊笔>腊筆|腌制>醃製|腌臜>腌臢|腌臢>腌臢|腐干>腐乾|腑脏>腑臟|腕表>腕錶|膨松>膨鬆|膵脏>膵臟|自制>自製|致密>緻密|舂谷>舂穀|舊庄>舊庄|舍入>捨入|舍出>捨出|舍去>捨去|舍命>捨命|舍堕>捨墮|舍实>捨實|舍弃>捨棄|舍得>捨得|舍生>捨生|舍身>捨身|舒卷>舒捲|舞后>舞后|舰只>艦隻|船只>船隻|船钟>船鐘|色欲>色慾|艳后>艷后|艷后>艷后|节欲>節慾|花哄>花鬨|花药>花葯|花钟>花鐘|芸薹>蕓薹|苍发>蒼髮|苍术>蒼朮|苏昆>蘇崑|苏醒>甦醒|若干>若干|苧麻>苧麻|茶几>茶几|茶面>茶麵|草席>草蓆|草荐>草荐|荐居>荐居|荐臻>荐臻|荐饑>荐饑|荐饥>荐饑|荦确>犖确|莜面>莜麵|莪术>莪朮|菜坛>菜罈|菜干>菜乾|萝卜>蘿蔔|萦回>縈迴|萧参>蕭蔘|落发>落髮|葱郁>蔥鬱|蒙事>矇事|蒙汜>濛汜|蒙混>矇混|蒙眬>矇矓|蒙瞍>矇瞍|蒙聩>矇聵|蒙胧>朦朧|蒙雾>濛霧|蒙骗>矇騙|蒙鸿>濛鴻|蒜发>蒜髮|蒲席>蒲蓆|蒸制>蒸製|蒸干>蒸乾|蓄发>蓄髮|蓄胡>蓄鬍|蓄须>蓄鬚|蓬发>蓬髮|蓬松>蓬鬆|薄幸>薄倖|薙发>薙髮|薝卜>薝蔔|藏历>藏曆|藤制>藤製|藤席>藤蓆|虎须>虎鬚|虫部>虫部|虾面>蝦麵|蚁后>蟻后|蛏干>蟶乾|蜂后>蜂后|蜡月>蜡月|蜡祭>蜡祭|蝎虎>蝎虎|蝎谮>蝎譖|蟻后>蟻后|衅钟>釁鐘|街庄>街庄|补注>補註|表停>錶停|表冠>錶冠|表带>錶帶|表板>錶板|表王>錶王|表盘>錶盤|表转>錶轉|表速>錶速|表针>錶針|袋杆>袋桿|袋表>袋錶|裁制>裁製|裁并>裁併|装折>裝摺|褒赞>褒讚|西历>西曆|西昆>西崑|角抵>角牴|触须>觸鬚|言云>言云|詩云>詩云|謝杰>謝杰|謹愿>謹愿|警钟>警鐘|订制>訂製|证谏>証諫|评注>評註|词汇>詞彙|译制>譯製|译注>譯註|诔赞>誄讚|试制>試製|诗云>詩云|诗赞>詩讚|诗钟>詩鐘|该钟>該鐘|详注>詳註|诬蔑>誣衊|语云>語云|语汇>語彙|诱奸>誘姦|调制>調製|谢杰>謝杰|谨愿>謹愿|谬赞>謬讚|谷仓>穀倉|谷圭>穀圭|谷场>穀場|谷壳>穀殼|谷子>穀子|谷日>穀日|谷旦>穀旦|谷梁>穀梁|谷氨>穀氨|谷物>穀物|谷皮>穀皮|谷神>穀神|谷禄>穀祿|谷米>穀米|谷类>穀類|谷粒>穀粒|谷胱>穀胱|谷舱>穀艙|谷苗>穀苗|谷茬>穀茬|谷草>穀草|谷谷>穀穀|谷雨>穀雨|谷食>穀食|豆干>豆乾|豔后>豔后|貴价>貴价|賈后>賈后|賢后>賢后|賦范>賦范|賭后>賭后|贤后>賢后|贪欲>貪慾|购并>購併|贵价>貴价|贾后>賈后|赈饥>賑饑|赋范>賦范|赌台>賭枱|赌后>賭后|赏赞>賞讚|赞乐>讚樂|赞佩>讚佩|赞叹>讚嘆|赞呗>讚唄|赞扬>讚揚|赞歌>讚歌|赞美>讚美|赞羡>讚羨|赞誉>讚譽|赞许>讚許|赞词>讚詞|赞赏>讚賞|赞辞>讚辭|赞颂>讚頌|赤术>赤朮|赶制>趕製|起哄>起鬨|超赞>超讚|跌扑>跌扑|踡局>踡跼|蹒局>蹣跼|轮回>輪迴|轮奸>輪姦|轻松>輕鬆|辛丑>辛丑|辞汇>辭彙|辟谷>辟穀|辟辟>闢辟|辣面>辣麵|辫发>辮髮|辽沈>遼瀋|迂回>迂迴|这出>這齣|这只>這隻|这钟>這鐘|连系>連繫|迷蒙>迷濛|逆钟>逆鐘|逋发>逋髮|递回>遞迴|通历>通曆|通奸>通姦|造钟>造鐘|逼并>逼併|逾闲>踰閑|遗迹>遺蹟|那卷>那捲|那只>那隻|郁朴>郁樸|郁郁>鬱郁|郘钟>郘鐘|郭后>郭后|鄉愿>鄉愿|配制>配製|酒坛>酒罈|酒帘>酒帘|酒曲>酒麴|酥松>酥鬆|酸姜>酸薑|酿制>釀製|醋坛>醋罈|里铺>里舖|重制>重製|重复>重複|野姜>野薑|金发>金髮|金钟>金鐘|金链>金鍊|钟上>鐘上|钟下>鐘下|钟不>鐘不|钟体>鐘體|钟停>鐘停|钟关>鐘關|钟匠>鐘匠|钟口>鐘口|钟响>鐘響|钟塔>鐘塔|钟壁>鐘壁|钟声>鐘聲|钟太>鐘太|钟头>鐘頭|钟好>鐘好|钟山>鐘山|钟差>鐘差|钟座>鐘座|钟形>鐘形|钟律>鐘律|钟摆>鐘擺|钟敲>鐘敲|钟有>鐘有|钟楼>鐘樓|钟模>鐘模|钟没>鐘沒|钟漏>鐘漏|钟点>鐘點|钟王>鐘王|钟琴>鐘琴|钟的>鐘的|钟盘>鐘盤|钟相>鐘相|钟磬>鐘磬|钟纽>鐘紐|钟罩>鐘罩|钟腰>鐘腰|钟花>鐘花|钟螺>鐘螺|钟行>鐘行|钟表>鐘錶|钟被>鐘被|钟调>鐘調|钟身>鐘身|钟速>鐘速|钟面>鐘面|钟顶>鐘頂|钟鸣>鐘鳴|钟鼎>鐘鼎|钟鼓>鐘鼓|钢制>鋼製|钱谷>錢穀|铁制>鐵製|铁钟>鐵鐘|铜制>銅製|铜钟>銅鐘|铝制>鋁製|铯钟>銫鐘|铲出>剷出|铲刈>剷刈|铲头>剷頭|铲平>剷平|铲除>剷除|银发>銀髮|银朱>銀硃|铸钟>鑄鐘|链表>鍊表|锈病>銹病|锌制>鋅製|锤炼>錘鍊|镰仓>鎌倉|長几>長几|长几>長几|长历>長曆|长须>長鬚|门帘>門帘|闯炼>闖鍊|闲邪>閑邪|闹表>鬧錶|闹钟>鬧鐘|阁府>閤府|防御>防禦|阳历>陽曆|阳谷>陽穀|阴历>陰曆|阴干>陰乾|阿里>阿里|附注>附註|陈升>陳昇|陈杰>陳杰|陈炼>陳鍊|陪吊>陪弔|陳冲>陳冲|陳杰>陳杰|陶制>陶製|隐几>隱几|隱几>隱几|难舍>難捨|雕悍>鵰悍|雕翎>鵰翎|雕鹗>鵰鶚|零只>零隻|面包>麵包|面厂>麵廠|面团>麵團|面坊>麵坊|面塑>麵塑|面店>麵店|面摊>麵攤|面杖>麵杖|面条>麵條|面汤>麵湯|面浆>麵漿|面皮>麵皮|面筋>麵筋|面粉>麵粉|面糊>麵糊|面缸>麵缸|面茶>麵茶|面食>麵食|面饺>麵餃|面饼>麵餅|面馆>麵館|鞣制>鞣製|韦席>韋蓆|韩制>韓製|项链>項鍊|须发>鬚髮|须根>鬚根|须毛>鬚毛|须生>鬚生|须眉>鬚眉|须胡>鬚鬍|须须>鬚鬚|须鲨>鬚鯊|须鲸>鬚鯨|颂系>頌繫|颂赞>頌讚|预制>預製|颈须>頸鬚|颊须>頰鬚|風后>風后|风刮>風颳|风后>風后|风干>風乾|飘发>飄髮|飞扎>飛紮|食欲>食慾|食面>食麵|餐台>餐枱|饥寒>饑寒|饥民>饑民|饥渴>饑渴|饥溺>饑溺|饥荒>饑荒|饥饱>饑飽|饥馑>饑饉|饭团>飯糰|饼干>餅乾|馆谷>館穀|首只>首隻|香干>香乾|马干>馬乾|驻扎>駐紮|骨坛>骨罈|高几>高几|高后>高后|髡发>髡髮|髭胡>髭鬍|髭须>髭鬚|髯胡>髯鬍|髼松>髼鬆|鬅松>鬅鬆|鬈发>鬈髮|鬒发>鬒髮|鬓发>鬢髮|魔表>魔錶|鮮于>鮮于|鱼干>魚乾|鱼松>魚鬆|鲜于>鮮于|鲸须>鯨鬚|鳥栖>鳥栖|鸡只>雞隻|鸡奸>雞姦|鸣钟>鳴鐘|鹄发>鵠髮|鹤发>鶴髮|鹤吊>鶴弔|鹰雕>鹰鵰|鹰鵰>鹰鵰|麦面>麥麵|黃杰>黃杰|黄历>黃曆|黄发>黃髮|黄杰>黃杰|黄钟>黃鐘|黑发>黑髮|鼓噪>鼓譟|龙卷>龍捲|龙须>龍鬚|A肝>甲肝|B肝>乙肝|C肝>丙肝|上梁>上樑|下梁>下樑|下著>下着|乘著>乘着|亮著>亮着|仗著>仗着|伏著>伏着|伴著>伴着|低著>低着|住著>住着|來著>來着|係數>系數|促著>促着|信著>信着|倒楣>倒霉|候著>候着|借著>借着|做著>做着|側著>側着|偷著>偷着|備著>備着|光著>光着|全角>全形|公厘>毫米|公布>公佈|公釐>毫米|冒著>冒着|击剑>劍擊|分布>分佈|列印>打印|別著>別着|刮著>刮着|制著>制着|刻著>刻着|剪彩>剪綵|劃著>劃着|加彭>加蓬|動著>動着|包著>包着|占卜>占卜|占床>佔床|占臺>佔臺|占著>佔着|印著>印着|发布>發佈|受著>受着|叫著>叫着|叱吒>叱咤|吃著>吃着|吉他>結他|吊著>吊着|向著>向着|含著>含着|吹著>吹着|呆著>呆着|味著>味着|咖哩>咖喱|咬著>咬着|哭著>哭着|唱著>唱着|喝著>喝着|嗅著>嗅着|嘯吒>嘯咤|嚷著>嚷着|回著>回着|因著>因着|困著>困着|固著>固着|圈梁>圈樑|圍著>圍着|坎城>康城|坐著>坐着|埋著>埋着|塗著>塗着|壓著>壓着|夢著>夢着|夾著>夾着|存著>存着|學著>學着|守著>守着|定著>定着|宣布>宣佈|宿务>宿霧|密布>密佈|寫著>寫着|寮國>老撾|寮語>老撾語|寶獅>標致|尋著>尋着|對著>對着|屋梁>屋樑|展著>展着|山梁>山樑|岸裡>岸裡|巴厘>峇里|布于>佈於|布什>布殊|布光>佈光|布告>佈告|布局>佈局|布展>佈展|布控>佈控|布於>佈於|布景>佈景|布满>佈滿|布滿>佈滿|布点>佈點|布置>佈置|布設>佈設|布警>佈警|布设>佈設|布道>佈道|布防>佈防|布阵>佈陣|布陣>佈陣|布點>佈點|帕劳>帛琉|帕運>殘奧|帛琉>帕勞|帶著>帶着|幫浦>泵|幫著>幫着|幹著>幹着|彩带>綵帶|彩帶>綵帶|彩排>綵排|彩楼>綵樓|彩樓>綵樓|彩球>綵球|彩綢>綵綢|彩绸>綵綢|彩船>綵船|径入>逕入|径到>逕到|径取>逕取|径启>逕啟|径寄>逕寄|径庭>逕庭|径往>逕往|径自>逕自|径行>逕行|径迎>逕迎|待著>待着|得著>得着|循著>循着|心著>心着|忍著>忍着|忙著>忙着|急著>急着|恺撒>凱撒|悠著>悠着|悬梁>懸樑|悶著>悶着|想著>想着|想象>想像|愛著>愛着|慣著>慣着|憑著>憑着|應著>應着|懷著>懷着|懸梁>懸樑|戀著>戀着|戛纳>康城|戰著>戰着|戴著>戴着|打著>打着|扛著>扛着|抓著>抓着|披著>披着|抬著>抬着|抱著>抱着|拉著>拉着|拎著>拎着|拖著>拖着|拼著>拼着|拿著>拿着|持著>持着|挑著>挑着|挨著>挨着|捆著>捆着|捷豹>積架|掖著>掖着|掙著>掙着|掛著>掛着|接著>接着|揉著>揉着|提著>提着|揮著>揮着|搶著>搶着|摆布>擺佈|摟著>摟着|撞球>桌球|撼著>撼着|擊劍>劍擊|擋著>擋着|擔著>擔着|據著>據着|擡著>擡着|擺布>擺佈|擺著>擺着|放著>放着|敞著>敞着|散布>散佈|數著>數着|文莱>汶萊|斥著>斥着|昂著>昂着|映著>映着|晃著>晃着|晶元>晶片|暗著>暗着|有著>有着|望著>望着|朝著>朝着|本著>本着|束著>束着|東協>東盟|枕著>枕着|柱梁>柱樑|栋梁>棟樑|树梁>樹樑|桥梁>橋樑|梁上>樑上|梁柱>樑柱|梳著>梳着|棟梁>棟樑|榴莲>榴槤|榴蓮>榴槤|樂著>樂着|横梁>橫樑|樹梁>樹樑|橋梁>橋樑|橫梁>橫樑|殺著>殺着|求著>求着|沈著>沈着|沉著>沉着|沖著>沖着|沿著>沿着|活著>活着|流著>流着|浮著>浮着|涼著>涼着|渴著>渴着|溢著>溢着|演著>演着|漫著>漫着|潤著>潤着|澈底>徹底|為著>為着|照著>照着|燒著>燒着|爭著>爭着|牛軋>鳥結|牛轧>鳥結|牽著>牽着|狄托>鐵托|猜著>猜着|獲著>獲着|甜著>甜着|用著>用着|留著>留着|畫著>畫着|當著>當着|疑著>疑着|發布>發佈|發著>發着|皺著>皺着|盛著>盛着|盯著>盯着|看著>看着|睡著>睡着|瞞著>瞞着|瞪著>瞪着|短信>短訊|硅藻>硅藻|硬體>硬件|福著>福着|穫著>穫着|空著>空着|穿著>穿着|立著>立着|站著>站着|竪著>竪着|笑著>笑着|管著>管着|簡訊>短訊|簽著>簽着|糊口>餬口|紮著>紮着|結彩>結綵|綁著>綁着|網路>網絡|縱著>縱着|繃著>繃着|織著>織着|繞梁>繞樑|繞著>繞着|繫著>繫着|纏著>纏着|结彩>結綵|绕梁>繞樑|罩著>罩着|罵著>罵着|美著>美着|義占>意佔|義裔>意裔|耀著>耀着|考著>考着|聞著>聞着|聽著>聽着|肖邦>蕭邦|背著>背着|脊梁>脊樑|膠著>膠着|臨著>臨着|與著>與着|艾滋>愛滋|芯片>晶片|苑裡>苑裡|苦著>苦着|荧屏>螢屏|落著>落着|葉門>也門|著什>着什|著他>着他|著你>着你|著力>着力|著地>着地|著墨>着墨|著她>着她|著妳>着妳|著它>着它|著實>着實|著忙>着忙|著急>着急|著想>着想|著意>着意|著我>着我|著手>着手|著數>着數|著法>着法|著涼>着涼|著火>着火|著眼>着眼|著祂>着祂|著筆>着筆|著絲>着絲|著緊>着緊|著腳>着腳|著艦>着艦|著色>着色|著落>着落|著衣>着衣|著裝>着裝|著迷>着迷|著重>着重|著錄>着錄|著陸>着陸|著鞭>着鞭|葛摩>科摩羅|蒙著>蒙着|蓋著>蓋着|藉著>藉着|藏著>藏着|蘸著>蘸着|行著>行着|衝著>衝着|衣著>衣着|裝著>裝着|裡冷>裡冷|裹著>裹着|覆著>覆着|見著>見着|視著>視着|計畫>計劃|記著>記着|試著>試着|語著>語着|說著>說着|諾鲁>瑙魯|變著>變着|豎著>豎着|負著>負着|賓士>平治|走著>走着|趁著>趁着|趕著>趕着|趴著>趴着|跑著>跑着|跟著>跟着|跪著>跪着|跳著>跳着|踏著>踏着|踩著>踩着|蹦床>彈床|躍著>躍着|身著>身着|躺著>躺着|軟體>軟件|載著>載着|轉著>轉着|辦著>辦着|迦納>加納|迪拜>杜拜|迫著>迫着|追著>追着|逆著>逆着|連著>連着|逼著>逼着|遇著>遇着|遍布>遍佈|過著>過着|道瓊>道瓊斯|達著>達着|配著>配着|醜著>醜着|醯壶>醯壺|醯壺>醯壺|醯酱>醯醬|醯醋>醯醋|醯醢>醯醢|醯醬>醯醬|醯雞>醯雞|醯鸡>醯雞|釀著>釀着|鋪著>鋪着|鋼梁>鋼樑|錢尼>切尼|钢梁>鋼樑|链接>連結|閉著>閉着|開著>開着|閑著>閑着|閒著>閒着|關著>關着|附著>附着|陋著>陋着|陪著>陪着|隐私>私隱|隔著>隔着|隨著>隨着|隱私>私隱|雅著>雅着|雜著>雜着|霄裡>霄裡|靠著>靠着|響著>響着|頂著>頂着|順著>順着|頒布>頒佈|領著>領着|颁布>頒佈|颳著>颳着|飃著>飃着|飄著>飄着|駕著>駕着|駛著>駛着|騎著>騎着|騙著>騙着|高著>高着|鬥著>鬥着|鬧著>鬧着|麼著>麼着|黏著>黏着|點著>點着|鼻梁>鼻樑";
+const S2T_MAX = 10;
+
+let _s2tChar = null, _s2tPhrase = null;
+function s2tInit() {
+  if (_s2tChar) return;
+  _s2tChar = new Map();
+  for (let i = 0; i < S2T_F.length; i++) _s2tChar.set(S2T_F[i], S2T_T[i]);
+  _s2tPhrase = new Map();
+  for (const pair of S2T_P.split('|')) {
+    const k = pair.indexOf('>');
+    if (k > 0) _s2tPhrase.set(pair.slice(0, k), pair.slice(k + 1));
+  }
+}
+
+/* 詞組優先、由長到短比對，再逐字補漏 */
+function toTraditional(text) {
+  if (!text) return text;
+  s2tInit();
+  let out = '', i = 0;
+  const s = String(text);
+  while (i < s.length) {
+    let hit = null;
+    for (let n = Math.min(S2T_MAX, s.length - i); n >= 2; n--) {
+      const seg = s.substr(i, n);
+      const v = _s2tPhrase.get(seg);
+      if (v !== undefined) { hit = [seg, v]; break; }
+    }
+    if (hit) { out += hit[1]; i += hit[0].length; continue; }
+    const ch = s[i];
+    out += _s2tChar.get(ch) !== undefined ? _s2tChar.get(ch) : ch;
+    i++;
+  }
+  return out;
+}
+</script>
+</body>
+</html>

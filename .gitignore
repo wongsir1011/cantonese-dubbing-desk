@@ -1,0 +1,22 @@
+# 唔好將金鑰、音影片、成品推上去
+*.key
+.env
+secrets*
+config.local.*
+
+# 素材同輸出
+*.mp3
+*.m4a
+*.wav
+*.mp4
+*.mov
+*.webm
+*.srt
+output/
+temp/
+
+# 系統
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
