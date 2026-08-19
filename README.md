@@ -103,14 +103,35 @@ ffmpeg -version
 
 > 金鑰同區域一定要對得上。用 `southeastasia` 建嘅 key 填 `eastasia` 會直接 401。
 
-### 翻譯供應商 — 四揀一
+> Azure 三個欄（Key、區域、資源名）就算轉錄改用第二個引擎都建議照填 —— 佢同時係預設嘅語音合成引擎。
 
-| 供應商 | 端點 | 備註 |
-|---|---|---|
-| **Google Gemini** | `generativelanguage.googleapis.com` | 有免費額度，唔使信用卡。[aistudio.google.com](https://aistudio.google.com) 攞 key |
-| OpenRouter | `openrouter.ai/api/v1` | 一個 key 通所有模型 |
-| Poe | `api.poe.com/v1` | 用 Poe 訂閱點數 |
-| Anthropic | `api.anthropic.com` | 直連 Claude，需要 API credit |
+### 轉錄引擎（設定可揀）
+
+| 引擎 | 收費 | 切段 | 時間碼 | 備註 |
+|---|---|---|---|---|
+| **Azure 快速轉錄**（預設）| F0 免費層每月 5 鐘 | 8 分鐘 | 聲學對齊，準 | zh-CN + diarization，最多 2 個講者 |
+| **ElevenLabs Scribe v2** | 約 US$0.22/鐘 | **唔切段** | 逐字，最準 | 冇免費層，要先充值 |
+| **Gemini 音頻理解** | 用返翻譯個 key | 4 分鐘 | 模型估，會飄 | 唔使另外開戶 |
+
+**ElevenLabs**：去 [elevenlabs.io](https://elevenlabs.io) 個人頁 → API Keys 攞 key，填落設定「ElevenLabs API Key」。
+成個檔一次過送去 `api.elevenlabs.io/v1/speech-to-text`（`model_id=scribe_v2`、`language_code=cmn`、`diarize=true`）。
+因為唔切段，講者標籤可以貫穿全片，唔會好似 Azure 咁逐段重新編號。上限 250MB（本機代理一次過轉發嘅限制），超過就要剪短或者轉用 Azure。
+
+**Gemini**：用返「翻譯供應商 = Google Gemini」嗰個 `kGoogle` key，另外可以喺「Gemini 轉錄模型」指定型號（預設 `gemini-2.5-flash`）。
+切段 4 分鐘係為咗避開 `inline_data` 20MB 請求上限；免費層 10 RPM，程式每段之間自動隔 7 秒。
+⚠ **時間碼係模型估出嚟嘅，唔係聲學對齊**。短片可以接受，長片會愈估愈飄，做字幕同聲畫對齊要留意。
+
+### 語音（可選升級）— MiniMax 官方 API
+
+預設用 Azure 語音已經免費夠用。想要更自然嘅粵語聲，可以去 [platform.minimax.io](https://platform.minimax.io) 開戶，攞 **API Key** 同 **Group ID**（兩樣都喺帳戶管理頁），設定入面「語音引擎」轉「MiniMax 官方」。
+
+- 型號：`speech-2.8-hd`（質素最高）或 `speech-2.8-turbo`（快啲平啲）
+- 預設聲：官方粵語主持聲 `Cantonese_ProfessionalHost（M)` / `（F)`（ID 入面個括號係全形，官方原樣）
+- 已自動設 `language_boost: Chinese,Yue`，確保當粵語讀
+- 收費按字元計，HD 每千字約 US$0.05–0.10，一集 20 分鐘節目約 US$0.2–0.4
+- 逐句合成，速度慢過 Azure 批次；音高語速有效，但語氣選項只影響翻譯用詞
+
+### 翻譯 — Google Gemini
 
 推薦 Gemini，預設用 `gemini-2.5-flash`。免費層限額因模型而異，程式會自動按模型調節請求間隔：
 
@@ -119,11 +140,6 @@ ffmpeg -version
 | `gemini-2.5-flash` | 10 | 250 | 約 2 分鐘 |
 | `gemini-2.5-flash-lite` | 15 | 1000 | 約 1.5 分鐘 |
 
-> ChatGPT Plus / Claude Pro 訂閱**唔等於** API credit，兩者係獨立錢包。
-
-### OpenAI — 選用
-
-只有轉錄引擎揀 `gpt-4o-transcribe-diarize` 或者 `whisper-1` 先需要。用 Azure 轉錄就唔使填。
 
 ---
 
@@ -164,7 +180,7 @@ Azure Fast Transcription 自動分辨兩位主持，男聲配 `zh-HK-WanLungNeur
 單一 Python 檔，只用標準庫，唔使 `pip install`：
 
 1. **派發靜態檔案** — 鎖定自己所在嘅資料夾，唔跟命令列嘅工作目錄
-2. **API 代理** — 繞過 CORS。有網域白名單，只轉發去 OpenAI、Anthropic、Google、OpenRouter、Poe、Azure
+2. **API 代理** — 繞過 CORS。有網域白名單，只轉發去 Google、Azure 同 MiniMax
 3. **影片處理** — 呼叫 ffmpeg 抽音軌同合成成品
 
 金鑰喺瀏覽器同伺服器之間經 `localhost` 傳遞，唔會寫入任何檔案或者日誌。伺服器只綁定 `127.0.0.1`，同一個網絡嘅其他裝置連唔到。

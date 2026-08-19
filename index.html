@@ -53,6 +53,7 @@ header.masthead{
   font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:2px;cursor:pointer;
 }
 .ghost:hover{border-color:var(--voiceA);color:var(--voiceA)}
+.mini-btn{padding:3px 9px;font-size:11px}
 
 /* ---------- 階段軌 ---------- */
 .rail{display:flex;gap:0;margin:26px 0 30px;border:1px solid var(--line);border-radius:3px;overflow:hidden}
@@ -192,7 +193,7 @@ a{color:var(--voiceA)}
 <header class="masthead">
   <div>
     <h1>粵語配音台</h1>
-    <div class="sub">Mandarin podcast → Cantonese dub · build 2026-08-06 05:05 UTC</div>
+    <div class="sub">Mandarin podcast → Cantonese dub · build 2026-08-19 16:05 UTC</div>
   </div>
   <button class="ghost" id="btnCfg">設定</button>
 </header>
@@ -214,27 +215,37 @@ a{color:var(--voiceA)}
   <p class="hint">全部只存喺你部機嘅 localStorage，唔會傳去任何第三方。</p>
   <div class="warnbox">要用本機伺服器開呢個檔案，直接雙擊 file:// 會被瀏覽器擋住 API 呼叫。<br>
   將 <code>serve.py</code> 同呢個 HTML 擺埋一齊，行 <code>python3 serve.py</code>，再開 <code>localhost:8000</code>。<br>
-  <code>serve.py</code> 同時做 API 代理，可以繞過 Azure 轉錄嘅 CORS 限制。</div>
-
-  <label class="f"><span>OpenAI API Key — 轉錄用</span>
-    <input type="password" id="kOpenAI" placeholder="sk-...（用 Azure 轉錄就唔使填）"></label>
+  <code>serve.py</code> 同時做 API 代理，可以繞過各家轉錄／語音服務嘅 CORS 限制。</div>
 
   <label class="f"><span>翻譯供應商</span>
     <select id="pProvider">
-      <option value="google">Google Gemini — 有免費額度，唔使信用卡</option>
-      <option value="openrouter">OpenRouter — 一個 key 通所有模型</option>
-      <option value="poe">Poe — 用你嘅 Poe 訂閱點數</option>
-      <option value="anthropic">Anthropic — 直連 Claude</option>
+      <option value="google" selected>Google Gemini — 免費層 · 香港可能要 VPN</option>
+      <option value="deepseek">DeepSeek — 中國公司 · 香港直連 · 中文強</option>
+      <option value="glm">智譜 GLM — 中國公司 · 香港直連</option>
+      <option value="minimax-chat">MiniMax 對話 — 用你 MiniMax 帳戶</option>
     </select></label>
 
   <label class="f kbox" data-p="google"><span>Google AI Studio API Key</span>
-    <input type="password" id="kGoogle" placeholder="AIza..."></label>
-  <label class="f kbox" data-p="openrouter"><span>OpenRouter API Key</span>
-    <input type="password" id="kOpenRouter" placeholder="sk-or-v1-..."></label>
-  <label class="f kbox" data-p="poe"><span>Poe API Key</span>
-    <input type="password" id="kPoe" placeholder="喺 poe.com/api_key 攞"></label>
-  <label class="f kbox" data-p="anthropic"><span>Anthropic API Key</span>
-    <input type="password" id="kAnthropic" placeholder="sk-ant-..."></label>
+    <input type="password" id="kGoogle" placeholder="AIza...（aistudio.google.com 免費攞，唔使信用卡）"></label>
+  <label class="f kbox hidden" data-p="deepseek"><span>DeepSeek API Key</span>
+    <input type="password" id="kDeepSeek" placeholder="sk-...（platform.deepseek.com 攞，要充值最少 US$2）"></label>
+  <label class="f kbox hidden" data-p="glm"><span>智譜 GLM API Key</span>
+    <input type="password" id="kGLM" placeholder="喺 bigmodel.cn 攞，新用戶送額度"></label>
+  <label class="f kbox hidden" data-p="minimax-chat"><span>MiniMax 對話用 API Key（可以同上面語音 key 一樣）</span>
+    <input type="password" id="kMiniMaxChat" placeholder="用 MiniMax 帳戶嘅 key，會跟返你揀嘅地區"></label>
+
+  <div class="grid2">
+    <label class="f"><span>MiniMax 國際版 API Key —（可選）</span>
+      <input type="password" id="kMiniMax" placeholder="platform.minimax.io 攞"></label>
+    <label class="f"><span>MiniMax 國際版 Group ID —（選填）</span>
+      <input type="text" id="kMiniMaxGroup" placeholder="新帳戶通常唔需要"></label>
+  </div>
+  <div class="grid2">
+    <label class="f"><span>MiniMax 大陸版 API Key —（可選）</span>
+      <input type="password" id="kMiniMaxCN" placeholder="platform.minimaxi.com 攞"></label>
+    <label class="f"><span>MiniMax 大陸版 Group ID —（大陸版必填）</span>
+      <input type="text" id="kMiniMaxCNGroup" placeholder="基本信息頁攞"></label>
+  </div>
 
   <div class="grid2">
     <label class="f"><span>Azure Speech Key — 語音用</span>
@@ -246,14 +257,28 @@ a{color:var(--voiceA)}
   <label class="f"><span>Azure 資源名稱 — 資源頁左上角嗰個大字</span>
     <input type="text" id="kAzureName" placeholder="wongsir1011"></label>
   <div class="warnbox">區域要同資源頁「位置/區域」欄一模一樣，例如 <code>southeastasia</code>。
-  對唔上會直接 401。</div>
+  對唔上會直接 401。<br>
+  <b>注意</b>：呢三個欄就算你轉錄用第二個引擎都要填 —— Azure 同時係預設嘅語音合成引擎。</div>
+
+  <div class="grid2">
+    <label class="f"><span>ElevenLabs API Key — 轉錄用（可選）</span>
+      <input type="password" id="kEleven" placeholder="elevenlabs.io 個人頁 → API Keys"></label>
+    <label class="f"><span>Gemini 轉錄模型 — 轉錄用（可選）</span>
+      <input type="text" id="oGemASR" list="gemAsrList" placeholder="gemini-2.5-flash">
+      <datalist id="gemAsrList">
+        <option value="gemini-2.5-flash"></option>
+        <option value="gemini-2.5-flash-lite"></option>
+        <option value="gemini-2.5-pro"></option>
+      </datalist></label>
+  </div>
+  <div class="hint" id="asrHint" style="margin:-4px 0 14px"></div>
 
   <div class="grid2">
     <label class="f"><span>轉錄引擎</span>
-      <select id="mSTT">
-        <option value="azure-fast">Azure 快速轉錄（分講者 · 每月 5 鐘免費）</option>
-        <option value="gpt-4o-transcribe-diarize">OpenAI gpt-4o-transcribe-diarize（分講者）</option>
-        <option value="whisper-1">OpenAI whisper-1（靠 AI 推斷講者）</option>
+      <select id="oASR">
+        <option value="azure" selected>Azure 快速轉錄 — 每月 5 鐘免費 · 分講者</option>
+        <option value="eleven">ElevenLabs Scribe v2 — 時間碼最準 · 按量收費</option>
+        <option value="gemini">Gemini 音頻理解 — 用返翻譯個 key · 時間碼會飄</option>
       </select></label>
     <label class="f"><span>翻譯模型</span>
       <input type="text" id="mModel" list="modelList" placeholder="gemini-2.5-flash">
@@ -288,6 +313,12 @@ a{color:var(--voiceA)}
         <option value="20" selected>20 字 — 一般</option>
         <option value="24">24 字 — 大螢幕</option>
       </select></label>
+    <label class="f"><span>語音引擎</span>
+      <select id="oTTS">
+        <option value="azure" selected>Azure zh-HK — 免費層夠用 · 粵語官方支援</option>
+        <option value="minimax">MiniMax 官方 — 有粵語主持聲 · 按量收費</option>
+        <option value="glm">GLM-TTS — 主打普通話，粵語未經官方支援（實驗）</option>
+      </select></label>
     <label class="f"><span>Azure 定價層</span>
       <select id="oTier">
         <option value="f0" selected>F0 免費層 — 每分鐘 20 次，自動放慢</option>
@@ -304,16 +335,68 @@ a{color:var(--voiceA)}
 
   <div class="hint" id="modelHint" style="margin:-4px 0 14px"></div>
 
-  <div class="grid2">
+  <div class="grid2" id="azVoiceBox">
     <label class="f"><span>男聲（講者 A）</span>
       <select id="vA">
-        <option value="zh-HK-WanLungNeural">WanLung 雲龍</option>
+        <option value="zh-HK-WanLungNeural">WanLung 雲龍（男）</option>
       </select></label>
     <label class="f"><span>女聲（講者 B）</span>
       <select id="vB">
-        <option value="zh-HK-HiuMaanNeural">HiuMaan 曉曼</option>
-        <option value="zh-HK-HiuGaaiNeural">HiuGaai 曉佳</option>
+        <option value="zh-HK-HiuMaanNeural">HiuMaan 曉曼（女）</option>
+        <option value="zh-HK-HiuGaaiNeural">HiuGaai 曉佳（女）</option>
       </select></label>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button type="button" class="ghost" id="btnAzVoices">拎返可用粵語聲</button>
+    <span class="hint" id="azVoiceStatus" style="align-self:center"></span>
+  </div>
+  <div class="hint">預設係 Azure 官方三把 zh-HK 粵語聲。撳上面粒掣會由 Azure 直接查你帳戶實際攞到嘅粵語聲（有時會有新增嘅 HD 聲，例如 Achird HK）。</div>
+
+  <div id="glmBox" class="hidden">
+    <div class="hint">GLM-TTS 內建音色（例如 tongtong）。官方文檔冇列明粵語支援，多數會用普通話腔讀廣東話字，請試聽再決定。</div>
+    <div class="grid2">
+      <label class="f"><span>GLM 男聲 (A)</span>
+        <input type="text" id="oGLMVoice" value="tongtong" placeholder="tongtong"></label>
+      <label class="f"><span>GLM 女聲 (B)</span>
+        <input type="text" id="oGLMVoiceB" value="tongtong" placeholder="tongtong"></label>
+    </div>
+  </div>
+
+  <div id="mmBox" class="hidden">
+    <div class="grid2">
+      <label class="f"><span>MiniMax 地區</span>
+        <select id="oMMRegion">
+          <option value="global" selected>國際版 · platform.minimax.io</option>
+          <option value="cn">大陸版 · platform.minimaxi.com</option>
+        </select></label>
+      <label class="f"><span>&nbsp;</span>
+        <span class="hint" style="line-height:1.5">兩個係獨立系統：域名、帳戶、key 各自獨立，唔通用。</span></label>
+    </div>
+    <div class="grid2">
+      <label class="f"><span>MiniMax 型號</span>
+        <select id="oMMModel">
+          <option value="speech-2.8-hd" selected>speech-2.8-hd — 最新，質素最高</option>
+          <option value="speech-2.8-turbo">speech-2.8-turbo — 最新，快啲平啲</option>
+          <option value="speech-2.6-hd">speech-2.6-hd — 舊版 HD</option>
+          <option value="speech-2.6-turbo">speech-2.6-turbo — 舊版 Turbo</option>
+        </select></label>
+      <label class="f"><span>&nbsp;</span>
+        <span class="hint" style="line-height:1.5">HD 每千字約 US$0.05–0.10。<br>一集 20 分鐘節目約 US$0.2–0.4。</span></label>
+    </div>
+    <div class="grid2">
+      <label class="f"><span>MiniMax 男聲 (A)</span>
+        <input type="text" id="oMMVoiceA" value="Cantonese_ProfessionalHost（M)" list="mmVoiceList"></label>
+      <label class="f"><span>MiniMax 女聲 (B)</span>
+        <input type="text" id="oMMVoiceB" value="Cantonese_ProfessionalHost（F)" list="mmVoiceList"></label>
+    </div>
+    <datalist id="mmVoiceList"></datalist>
+    <div class="row" style="margin-top:8px">
+      <button type="button" class="ghost" id="btnMMVoices">拎返可用音色清單</button>
+      <span class="hint" id="mmVoiceStatus" style="align-self:center"></span>
+    </div>
+    <div id="mmVoicePicker" class="hidden" style="margin-top:12px;max-height:240px;overflow-y:auto;
+         border:1px solid var(--line);border-radius:4px;padding:8px"></div>
+    <div class="hint">預設係官方粵語主持聲（ID 入面個括號係全形，係官方原樣，唔好改半形）。撳上面粒掣可以睇返你個帳戶實際用得嘅音色，包括粵語同其他方言標籤。校對頁每句嘅 ▶ 可以即時試聽。</div>
   </div>
 
   <div class="row"><button class="act" id="btnSaveCfg">儲存</button>
@@ -399,8 +482,8 @@ a{color:var(--voiceA)}
     <div class="grid2">
       <label class="f"><span>字幕</span>
         <select id="oBurn">
-          <option value="soft">內嵌字幕軌（快，播放器可開關）</option>
-          <option value="burn">燒錄入畫面（慢，一定睇到）</option>
+          <option value="burn">燒錄入畫面 — 字幕永久畫入片，任何播放器一定睇到</option>
+          <option value="soft">軟字幕軌 — 快，但要喺播放器手動開字幕先睇到</option>
           <option value="none">唔要字幕</option>
         </select></label>
       <label class="f"><span>保留原聲音量</span>
@@ -409,6 +492,11 @@ a{color:var(--voiceA)}
           <option value="10">10% 墊底</option>
           <option value="20">20% 墊底</option>
         </select></label>
+    </div>
+    <div id="reVideoBox" class="hidden warnbox">
+      <b>要重新揀返條原片先可以合成。</b><br>
+      <span id="reVideoHint"></span><br>
+      <input type="file" id="reVideoIn" accept="video/*" style="margin-top:10px">
     </div>
     <div id="muxBlocked" class="hidden warnbox">
       <b>暫時合成唔到影片。</b><br><span id="muxBlockedMsg"></span><br>
@@ -431,6 +519,13 @@ a{color:var(--voiceA)}
 
 </div>
 <script>
+
+
+
+
+
+
+
 /* ══════════ 狀態 ══════════ */
 const S = {
   file: null,
@@ -487,27 +582,44 @@ function download(blob, name) {
 }
 
 /* ══════════ 設定 ══════════ */
-const CFG_FIELDS = ['kOpenAI', 'pProvider', 'kGoogle', 'kOpenRouter', 'kPoe', 'kAnthropic',
-  'kAzure', 'kAzureRegion', 'kAzureName', 'mSTT', 'mModel', 'mTone', 'oLen', 'oSubLen', 'oSubSrc', 'oScript', 'oTier', 'mRate', 'vA', 'vB'];
+const CFG_FIELDS = ['pProvider', 'kGoogle', 'kDeepSeek', 'kGLM', 'kMiniMaxChat', 'oMMRegion', 'kMiniMax', 'kMiniMaxGroup', 'kMiniMaxCN', 'kMiniMaxCNGroup', 'oTTS', 'oMMModel', 'oMMVoiceA', 'oMMVoiceB', 'oGLMVoice', 'oGLMVoiceB',
+  'kAzure', 'kAzureRegion', 'kAzureName', 'oASR', 'kEleven', 'oGemASR',
+  'mModel', 'mTone', 'oLen', 'oSubLen', 'oSubSrc', 'oScript', 'oTier', 'mRate', 'vA', 'vB'];
+
+/* 轉錄引擎。keys = 開工前一定要有嘅金鑰欄位 */
+const ASR = {
+  azure: {
+    name: 'Azure 快速轉錄（分講者）', keys: ['kAzure', 'kAzureName'], chunk: 480,
+    hint: 'Azure Fast Transcription，zh-CN + 分講者。F0 免費層每月 5 個鐘。時間碼由聲學對齊得出，最準。'
+  },
+  eleven: {
+    name: 'ElevenLabs Scribe v2', keys: ['kEleven'], chunk: 0,
+    hint: 'Scribe v2，逐字時間碼 + 分講者，US$0.22/鐘（約港幣 $1.7）。成個檔一次過送，唔切段，所以講者標籤可以貫穿全片。要充值先用得，冇免費層。'
+  },
+  gemini: {
+    name: 'Gemini 音頻理解', keys: ['kGoogle'], chunk: 240,
+    hint: '用返你翻譯果個 Google key，唔使另外開戶。⚠ 時間碼係模型「估」出嚟，唔係聲學對齊，長片會愈估愈飄——做字幕同聲畫對齊要有心理準備。切段 4 分鐘（避開 20MB 請求上限）。'
+  }
+};
+function asr() { return ASR[cfg().oASR] || ASR.azure; }
 
 /* 翻譯供應商。gap = 每批之間最少相隔幾多毫秒，遷就免費層速率限制 */
 const PROVIDERS = {
   google: {
     name: 'Google Gemini', keyField: 'kGoogle', defModel: 'gemini-2.5-flash', gap: 7000,
-    hint: '預設 gemini-2.5-flash：免費層每分鐘 10 次、每日 250 次。' +
-          '譯文如果偏書面，用校對頁嘅「重譯有問題嘅句子」修。去 aistudio.google.com 攞 key，唔使信用卡。'
+    hint: '預設 gemini-2.5-flash。免費層每分鐘 10 次、每日 250 次。香港有時要 VPN 先穩定連到。'
   },
-  openrouter: {
-    name: 'OpenRouter', keyField: 'kOpenRouter', defModel: 'google/gemini-2.5-flash', gap: 3000,
-    hint: '模型名要連機構前綴，例如 google/gemini-2.5-flash、anthropic/claude-sonnet-4-6。尾綴 :free 嘅係免費模型，但速率較低兼可能排隊。'
+  deepseek: {
+    name: 'DeepSeek', keyField: 'kDeepSeek', defModel: 'deepseek-chat', gap: 1500,
+    hint: '中國公司，香港直連冇問題。用 deepseek-chat（唔好用 reasoner，推理模型會淨係出思考內容）。按用量計費，非常平。'
   },
-  poe: {
-    name: 'Poe', keyField: 'kPoe', defModel: 'Claude-Sonnet-4.6', gap: 600,
-    hint: '模型名用 Poe 上嘅 bot 名，例如 Claude-Sonnet-4.6、GPT-5.4。會扣你訂閱嘅點數。'
+  glm: {
+    name: '智譜 GLM', keyField: 'kGLM', defModel: 'glm-4.5-flash', gap: 1500,
+    hint: '中國公司，香港直連。glm-4.5、glm-4.5-flash（免費）、glm-4.5-air。去 bigmodel.cn 攞 key。'
   },
-  anthropic: {
-    name: 'Anthropic', keyField: 'kAnthropic', defModel: 'claude-sonnet-5', gap: 600,
-    hint: '例如 claude-sonnet-5、claude-haiku-4-5-20251001。需要 console.anthropic.com 嘅 API credit。'
+  'minimax-chat': {
+    name: 'MiniMax 對話', keyField: 'kMiniMaxChat', defModel: 'MiniMax-Text-01', gap: 1500,
+    hint: '預設 MiniMax-Text-01（非推理版，穩定出 JSON）。M2.5 係推理模型，可能淨係出思考內容。會自動用返上面語音揀嘅地區。'
   }
 };
 function prov() { return PROVIDERS[cfg().pProvider] || PROVIDERS.google; }
@@ -527,10 +639,10 @@ function batchGap() {
 
 /* 每個供應商嘅模型命名唔同，用嚟擋住「用 A 家 key 叫 B 家模型」呢種錯 */
 const MODEL_SHAPE = {
-  google: /^(gemini|gemma|learnlm)-[a-z0-9.\-]+$/,   // Google 只收全細楷
-  anthropic: /^claude-[a-z0-9.\-]+$/,                // 同上
-  openrouter: /^[a-z0-9._\-]+\/[A-Za-z0-9._:\-]+$/,  // 一定有機構前綴
-  poe: /^[^\/]*[A-Z]/                                // Poe bot 名有大楷、冇斜線
+  google: /^(gemini|gemma|learnlm)-[a-z0-9.\-]+$/,
+  deepseek: /^deepseek-[a-z0-9.\-]+$/,
+  glm: /^glm-[a-z0-9.\-]+$/,
+  'minimax-chat': /^MiniMax-[A-Za-z0-9.\-]+$/
 };
 function modelFits(provider, model) {
   const re = MODEL_SHAPE[provider];
@@ -539,9 +651,9 @@ function modelFits(provider, model) {
 /* 目前供應商用得嘅常見模型，畀輸入框做提示 */
 const MODEL_SUGGEST = {
   google: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'],
-  openrouter: ['google/gemini-2.5-flash', 'anthropic/claude-sonnet-4-6', 'deepseek/deepseek-chat-v3-0324:free'],
-  poe: ['Claude-Sonnet-4.6', 'GPT-5.4'],
-  anthropic: ['claude-sonnet-5', 'claude-opus-5', 'claude-haiku-4-5-20251001']
+  deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+  glm: ['glm-4.5-flash', 'glm-4.5', 'glm-4.5-air'],
+  'minimax-chat': ['MiniMax-Text-01', 'MiniMax-M2.5']
 };
 function refreshModelList() {
   const dl = $('modelList');
@@ -561,9 +673,16 @@ function loadCfg() {
   if (!$('mModel').value.trim() || !modelFits(pv, $('mModel').value)) {
     $('mModel').value = prov().defModel;
   }
-  // gemini-2.5-pro 已下架：舊設定自動轉返 flash
-  if (pv === 'google' && /^gemini-2\.5-pro/i.test($('mModel').value)) {
-    $('mModel').value = 'gemini-2.5-flash';
+  // 只顯示目前供應商嘅金鑰欄
+  document.querySelectorAll('.kbox').forEach(b => {
+    b.classList.toggle('hidden', b.dataset.p !== (c.pProvider || 'google'));
+  });
+
+  // 遷移舊設定：舊 pro 已下架；供應商換咗但模型未跟
+  const mv = $('mModel').value;
+  const pv2 = c.pProvider || 'google';
+  if (/^gemini-2\.5-pro/i.test(mv) || !modelFits(pv2, mv)) {
+    $('mModel').value = (PROVIDERS[pv2] || PROVIDERS.google).defModel;
     saveCfg();
   }
   refreshModelList();
@@ -584,30 +703,52 @@ function markCfg() {
   const c = cfg();
   const p = prov();
   const need = [];
-  if (c.mSTT !== 'azure-fast' && !c.kOpenAI) need.push('OpenAI');
-  if (!c[p.keyField]) need.push(p.name);
-  if (!c.kAzure) need.push('Azure');
-  if (c.mSTT === 'azure-fast' && !c.kAzureName) need.push('Azure 資源名');
-  const el = $('cfgState');
-  el.textContent = need.length ? '欠 ' + need.join(' / ') : '齊備';
-  el.style.color = need.length ? 'var(--warn)' : 'var(--voiceA)';
 
+  if (!c[p.keyField]) need.push(p.name);
+  // Azure 可能被轉錄用、被語音合成用，或者兩樣都用；一樣都唔用就唔使強求
+  const azUsed = (!c.oASR || c.oASR === 'azure') || (!c.oTTS || c.oTTS === 'azure');
+  if (azUsed) {
+    if (!c.kAzure) need.push('Azure');
+    if (!c.kAzureName) need.push('Azure 資源名');
+  }
+  if (c.oASR === 'eleven' && !c.kEleven) need.push('ElevenLabs key（轉錄用）');
+  if (c.oTTS === 'glm' && !c.kGLM) need.push('GLM key（語音用）');
+  const glmBox = $('glmBox');
+  if (glmBox) glmBox.classList.toggle('hidden', c.oTTS !== 'glm');
+  const azBox = $('azVoiceBox');
+  const isAz = !c.oTTS || c.oTTS === 'azure';
+  if (azBox) {
+    azBox.style.display = isAz ? '' : 'none';
+    const ab = $('btnAzVoices');
+    if (ab) ab.parentElement.style.display = isAz ? '' : 'none';
+  }
+  if (c.oTTS === 'minimax') {
+    const ep = mmEndpoint(c);
+    if (!ep.key) need.push(`MiniMax ${ep.label} key`);
+    if (c.oMMRegion === 'cn' && !ep.gid) need.push('MiniMax 大陸版 Group ID');
+  }
+  const mmBox = $('mmBox');
+  if (mmBox) mmBox.classList.toggle('hidden', c.oTTS !== 'minimax');
   // 只顯示目前供應商嘅金鑰欄
   document.querySelectorAll('.kbox').forEach(b => {
     b.classList.toggle('hidden', b.dataset.p !== (c.pProvider || 'google'));
   });
+  const el = $('cfgState');
+  el.textContent = need.length ? '欠 ' + need.join(' / ') : '齊備';
+  el.style.color = need.length ? 'var(--warn)' : 'var(--voiceA)';
+
   const mh = $('modelHint');
   if (mh) mh.textContent = p.hint;
 
-  const names = {
-    'azure-fast': 'Azure 快速轉錄',
-    'gpt-4o-transcribe-diarize': 'OpenAI 分講者',
-    'whisper-1': 'OpenAI whisper-1'
-  };
+  const a = asr();
+  const ah = $('asrHint');
+  if (ah) ah.textContent = '轉錄：' + a.hint;
+
   const en = $('engineNow');
   if (en) {
-    en.textContent = '引擎：' + (names[c.mSTT] || c.mSTT || '—');
-    en.style.color = c.mSTT === 'azure-fast' ? 'var(--voiceA)' : 'var(--warn)';
+    const lack = a.keys.filter(k => !c[k]);
+    en.textContent = '引擎：' + a.name + (lack.length ? '（未填金鑰）' : '');
+    en.style.color = lack.length ? 'var(--warn)' : 'var(--voiceA)';
   }
 }
 
@@ -647,7 +788,9 @@ async function callApi(url, opts, label) {
       const kind = await diagnose(url);
       const host = new URL(url).hostname;
       const err = new Error(kind === 'dns'
-        ? `${label}：連唔到 ${host}。多數係 Azure 資源名稱或者區域打錯，去設定檢查下。`
+        ? `${label}：連唔到 ${host}。` + (/azure/i.test(host)
+            ? '多數係 Azure 資源名稱或者區域打錯，去設定檢查下。'
+            : '檢查下網絡；香港連 Google 有時要 VPN。')
         : `${label}：被瀏覽器 CORS 擋住。用 serve.py 啟動本機代理就解決到——喺同一個資料夾行 python3 serve.py，再開 localhost:8000。`);
       err.fatal = true;
       throw err;
@@ -718,80 +861,67 @@ function encodeWav(samples, rate) {
   return new Blob([buf], { type: 'audio/wav' });
 }
 
-/* ══════════ 轉錄（Whisper） ══════════ */
-async function transcribe(file) {
-  log('解碼音檔…');
-  const { data, rate } = await decodeAudio(file);
-  const total = data.length / rate;
-  const nChunks = Math.ceil(total / CHUNK_SEC);
-  log(`時長 ${tc(total)}，切成 ${nChunks} 段`);
+/* ══════════ 轉錄 ══════════ */
 
-  const key = cfg().kOpenAI;
-  const engine = cfg().mSTT || 'azure-fast';
-  const isAzure = engine === 'azure-fast';
-  const diarize = isAzure || engine.indexOf('diarize') >= 0;
-  log(isAzure ? '引擎：Azure 快速轉錄（分講者）'
-    : diarize ? '引擎：OpenAI 分講者' : '引擎：whisper-1');
-
-  const segs = [];
-  for (let i = 0; i < nChunks; i++) {
-    const from = i * CHUNK_SEC * rate;
-    const to = Math.min(data.length, (i + 1) * CHUNK_SEC * rate);
-    const wav = encodeWav(data.subarray(from, to), rate);
-    log(`轉錄第 ${i + 1}/${nChunks} 段 (${(wav.size / 1048576).toFixed(1)}MB)…`);
-
-    let list;
-    if (isAzure) {
-      list = await azureTranscribe(wav, i);
-    } else {
-      const fd = new FormData();
-      fd.append('file', wav, `part${i}.wav`);
-      fd.append('model', engine);
-      fd.append('language', 'zh');
-      if (diarize) {
-        fd.append('response_format', 'diarized_json');
-        fd.append('chunking_strategy', 'auto');
+/* 將一批 {start,end,text,speaker} 正規化成 A / B 再堆入 out。
+   逐批做，因為 Azure／Gemini 嘅講者編號跨段唔保證一致；
+   ElevenLabs 成個檔一次過送，所以佢一批就係全片，標籤自然貫穿。
+   已經係 'A'／'B' 嘅（Gemini 直接輸出男女）就原樣收貨，唔好重新排。 */
+function absorbSegs(list, offset, out) {
+  const seen = [];
+  list.forEach(s => {
+    const t = (s.text || '').trim();
+    if (!t) return;
+    let spk = null;
+    if (s.speaker != null && s.speaker !== '') {
+      const k = String(s.speaker);
+      if (k === 'A' || k === 'B') {
+        spk = k;
       } else {
-        fd.append('response_format', 'verbose_json');
-        fd.append('prompt', '以下係普通話對談節目嘅內容。');
-      }
-      const json = await withRetry(async () => {
-        const r = await callApi('https://api.openai.com/v1/audio/transcriptions', {
-          method: 'POST', headers: { Authorization: 'Bearer ' + key }, body: fd
-        }, 'OpenAI 轉錄');
-        if (!r.ok) {
-          const body = (await r.text()).slice(0, 300);
-          if (body.indexOf('insufficient_quota') >= 0) {
-            const e = new Error('OpenAI 戶口冇 API 額度。撳「設定」轉用 Azure 快速轉錄，或者去 platform.openai.com 加 credit。');
-            e.fatal = true;
-            throw e;
-          }
-          throw new Error('轉錄 ' + r.status + '：' + body);
-        }
-        return r.json();
-      }, 3);
-      const raw = json.segments || json.diarized_segments || [];
-      list = raw.length ? raw : [{ start: 0, end: 0, text: json.text || '' }];
-    }
-
-    const offset = i * CHUNK_SEC;
-    // 每段內部先將講者標籤正規化成 A / B（跨段可能唔一致，稍後交畀 AI 同人手校正）
-    const seen = [];
-    list.forEach(s => {
-      const t = (s.text || '').trim();
-      if (!t) return;
-      let spk = null;
-      if (s.speaker != null) {
-        const k = String(s.speaker);
         if (seen.indexOf(k) < 0) seen.push(k);
         spk = seen.indexOf(k) === 0 ? 'A' : 'B';
       }
-      segs.push({ start: (s.start || 0) + offset, end: (s.end || 0) + offset, text: t, spk });
-    });
-    progress((i + 1) / nChunks);
-  }
+    }
+    out.push({ start: (s.start || 0) + offset, end: (s.end || 0) + offset, text: t, spk });
+  });
+}
+
+async function transcribe(file) {
+  const eng = cfg().oASR || 'azure';
+  const a = ASR[eng] || ASR.azure;
+  log('引擎：' + a.name);
+
+  const segs = eng === 'eleven'
+    ? await elevenTranscribe(file)
+    : await chunkedTranscribe(file, eng, a.chunk);
+
   const withSpk = segs.filter(s => s.spk).length;
   log(`轉錄完成，共 ${segs.length} 句` + (withSpk ? `，其中 ${withSpk} 句有講者標籤` : ''));
+  return segs;
+}
+
+/* Azure / Gemini：本機解碼 → 切段 → 逐段送 */
+async function chunkedTranscribe(file, eng, chunkSec) {
+  log('解碼音檔…');
+  const { data, rate } = await decodeAudio(file);
+  const total = data.length / rate;
+  const nChunks = Math.ceil(total / chunkSec);
+  log(`時長 ${tc(total)}，切成 ${nChunks} 段（每段 ${chunkSec / 60} 分鐘）`);
+
+  const segs = [];
+  for (let i = 0; i < nChunks; i++) {
+    const from = i * chunkSec * rate;
+    const to = Math.min(data.length, (i + 1) * chunkSec * rate);
+    const wav = encodeWav(data.subarray(from, to), rate);
+    log(`轉錄第 ${i + 1}/${nChunks} 段 (${(wav.size / 1048576).toFixed(1)}MB)…`);
+
+    const list = eng === 'gemini'
+      ? await withRetry(() => geminiTranscribe(wav, i), 3)
+      : await azureTranscribe(wav, i);
+
+    absorbSegs(list, i * chunkSec, segs);
+    progress((i + 1) / nChunks);
+  }
   return segs;
 }
 
@@ -873,6 +1003,224 @@ async function azureTranscribe(wav, idx) {
     }
   }
   throw lastErr;
+}
+
+/* ── ElevenLabs Scribe v2 ─────────────────────────────
+   成個檔一次過送，唔切段：Scribe 內部自己平行處理，而且咁樣
+   講者編號可以貫穿全片，唔會逐段重新洗牌。 */
+const EL_MAX_MB = 250;
+
+async function elevenTranscribe(file) {
+  const c = cfg();
+  const mb = file.size / 1048576;
+  if (mb > EL_MAX_MB) {
+    throw Object.assign(new Error(
+      `個檔 ${mb.toFixed(0)}MB，超出本機代理一次過轉發嘅上限 ${EL_MAX_MB}MB。` +
+      `剪短啲，或者改用 Azure 引擎（會自動切段）。`), { fatal: true });
+  }
+  log(`上載 ${mb.toFixed(1)}MB 去 Scribe v2…（唔切段，等佢一次過睇晒）`);
+
+  const fd = new FormData();
+  fd.append('file', file, file.name || 'audio.wav');
+  fd.append('model_id', 'scribe_v2');
+  // ElevenLabs 唔收 'cmn'；佢用 zho 代表中文，但唔分普通話／廣東話。
+  // 留空等佢自動偵測最穩陣——你啲片本身就係普通話，佢認得。
+  fd.append('diarize', 'true');
+  fd.append('num_speakers', '2');
+  fd.append('timestamps_granularity', 'word');
+  fd.append('tag_audio_events', 'false');
+
+  const r = await callApi('https://api.elevenlabs.io/v1/speech-to-text', {
+    method: 'POST',
+    headers: { 'xi-api-key': c.kEleven },
+    body: fd
+  }, 'ElevenLabs 轉錄');
+
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 400);
+    let msg = `ElevenLabs 轉錄 ${r.status}：${body}`;
+    if (r.status === 401) msg = `ElevenLabs 認證失敗 (401)。個 key 錯咗或者已經撤銷。\n原文：${body}`;
+    if (r.status === 402) msg = `ElevenLabs 餘額不足 (402)。去 elevenlabs.io 充值。\n原文：${body}`;
+    if (r.status === 422) msg = `ElevenLabs 唔收呢個請求 (422)，通常係檔案格式或者參數問題。\n原文：${body}`;
+    if (r.status === 429) msg = `ElevenLabs 撞到速率／並發上限 (429)，等陣再試。\n原文：${body}`;
+    throw Object.assign(new Error(msg), { fatal: r.status === 401 || r.status === 402 });
+  }
+
+  const j = await r.json();
+  const words = j.words || [];
+  if (!words.length) {
+    // 冇逐字資料但有全文，起碼交返一句出去，好過白做
+    if (j.text) return [{ start: 0, end: S.duration || 0, text: j.text, spk: null }];
+    throw new Error('ElevenLabs 冇返任何文字：' + JSON.stringify(j).slice(0, 300));
+  }
+  if (j.language_code && !/^(cmn|zho|zh|yue|chi)/i.test(j.language_code)) {
+    log(`留意：Scribe 判斷語言係 ${j.language_code}，唔係中文`, 'err');
+  }
+
+  const grouped = elGroup(words);
+  const out = [];
+  absorbSegs(grouped, 0, out);
+  return out;
+}
+
+/* 逐字 → 逐句。斷句條件：換講者、句末標點、靜音 0.9 秒、或者夠長 */
+function elGroup(words) {
+  const segs = [];
+  let cur = null, lastEnd = null;
+  const flush = () => { if (cur && cur.text.trim()) segs.push(cur); cur = null; };
+
+  for (const w of words) {
+    const type = w.type || 'word';
+    if (type === 'audio_event') continue;
+    if (type === 'spacing') {
+      // 中文之間唔加空格，淨係喺英數之後先補返
+      if (cur && /[A-Za-z0-9]$/.test(cur.text)) cur.text += ' ';
+      continue;
+    }
+    const spk = w.speaker_id != null ? String(w.speaker_id) : null;
+    const gap = (cur && lastEnd != null) ? (w.start || 0) - lastEnd : 0;
+    if (cur && (spk !== cur.speaker || gap > 0.9 || cur.text.length >= 42)) flush();
+    if (!cur) cur = { start: w.start || 0, end: w.end || 0, text: '', speaker: spk };
+    cur.text += (w.text || '');
+    if (w.end != null) cur.end = w.end;
+    lastEnd = cur.end;
+    if (/[。！？!?]$/.test(cur.text)) flush();
+  }
+  flush();
+  return segs;
+}
+
+/* ── Gemini 音頻理解 ──────────────────────────────────
+   inline_data 有 20MB 請求上限，所以切段 4 分鐘（≈7.7MB WAV → 10MB base64）。
+   時間碼係模型估出嚟，唔係聲學對齊，長片會飄——UI 有提示。 */
+let gemNext = 0;
+async function gemThrottle() {
+  const now = Date.now();
+  const wait = Math.max(0, gemNext - now);
+  gemNext = Math.max(now, gemNext) + 7000;   // 免費層 10 RPM
+  if (wait) await sleep(wait);
+}
+
+function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(',')[1] || '');
+    fr.onerror = () => rej(new Error('讀唔到音檔位元'));
+    fr.readAsDataURL(blob);
+  });
+}
+
+/* 接受 12.5、"12.5"、"0:12"、"1:02:33" 幾種寫法 */
+function parseClock(v) {
+  if (typeof v === 'number' && isFinite(v)) return Math.max(0, v);
+  const s = String(v == null ? '' : v).trim();
+  if (!s) return 0;
+  if (/^[\d.]+$/.test(s)) return Math.max(0, parseFloat(s) || 0);
+  const parts = s.split(':').map(x => parseFloat(x) || 0);
+  let sec = 0;
+  for (const p of parts) sec = sec * 60 + p;
+  return Math.max(0, sec);
+}
+
+const GEM_ASR_PROMPT = `你係語音轉錄引擎，唔係助手。
+
+呢段音頻係普通話對談節目，通常一男一女兩位主持輪流講。
+將入面所有講話逐句轉成文字，輸出 JSON 陣列，每句一個物件：
+
+- start：句子開始嘅秒數，由呢段音頻嘅 0 秒起計，小數後一位
+- end：句子結束嘅秒數
+- spk：講者。男聲填 "A"，女聲填 "B"。淨係得一個人就全部填 "A"
+- text：原文，保持普通話原樣，唔好翻譯、唔好改寫、唔好修正口語
+
+規則：
+1. 逐句斷開，每句大約 5 至 30 個字。唔好成大段拼埋一齊
+2. 時間碼會用嚟做字幕同對嘴，盡你所能報準
+3. 唔好輸出任何解釋、標題、開場白、markdown 圍欄
+4. 純音樂、掌聲、靜音、聽唔清嘅位就跳過，唔好編
+5. 完全冇人講嘢就回 []`;
+
+async function geminiTranscribe(wav, idx) {
+  const c = cfg();
+  const model = (c.oGemASR || '').trim() || 'gemini-2.5-flash';
+  await gemThrottle();
+
+  const b64 = await blobToBase64(wav);
+  const gen = {
+    temperature: 0,
+    maxOutputTokens: 32000,
+    responseMimeType: 'application/json',
+    responseSchema: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          start: { type: 'NUMBER' }, end: { type: 'NUMBER' },
+          spk: { type: 'STRING' }, text: { type: 'STRING' }
+        },
+        required: ['start', 'end', 'text']
+      }
+    },
+    // 同翻譯果邊一樣：思考 token 食晒額度就會回空白
+    thinkingConfig: { thinkingBudget: /pro/i.test(model) ? 256 : 0 }
+  };
+
+  const doPost = g => callApi(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': c.kGoogle },
+      body: JSON.stringify({
+        contents: [{
+          role: 'user',
+          parts: [
+            { text: GEM_ASR_PROMPT },
+            { inline_data: { mime_type: 'audio/wav', data: b64 } }
+          ]
+        }],
+        generationConfig: g
+      })
+    }, 'Gemini 轉錄');
+
+  let r = await doPost(gen);
+  if (!r.ok && r.status === 400) {
+    const body = await r.text();
+    if (/thinking|responseSchema|unknown field|unrecognized/i.test(body)) {
+      const { thinkingConfig, responseSchema, ...rest } = gen;
+      r = await doPost(rest);
+    } else {
+      throw providerError(400, body.slice(0, 300), 'Gemini 轉錄');
+    }
+  }
+  if (!r.ok) {
+    const e = providerError(r.status, (await r.text()).slice(0, 300), 'Gemini 轉錄');
+    if (r.status === 401 || r.status === 403) e.fatal = true;  // 唔好覆蓋 providerError 已判嘅 fatal（例如地區錯誤）
+    throw e;
+  }
+
+  const j = await r.json();
+  const cand = (j.candidates || [])[0];
+  if (!cand) {
+    const fb = j.promptFeedback ? JSON.stringify(j.promptFeedback) : JSON.stringify(j).slice(0, 200);
+    throw new Error(`Gemini 轉錄冇回覆內容：${fb}`);
+  }
+  const txt = ((cand.content && cand.content.parts) || []).map(p => p.text || '').join('');
+  const think = (j.usageMetadata || {}).thoughtsTokenCount || 0;
+  if (!txt) {
+    throw new Error(`Gemini 轉錄回覆空白（finishReason: ${cand.finishReason || '未知'}` +
+      (think ? `，思考用咗 ${think} token` : '') +
+      '）。換 gemini-2.5-flash 通常就冇事。');
+  }
+
+  let arr;
+  try { arr = JSON.parse(txt); }
+  catch (e) { arr = JSON.parse(extractJsonArray(txt)); }
+  if (!Array.isArray(arr)) throw new Error('Gemini 轉錄回覆唔係陣列：' + txt.slice(0, 200));
+
+  return arr.map(o => ({
+    start: parseClock(o.start),
+    end: parseClock(o.end),
+    text: String(o.text || '').trim(),
+    speaker: o.spk === 'B' ? 'B' : (o.spk ? 'A' : null)
+  })).filter(o => o.text);
 }
 
 async function withRetry(fn, times) {
@@ -994,7 +1342,7 @@ const SYS_BASE = `你係香港電台配音組嘅資深編劇，專門將普通�
 - 原句係語氣詞或者碎音（「嗯」「對」「係啊」），照樣譯短句，唔好丟空。
 - 唔好將粗略嘅口語修飾到過分整齊——真人講嘢係會有重複同轉折嘅。
 
-輸出格式：淨係輸出一個 JSON array，唔好有任何解釋、唔好有 markdown 圍欄。
+輸出格式：淨係輸出一個 JSON array，唔好有任何解釋、markdown 圍欄、或者 <think> 之類嘅推理標籤——直接由 [ 開始，] 結束。
 每個元素：{"i":原句編號,"s":"A"或"B","t":"廣東話譯文"}
 數量必須同輸入句數完全一樣。`;
 
@@ -1039,11 +1387,22 @@ function bookishScore(text) {
 /* 統一錯誤判讀：分辨「冇錢」「認證錯」「撞速率」三類 */
 function providerError(status, body, pname) {
   let e;
-  if (/credit balance|insufficient_quota|billing|exceeded your current quota|out of credit/i.test(body)) {
+  if (/user location is not supported|location is not supported|FAILED_PRECONDITION|not available in your country|not supported in your region/i.test(body)) {
+    e = new Error(`${pname} 唔支援你所在嘅地區——佢係睇你部機出去嘅 IP，唔係把 key 錯。\n\n最簡單：喺設定將「翻譯供應商」轉做 DeepSeek 或者智譜 GLM，兩個都香港直連、免費、質素夠用。或者全機開 VPN（日本／新加坡／美國節點）再試。\n\n你嘅轉錄結果已保留，換完供應商撳「重新翻譯」就得。`);
+    e.fatal = true;
+  } else if (/credit balance|insufficient_quota|billing|exceeded your current quota|out of credit/i.test(body)) {
     e = new Error(`${pname} 冇額度或者 credit 用完。換個供應商，或者去該平台增值。你嘅轉錄結果已保留，之後撳「重新翻譯」就得。`);
     e.fatal = true;
-  } else if (status === 401 || status === 403) {
-    e = new Error(`${pname} 認證失敗 (${status})。檢查 API key 係咪貼漏或者貼錯咗。`);
+  } else if (status === 401) {
+    e = new Error(`${pname} 認證失敗 (401)：API key 無效、過期或者格式錯。去該平台重新產生一條再貼過。`);
+    e.fatal = true;
+  } else if (status === 403) {
+    const hint = /api key not valid|api_key_invalid/i.test(body)
+      ? 'API key 無效。去 aistudio.google.com 重新產生一條。'
+      : /moderat|flagged|blocked|safety/i.test(body)
+      ? '內容被安全過濾擋住。'
+      : '呢條 key 冇權限做呢個請求。';
+    e = new Error(`${pname} 403：${hint}\n\n原始回覆：${body || '（空）'}`);
     e.fatal = true;
   } else if (status === 404 || /not found|does not exist|no such model|invalid model/i.test(body)) {
     e = new Error(`${pname} 揾唔到呢個模型。去設定改個啱嘅模型名——輸入框有下拉建議。`);
@@ -1114,45 +1473,109 @@ async function askGoogle(model, key, sys, user, pname) {
 }
 
 async function askOpenAICompat(baseUrl, model, key, sys, user, pname) {
-  const r = await callApi(baseUrl + '/chat/completions', {
+  const body = {
+    model,
+    max_tokens: 32000,
+    temperature: 0.7,
+    messages: [
+      { role: 'system', content: sys },
+      { role: 'user', content: '【要處理嘅句子】\n' + FEWSHOT_IN },
+      { role: 'assistant', content: FEWSHOT_OUT },
+      { role: 'user', content: user }
+    ]
+  };
+  // 推理型模型（MiniMax-M2.5、GLM thinking、deepseek-reasoner）會用晒
+  // token 喺思考度，最後冇 JSON 出。可以關就關。
+  if (/M2\.5|M2|thinking|reasoner|-r1/i.test(model)) {
+    body.thinking = { type: 'disabled' };          // MiniMax / GLM 用法
+    body.reasoning = { enabled: false };           // 部分 gateway 用法
+    body.enable_thinking = false;                  // GLM 舊參數
+  }
+
+  const post = b => callApi(baseUrl + '/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
-    body: JSON.stringify({
-      model, max_tokens: 8000, temperature: 0.7,
-      messages: [
-        { role: 'system', content: sys },
-        { role: 'user', content: '【要處理嘅句子】\n' + FEWSHOT_IN },
-        { role: 'assistant', content: FEWSHOT_OUT },
-        { role: 'user', content: user }
-      ]
-    })
+    body: JSON.stringify(b)
   }, pname);
+
+  let r = await post(body);
+  if (!r.ok && r.status === 400) {
+    // 個別供應商唔收上面啲參數，除咗佢再試
+    const t = await r.text();
+    if (/thinking|reasoning|unknown|unsupported|invalid/i.test(t)) {
+      const { thinking, reasoning, enable_thinking, ...rest } = body;
+      r = await post(rest);
+    } else {
+      throw providerError(400, t.slice(0, 300), pname);
+    }
+  }
   if (!r.ok) throw providerError(r.status, (await r.text()).slice(0, 300), pname);
+
   const j = await r.json();
-  return (((j.choices || [])[0] || {}).message || {}).content || '';
+  const ch = (j.choices || [])[0];
+  if (!ch) throw new Error(`${pname} 冇回覆內容：${JSON.stringify(j).slice(0, 200)}`);
+  const msg = ch.message || {};
+  // 有啲供應商將思考同答案分開放，答案喺 content，思考喺 reasoning_content
+  let txt = msg.content || '';
+  if (!txt && msg.reasoning_content) {
+    txt = msg.reasoning_content;   // 保底：起碼有嘢畀 parser 掘
+  }
+  if (!txt) {
+    const fr = ch.finish_reason || '未知';
+    const rt = (j.usage && (j.usage.reasoning_tokens || j.usage.completion_tokens)) || 0;
+    throw new Error(
+      `${pname} 回覆空白（finish_reason: ${fr}${rt ? `，用咗 ${rt} token` : ''}）。\n` +
+      `如果你用緊推理模型，換返非推理版：` +
+      `MiniMax 用 MiniMax-Text-01、DeepSeek 用 deepseek-chat、GLM 用 glm-4.5-flash。`);
+  }
+  return txt;
 }
 
-async function askAnthropic(model, key, sys, user, pname) {
-  const r = await callApi('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model, max_tokens: 8000, system: sys, temperature: 0.7,
-      messages: [
-        { role: 'user', content: '【要處理嘅句子】\n' + FEWSHOT_IN },
-        { role: 'assistant', content: FEWSHOT_OUT },
-        { role: 'user', content: user }
-      ]
-    })
-  }, pname);
-  if (!r.ok) throw providerError(r.status, (await r.text()).slice(0, 300), pname);
-  const j = await r.json();
-  return (j.content || []).map(c => c.text || '').join('');
+function providerBaseUrl(provider, cfgObj) {
+  if (provider === 'deepseek') return 'https://api.deepseek.com/v1';
+  if (provider === 'glm') return 'https://open.bigmodel.cn/api/paas/v4';
+  if (provider === 'minimax-chat') {
+    // 跟語音嗰邊揀嘅地區
+    return cfgObj.oMMRegion === 'cn'
+      ? 'https://api.minimaxi.com/v1'
+      : 'https://api.minimax.io/v1';
+  }
+  return null;
+}
+
+/* 由模型回覆入面撈出 JSON 陣列。要對付：
+   · <think>...</think>、<thinking>...</thinking>、<reasoning>...</reasoning>（推理模型）
+   · markdown code fence
+   · 前置散文（「以下係翻譯結果：」呢類）
+   · 結尾解釋
+   核心策略：削走已知標籤 → 揾最深嵌套嘅 [ ... ]，兩個都試。 */
+function extractJsonArray(raw) {
+  let t = String(raw || '');
+  // 削走 <think> / <thinking> / <reasoning> / <analysis> 呢類標籤同內容
+  t = t.replace(/<(think(?:ing)?|reasoning|analysis|scratchpad)[^>]*>[\s\S]*?<\/\1>/gi, '');
+  // 未閂嘅推理標籤（有時模型漏咗 </think>）→ 由第一個標籤削到最後一個 [
+  t = t.replace(/<(think(?:ing)?|reasoning|analysis|scratchpad)[^>]*>[\s\S]*?(?=\[\s*\{)/i, '');
+  // 削走 markdown 圍欄
+  t = t.replace(/```(?:json|javascript|js)?/gi, '').replace(/```/g, '');
+  t = t.trim();
+
+  // 第一嘗試：整段當 JSON parse
+  try { const p = JSON.parse(t); if (Array.isArray(p)) return p; } catch (e) {}
+
+  // 第二嘗試：揾第一個 [ 到最後一個 ]
+  const a = t.indexOf('[');
+  const b = t.lastIndexOf(']');
+  if (a >= 0 && b > a) {
+    try { const p = JSON.parse(t.slice(a, b + 1)); if (Array.isArray(p)) return p; } catch (e) {}
+  }
+
+  // 第三嘗試：模型可能出 JSON Lines（一行一個 object）
+  const lines = t.split('\n').map(l => l.trim()).filter(l => l.startsWith('{') && l.endsWith('}'));
+  if (lines.length) {
+    try { return lines.map(l => JSON.parse(l)); } catch (e) {}
+  }
+
+  return null;
 }
 
 async function translateBatch(batch, prevCtx, model, provider, key) {
@@ -1162,21 +1585,28 @@ async function translateBatch(batch, prevCtx, model, provider, key) {
     `【要處理嘅句子】\n` +
     batch.map(b => `${b.i}. ${b.spk ? '[' + b.spk + '] ' : ''}${b.text}`).join('\n');
 
-  const txt = await withRetry(async () => {
+  const c = cfg();
+  const txt = await withRetry(() => {
     if (provider === 'google') return askGoogle(model, key, sysPrompt(), user, p.name);
-    if (provider === 'anthropic') return askAnthropic(model, key, sysPrompt(), user, p.name);
-    const base = provider === 'poe' ? 'https://api.poe.com/v1' : 'https://openrouter.ai/api/v1';
-    return askOpenAICompat(base, model, key, sysPrompt(), user, p.name);
+    const base = providerBaseUrl(provider, c);
+    if (base) return askOpenAICompat(base, model, key, sysPrompt(), user, p.name);
+    throw new Error(`未知供應商：${provider}`);
   }, 3);
 
-  let out = String(txt).trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
-  const a = out.indexOf('['), b = out.lastIndexOf(']');
-  if (a >= 0 && b > a) out = out.slice(a, b + 1);
-  try {
-    return JSON.parse(out);
-  } catch (e) {
-    throw new Error('回覆解析唔到。原始開頭：' + String(txt).slice(0, 200));
+  const parsed = extractJsonArray(txt);
+  if (!parsed) {
+    const head = String(txt).replace(/\s+/g, ' ').slice(0, 160);
+    const looksThinking = /<think|我要|首先|讓我|等我|呢句|分析/i.test(head);
+    throw new Error(
+      '回覆解析唔到' +
+      (looksThinking
+        ? '：模型輸出咗思考內容但冇畀 JSON。\n換個非推理模型就得——' +
+          'MiniMax 用 MiniMax-Text-01、DeepSeek 用 deepseek-chat、GLM 用 glm-4.5-flash。'
+        : '。') +
+      '\n\n原始開頭：' + head);
   }
+  if (parsed) return parsed;
+  throw new Error('回覆解析唔到 JSON。原始開頭：' + String(txt).slice(0, 300));
 }
 
 /* 將模型回覆塞返落 out。模型嘅編號唔可信——可能係字串、
@@ -1369,11 +1799,19 @@ let saveTimer;
 function saveDoc() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    try { localStorage.setItem(DOC_KEY, JSON.stringify(S.lines)); } catch (e) {}
+    try {
+      localStorage.setItem(DOC_KEY, JSON.stringify({
+        v: 2, lines: S.lines,
+        isVideo: !!S.isVideo, duration: S.duration || 0,
+        fileName: (S.file && S.file.name) || S.fileName || ''
+      }));
+    } catch (e) {}
   }, 600);
 }
 
-/* ══════════ 語音合成（Azure） ══════════ */
+/* ══════════ 語音合成 ══════════ */
+/* 兩個引擎：Azure zh-HK（預設）同 MiniMax 官方 API（直連，唔經中間人） */
+
 /* Azure 節流。F0 免費層每 60 秒只准 20 次，並發上限亦好低。 */
 const AZ_TIER = {
   f0: { name: 'F0 免費層', gap: 3200, conc: 1, batch: 8 },
@@ -1438,11 +1876,289 @@ async function azPost(ssml, c) {
 }
 
 async function speakBatch(lines, c) {
+  if (cfg().oTTS === 'glm') {
+    const blobs = [];
+    for (const l of lines) blobs.push(await speak(l, c));
+    return new Blob(blobs, { type: 'audio/mpeg' });
+  }
+  if (cfg().oTTS === 'minimax') {
+    // MiniMax 一個請求一把聲。同一批可能混男女，所以逐句再合埋。
+    const blobs = [];
+    for (const l of lines) blobs.push(await speak(l, c));
+    return new Blob(blobs, { type: 'audio/mpeg' });
+  }
   return withRetry(() => azPost(ssmlBatch(lines, c), c), 4);
 }
 
 async function speak(line, c) {
+  if (cfg().oTTS === 'minimax') return withRetry(() => mmSpeak(line, c), 3);
+  if (cfg().oTTS === 'glm') return withRetry(() => glmSpeak(line, c), 3);
   return withRetry(() => azPost(ssmlFor(line, c), c), 4);
+}
+
+/* GLM-TTS（智譜）。OpenAI audio/speech 相容格式，直接回音頻位元組。
+   注意：官方主打普通話，粵語未列入支援語言，效果要實測。 */
+let glmNext = 0;
+async function glmSpeak(line, c) {
+  const now = Date.now();
+  const wait = Math.max(0, glmNext - now);
+  glmNext = Math.max(now, glmNext) + 1200;
+  if (wait > 0) await sleep(wait);
+
+  const voice = line.spk === 'A' ? (c.oGLMVoice || 'tongtong') : (c.oGLMVoiceB || 'tongtong');
+  const r = await callApi('https://open.bigmodel.cn/api/paas/v4/audio/speech', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + c.kGLM },
+    body: JSON.stringify({
+      model: 'glm-tts',
+      input: line.zh,
+      voice,
+      response_format: 'mp3'
+    })
+  }, 'GLM-TTS');
+
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 300);
+    const e = new Error(r.status === 401 || r.status === 403
+      ? `GLM-TTS 認證失敗 (${r.status})：檢查 bigmodel.cn 條 key。\n${body}`
+      : `GLM-TTS ${r.status}：${body}`);
+    if (r.status === 401 || r.status === 403) e.fatal = true;
+    if (r.status === 429) { e.wait = 15000; glmNext = Date.now() + 15000; }
+    throw e;
+  }
+
+  const ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+  if (ct.indexOf('json') >= 0) {
+    const j = await r.json();
+    throw new Error('GLM-TTS 回覆咗 JSON 而唔係音頻：' + JSON.stringify(j).slice(0, 200));
+  }
+  return r.blob();
+}
+
+/* ── MiniMax T2A v2（官方 API 直連） ──
+   回應係 JSON，data.audio 係 hex 字串（官方格式）。
+   粵語一定要 language_boost，唔設會當普通話讀。 */
+let mmNext = 0;
+async function mmThrottle() {
+  const now = Date.now();
+  const wait = Math.max(0, mmNext - now);
+  mmNext = Math.max(now, mmNext) + 1200;
+  if (wait > 0) await sleep(wait);
+}
+
+function hexToBytes(hex) {
+  const n = hex.length >> 1;
+  const out = new Uint8Array(n);
+  for (let i = 0; i < n; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return out;
+}
+
+/* 大陸版同國際版係兩個獨立系統：域名唔同、帳戶唔通、key 亦不能互用。
+   大陸版一定要 GroupId；國際版新帳戶多數唔需要。 */
+function mmEndpoint(c) {
+  const cn = c.oMMRegion === 'cn';
+  return {
+    host: cn ? 'https://api.minimaxi.com' : 'https://api.minimax.io',
+    key:  cn ? (c.kMiniMaxCN || '') : (c.kMiniMax || ''),
+    gid:  cn ? (c.kMiniMaxCNGroup || '') : (c.kMiniMaxGroup || ''),
+    label: cn ? '大陸版' : '國際版'
+  };
+}
+
+/* 由 MiniMax 官方 get_voice 端點攞返實際用得嘅音色清單。
+   唔靠死記名單——唔同帳戶、唔同時期音色都可能唔同，直接問 API 最準。 */
+/* 由 Azure voices/list 端點攞返 zh-HK 粵語聲。同 MiniMax 做法一樣：
+   唔死記名單，直接問 API——Azure 間唔中會加新聲（例如 HD 級嘅 Achird）。 */
+async function fetchAzVoices() {
+  const c = cfg();
+  if (!c.kAzure || !c.kAzureRegion) {
+    alert('先填 Azure key 同區域先攞得到聲清單。');
+    return;
+  }
+  const status = $('azVoiceStatus');
+  status.textContent = '攞緊…';
+  try {
+    const r = await callApi(
+      `https://${c.kAzureRegion}.tts.speech.microsoft.com/cognitiveservices/voices/list`,
+      { method: 'GET', headers: { 'Ocp-Apim-Subscription-Key': c.kAzure } },
+      'Azure 聲清單');
+    if (!r.ok) throw new Error(`HTTP ${r.status}：${(await r.text()).slice(0, 200)}`);
+    const all = await r.json();
+    // 只要 zh-HK（粵語）嘅聲
+    const yue = all.filter(v => (v.Locale || '').toLowerCase() === 'zh-hk');
+    if (!yue.length) throw new Error('呢個區域冇 zh-HK 粵語聲');
+
+    const males = yue.filter(v => (v.Gender || '') === 'Male');
+    const females = yue.filter(v => (v.Gender || '') === 'Female');
+    fillAzVoiceSelect($('vA'), males.length ? males : yue);
+    fillAzVoiceSelect($('vB'), females.length ? females : yue);
+    saveCfg();
+    status.textContent = `攞到 ${yue.length} 把粵語聲（男 ${males.length}、女 ${females.length}）`;
+  } catch (e) {
+    status.textContent = '';
+    alert('攞 Azure 聲清單失敗：' + e.message +
+      '\n\n可以繼續用預設三把官方粵語聲。');
+  }
+}
+
+function fillAzVoiceSelect(sel, voices) {
+  const prev = sel.value;
+  sel.innerHTML = voices.map(v => {
+    const id = v.ShortName || '';
+    const nm = v.LocalName || v.DisplayName || id;
+    const hd = /HD|Neural2|:DragonHD/i.test(v.VoiceType || '') || /HD/i.test(id) ? ' · HD' : '';
+    return `<option value="${id}">${nm}（${v.Gender === 'Male' ? '男' : '女'}${hd}）</option>`;
+  }).join('');
+  // 保留返之前揀嘅（如果仲喺清單）
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+
+async function fetchMMVoices() {
+  const c = cfg();
+  const ep = mmEndpoint(c);
+  if (!ep.key) { alert('先填 MiniMax API Key 先攞得到音色清單。'); return; }
+
+  const status = $('mmVoiceStatus');
+  status.textContent = '攞緊…';
+  try {
+    const gid = ep.gid.trim();
+    const url = ep.host + '/v1/get_voice' + (gid ? `?GroupId=${encodeURIComponent(gid)}` : '');
+    const r = await callApi(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ep.key },
+      body: JSON.stringify({ voice_type: 'system' })
+    }, 'MiniMax 音色清單');
+
+    if (!r.ok) {
+      const body = (await r.text()).slice(0, 300);
+      throw new Error(`HTTP ${r.status}：${body}`);
+    }
+    const j = await r.json();
+    if (j.base_resp && j.base_resp.status_code !== 0) {
+      throw new Error(`${j.base_resp.status_code}：${j.base_resp.status_msg || ''}`);
+    }
+
+    // 唔同版本嘅回應欄位名可能唔同，幾個都試埋
+    const list = j.system_voice || j.voice_list || j.voices || [];
+    if (!Array.isArray(list) || !list.length) {
+      throw new Error('回應冇音色資料：' + JSON.stringify(j).slice(0, 200));
+    }
+
+    renderMMVoicePicker(list);
+    status.textContent = `共 ${list.length} 個音色，粵語相關 ${
+      list.filter(v => /cantonese|yue|粤|粵/i.test(
+        (v.voice_name || '') + (v.description || (v.tags || []).join(''))
+      )).length} 個`;
+  } catch (e) {
+    status.textContent = '';
+    alert('攞音色清單失敗：' + e.message +
+      '\n\n可以直接手動輸入音色 ID，例如保持預設嘅官方粵語主持聲。');
+  }
+}
+
+function renderMMVoicePicker(list) {
+  const dl = $('mmVoiceList');
+  dl.innerHTML = list.map(v =>
+    `<option value="${(v.voice_id || '').replace(/"/g, '&quot;')}">${v.voice_name || ''}</option>`
+  ).join('');
+
+  const box = $('mmVoicePicker');
+  const cy = /cantonese|yue|粤|粵/i;
+  const sorted = [...list].sort((a, b) => {
+    const ac = cy.test((a.voice_name || '') + (a.description || '')) ? 0 : 1;
+    const bc = cy.test((b.voice_name || '') + (b.description || '')) ? 0 : 1;
+    return ac - bc;
+  });
+  box.innerHTML = sorted.map(v => {
+    const id = v.voice_id || '';
+    const name = v.voice_name || id;
+    const isCy = cy.test(name + (v.description || ''));
+    return `<div class="row" style="justify-content:space-between;padding:5px 4px;
+             ${isCy ? 'background:rgba(94,200,216,.08)' : ''}">
+      <span style="font-size:13px">${isCy ? '🗣 ' : ''}${name}
+        <span style="color:var(--muted);font-family:var(--mono);font-size:11px">（${id}）</span></span>
+      <span class="row">
+        <button type="button" class="ghost mini-btn" data-vid="${id.replace(/"/g, '&quot;')}" data-slot="A">用做男聲</button>
+        <button type="button" class="ghost mini-btn" data-vid="${id.replace(/"/g, '&quot;')}" data-slot="B">用做女聲</button>
+      </span>
+    </div>`;
+  }).join('');
+  box.classList.remove('hidden');
+
+  box.querySelectorAll('.mini-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const vid = btn.dataset.vid, slot = btn.dataset.slot;
+      $(slot === 'A' ? 'oMMVoiceA' : 'oMMVoiceB').value = vid;
+      saveCfg();
+    });
+  });
+}
+
+async function mmSpeak(line, c) {
+  await mmThrottle();
+  const t = TONES[c.mTone] || TONES.faithful;
+  const ratePct = parseInt(c.mRate, 10) || 0;
+  const speed = Math.max(0.5, Math.min(2, 1 + ratePct / 100));
+  const voice = line.spk === 'A'
+    ? (c.oMMVoiceA || 'Cantonese_ProfessionalHost（M)')
+    : (c.oMMVoiceB || 'Cantonese_ProfessionalHost（F)');
+
+  const ep = mmEndpoint(c);
+  const gid = ep.gid.trim();
+  const url = ep.host + '/v1/t2a_v2' + (gid ? `?GroupId=${encodeURIComponent(gid)}` : '');
+  const r = await callApi(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + ep.key
+    },
+    body: JSON.stringify({
+      model: c.oMMModel || 'speech-2.8-hd',
+      text: line.zh,
+      stream: false,
+      language_boost: 'Chinese,Yue',
+      voice_setting: {
+        voice_id: voice,
+        speed,
+        vol: 1.0,
+        pitch: t.pitch === '+2%' ? 1 : t.pitch === '-2%' ? -1 : 0
+      },
+      audio_setting: { sample_rate: 32000, bitrate: 128000, format: 'mp3' }
+    })
+  }, 'MiniMax 語音');
+
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 300);
+    const e = new Error(r.status === 401 || r.status === 403
+      ? `MiniMax ${ep.label} 認證失敗 (${r.status})：\n` +
+        `· 檢查 API Key 有冇貼錯（大陸版同國際版嘅 key 唔通用）\n` +
+        `· 大陸版一定要填 GroupID，國際版通常唔需要\n原始回覆：${body}`
+      : `MiniMax 語音 ${r.status}：${body}`);
+    if (r.status === 401 || r.status === 403) e.fatal = true;
+    if (r.status === 429) { e.wait = 15000; mmNext = Date.now() + 15000; }
+    throw e;
+  }
+
+  const j = await r.json();
+  // 官方錯誤唔一定用 HTTP status，成功都係 200，要睇 base_resp
+  if (j.base_resp && j.base_resp.status_code !== 0) {
+    const code = j.base_resp.status_code;
+    const msg = j.base_resp.status_msg || '';
+    const e = new Error(
+      code === 1004 ? `MiniMax 認證失敗：API Key 或者 Group ID 錯。(${msg})`
+      : code === 1008 ? `MiniMax 餘額不足。去 platform.minimax.io 增值。(${msg})`
+      : code === 2013 ? `MiniMax 輸入有問題：${msg}`
+      : `MiniMax 錯誤 ${code}：${msg}`);
+    if (code === 1004 || code === 1008) e.fatal = true;
+    throw e;
+  }
+
+  const hex = j.data && j.data.audio;
+  if (!hex) throw new Error('MiniMax 回覆冇音頻。原始回覆：' + JSON.stringify(j).slice(0, 200));
+  // 官方係 hex；個別代理會轉 base64，兩種都接受
+  const isHex = /^[0-9a-fA-F]+$/.test(hex.slice(0, 64));
+  const bytes = isHex ? hexToBytes(hex) : Uint8Array.from(atob(hex), ch => ch.charCodeAt(0));
+  return new Blob([bytes], { type: 'audio/mpeg' });
 }
 
 async function previewLine(idx, btn) {
@@ -1486,6 +2202,31 @@ async function synthesizeParts() {
 /* 純音檔模式：一次過講幾句，請求數大減，先至頂得住免費層限額 */
 async function synthesizeBatched() {
   const c = cfg();
+  if (c.oTTS === 'glm') {
+    const lines = S.lines.filter(l => l.zh.trim());
+    log(`GLM-TTS：逐句合成 ${lines.length} 句`);
+    log('⚠ GLM-TTS 官方主打普通話，粵語效果請聽真啲再決定用唔用', 'err');
+    const out = [];
+    for (let i = 0; i < lines.length; i++) {
+      out.push(await speak(lines[i], c));
+      progress((i + 1) / lines.length);
+      if ((i + 1) % 5 === 0 || i === lines.length - 1) log(`合成 ${i + 1}/${lines.length} 句`);
+    }
+    return out;
+  }
+  if (c.oTTS === 'minimax') {
+    const lines = S.lines.filter(l => l.zh.trim());
+    const chars = lines.reduce((a, l) => a + l.zh.length, 0);
+    const ep = mmEndpoint(c);
+    log(`MiniMax ${ep.label} · ${c.oMMModel || 'speech-2.8-hd'}：逐句合成 ${lines.length} 句（約 ${chars} 字元）`);
+    const out = [];
+    for (let i = 0; i < lines.length; i++) {
+      out.push(await speak(lines[i], c));
+      progress((i + 1) / lines.length);
+      if ((i + 1) % 5 === 0 || i === lines.length - 1) log(`合成 ${i + 1}/${lines.length} 句`);
+    }
+    return out;
+  }
   const t = azTier();
   const lines = S.lines.filter(l => l.zh.trim());
   const groups = [];
@@ -1520,10 +2261,7 @@ function checkKeys(need) {
 }
 
 async function runFromAudio() {
-  const need = cfg().mSTT === 'azure-fast'
-    ? ['kAzure', 'kAzureName', prov().keyField]
-    : ['kOpenAI', prov().keyField];
-  if (!checkKeys(need)) return;
+  if (!checkKeys(asr().keys.concat([prov().keyField]))) return;
   show('card1', false); show('cardWork', true);
   $('log').innerHTML = '';
   try {
@@ -1578,7 +2316,15 @@ async function retranslate() {
 }
 
 async function runSynth() {
-  if (!checkKeys(['kAzure', 'kAzureRegion'])) return;
+  let need;
+  if (cfg().oTTS === 'glm') {
+    need = ['kGLM'];
+  } else if (cfg().oTTS === 'minimax') {
+    need = cfg().oMMRegion === 'cn' ? ['kMiniMaxCN', 'kMiniMaxCNGroup'] : ['kMiniMax'];
+  } else {
+    need = ['kAzure', 'kAzureRegion'];
+  }
+  if (!checkKeys(need)) return;
   stage(5);
   show('cardScript', false); show('cardWork', true);
   $('log').innerHTML = ''; $('workTitle').textContent = '合成粵語語音'; progress(0);
@@ -1623,6 +2369,10 @@ async function runSynth() {
     show('videoOpts', !!S.isVideo);
     show('muxBlocked', !!(S.isVideo && !MUX.ffmpeg));
     if (S.isVideo && !MUX.ffmpeg) $('muxBlockedMsg').textContent = muxHelp();
+    show('reVideoBox', !!(S.isVideo && !S.file));
+    if (S.isVideo && !S.file && S.fileName) {
+      $('reVideoHint').textContent = `上次條片係《${S.fileName}》，揀返佢（或者同一條片）就可以合成。`;
+    }
     log('完成');
   } catch (e) {
     log('合成失敗：' + e.message, 'err');
@@ -1705,6 +2455,9 @@ function init() {
     box.querySelectorAll('.ln').forEach(r => r.classList.toggle('showorig', on));
     $('btnOrig').textContent = on ? '收起原文' : '顯示原文';
   });
+  $('btnMMVoices').addEventListener('click', fetchMMVoices);
+  $('btnAzVoices').addEventListener('click', fetchAzVoices);
+
   $('btnFixBookish').addEventListener('click', async () => {
     const bad = [];
     S.lines.forEach((l, i) => {
@@ -1799,6 +2552,23 @@ function init() {
     if (S.outBlob) download(S.outBlob, '廣東話配音.mp3');
   });
   $('btnMux').addEventListener('click', runVideoMux);
+  $('reVideoIn').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (S.fileName && f.name !== S.fileName) {
+      if (!confirm(`你揀嘅係《${f.name}》，但上次條片叫《${S.fileName}》。\n` +
+                   `唔同片會令聲畫時間對唔上。確定用呢條？`)) return;
+    }
+    S.file = f;
+    S.videoUploaded = false;
+    // 順手攞返實際長度，聲畫對齊要用
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.onloadedmetadata = () => { S.duration = v.duration || S.duration; URL.revokeObjectURL(v.src); };
+    v.src = URL.createObjectURL(f);
+    show('reVideoBox', false);
+    alert('已接返條片，可以撳「產生影片」。');
+  });
   $('btnRedetect').addEventListener('click', async () => {
     await detectMux();
     envCheck();
@@ -1821,14 +2591,22 @@ function init() {
 
   // 復原上次未完成嘅稿
   try {
-    const saved = JSON.parse(localStorage.getItem(DOC_KEY) || 'null');
-    if (saved && saved.length) {
+    const raw = JSON.parse(localStorage.getItem(DOC_KEY) || 'null');
+    // 舊格式係純 array；新格式係 {v:2, lines, isVideo, ...}
+    const doc = Array.isArray(raw) ? { lines: raw } : raw;
+    if (doc && doc.lines && doc.lines.length) {
       const meta = $('fileMeta');
       meta.classList.remove('hidden');
-      meta.innerHTML = `上次有 ${saved.length} 句未處理完 · <a href="#" id="resume">繼續校對</a>`;
+      const tag = doc.isVideo ? `影片《${doc.fileName || '未知'}》` : '';
+      meta.innerHTML = `上次有 ${doc.lines.length} 句未處理完${tag ? '（' + tag + '）' : ''} · ` +
+        `<a href="#" id="resume">繼續校對</a>`;
       $('resume').addEventListener('click', e => {
         e.preventDefault();
-        S.lines = saved;
+        S.lines = doc.lines;
+        S.isVideo = !!doc.isVideo;
+        S.duration = doc.duration || 0;
+        S.fileName = doc.fileName || '';
+        // S.file 冇辦法跨 session 保存，影片合成前要重新揀返條片
         show('card1', false); show('cardScript', true);
         stage(4); renderScript();
       });
@@ -1874,7 +2652,12 @@ async function detectMux() {
       MUX = { state: 'old-server', ffmpeg: false };
     } else {
       const j = await r.json();
-      MUX = { state: j.ffmpeg ? 'ok' : 'no-ffmpeg', ffmpeg: !!j.ffmpeg, version: j.version };
+      MUX = {
+        state: j.ffmpeg ? 'ok' : 'no-ffmpeg',
+        ffmpeg: !!j.ffmpeg,
+        version: j.version,
+        libass: !!j.libass
+      };
     }
   } catch (e) {
     MUX = { state: 'no-server', ffmpeg: false };
@@ -2106,11 +2889,22 @@ async function fitToSlots(blobs, lines, c, total, cap) {
 }
 
 async function runVideoMux() {
+  if (!S.file) {
+    show('reVideoBox', true);
+    alert('要合成影片，先撳「重新揀返條片」搵返原本嗰個 MP4。\n' +
+          '（瀏覽器唔可以跨 session 記住檔案，所以續做嘅稿要重新揀一次。）');
+    return;
+  }
   if (!MUX.ffmpeg) {
     await detectMux();
     if (!MUX.ffmpeg) { alert(muxHelp()); return; }
   }
   const burn = $('oBurn').value;
+  if (burn === 'burn' && MUX.libass === false) {
+    if (!confirm('你部 ffmpeg 冇 libass 支援，燒錄字幕會失敗。\n' +
+                 '揀「軟字幕軌」照樣得到有字幕嘅片（要喺播放器手動開字幕）。\n\n' +
+                 '確定要繼續試燒錄？')) return;
+  }
   const bg = parseInt($('oBg').value, 10) || 0;
   show('cardOut', false); show('cardWork', true);
   $('log').innerHTML = ''; $('workTitle').textContent = '合成影片'; progress(0);
@@ -2137,7 +2931,7 @@ async function runVideoMux() {
     if (S.videoUrl) URL.revokeObjectURL(S.videoUrl);
     S.videoUrl = URL.createObjectURL(mp4);
     $('outVideo').src = S.videoUrl;
-    log(`完成 · ${(mp4.size / 1048576).toFixed(1)}MB`);
+    log(`完成 · ${(mp4.size / 1048576).toFixed(1)}MB · ${burn === 'burn' ? '字幕已燒入畫面' : burn === 'soft' ? '軟字幕軌' : '無字幕'}`);
     show('cardWork', false); show('cardOut', true); show('videoBox', true);
   } catch (e) {
     log('合成失敗：' + e.message, 'err');

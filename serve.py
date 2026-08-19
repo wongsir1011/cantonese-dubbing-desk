@@ -70,12 +70,12 @@ def run_ffmpeg(args, label, cwd=None):
     return p
 
 # 只准轉發去呢幾個網域，避免變成開放式代理
-ALLOWED = ('api.openai.com', 'api.anthropic.com',
-           'generativelanguage.googleapis.com', 'openrouter.ai', 'api.poe.com',
+ALLOWED = ('generativelanguage.googleapis.com', 'api.minimax.io', 'api-uw.minimax.io', 'api.minimaxi.com', 'api.deepseek.com', 'open.bigmodel.cn',
+           'api.elevenlabs.io',
            '.cognitiveservices.azure.com', '.api.cognitive.microsoft.com',
            '.tts.speech.microsoft.com', '.stt.speech.microsoft.com')
 # 需要原樣轉發嘅認證標頭
-PASS_HEADERS = ('authorization', 'x-api-key', 'anthropic-version', 'x-goog-api-key',
+PASS_HEADERS = ('authorization', 'x-api-key', 'xi-api-key', 'anthropic-version', 'x-goog-api-key',
                 'ocp-apim-subscription-key', 'content-type',
                 'x-microsoft-outputformat', 'anthropic-dangerous-direct-browser-access')
 
@@ -96,11 +96,30 @@ def html_files():
     return sorted(out, key=lambda x: -x[1])
 
 
+# 明顯係文檔嘅 HTML（唔應該當程式入口）
+DOC_KEYWORDS = ('說明', '说明', 'readme', 'manual', 'guide', '手冊', '手册')
+
+
+def is_doc(name):
+    n = name.lower()
+    return any(k in n for k in DOC_KEYWORDS)
+
+
 def find_app():
-    """揀最新嗰個 HTML。瀏覽器重複下載會加 (1)(2)，
-       按名揀會揀中最舊嗰個，所以一律以修改時間為準。"""
+    """揀 HTML 嘅次序：
+       1. index.html — 約定俗成嘅入口名，一定揀佢
+       2. 非文檔類 HTML 入面 mtime 最新（處理 (1)(2) 重複下載）
+       3. 保底：mtime 最新嘅任何 HTML"""
     fs = html_files()
-    return fs[0][0] if fs else None
+    if not fs:
+        return None
+    for n, _ in fs:
+        if n.lower() == 'index.html':
+            return n
+    non_doc = [(n, m) for n, m in fs if not is_doc(n)]
+    if non_doc:
+        return non_doc[0][0]
+    return fs[0][0]
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -148,13 +167,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/mux/health':
             fp = ffmpeg_path()
             ver = ''
+            libass = False
             if fp:
                 try:
                     out = subprocess.run([fp, '-version'], capture_output=True, timeout=15)
-                    ver = out.stdout.decode('utf8', 'replace').splitlines()[0]
+                    full = out.stdout.decode('utf8', 'replace')
+                    ver = full.splitlines()[0] if full else ''
+                    # 燒錄字幕靠 subtitles filter，個 filter 需要 libass
+                    libass = 'enable-libass' in full.lower()
                 except Exception:
                     pass
-            self._json(200, {'ffmpeg': bool(fp), 'version': ver})
+            self._json(200, {'ffmpeg': bool(fp), 'version': ver, 'libass': libass})
             return
         super().do_GET()
 
@@ -248,10 +271,29 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 print(f'  ⧗ 影片 {vd_v:.1f}s → 延長 {pad:.1f}s 配合音軌 {vd_a:.1f}s')
 
         if burn and has_srt:
+            # 檢查 libass。冇嘅話個 filter 會令 ffmpeg 失敗，唔好靜靜跳過。
+            fp = ffmpeg_path()
+            try:
+                out = subprocess.run([fp, '-version'], capture_output=True, timeout=15)
+                has_libass = 'enable-libass' in out.stdout.decode('utf8', 'replace').lower()
+            except Exception:
+                has_libass = False
+            if not has_libass:
+                print('  ✘ 你部 ffmpeg 冇 libass，燒錄字幕做唔到')
+                self._fail(500,
+                    '你部 ffmpeg 冇 libass 支援，燒錄字幕做唔到。\n\n'
+                    'Mac：brew reinstall ffmpeg（Homebrew 版預設帶 libass）\n'
+                    'Windows：winget install Gyan.FFmpeg 亦有 libass\n'
+                    '解決之前，可以揀返「內嵌字幕軌」（軟字幕，播放器開字幕先睇到）。')
+                return
+            # 用絕對路徑 + 明確 fontsdir 避免揾唔到字型
+            srt_full = os.path.join(d, 'srt.srt').replace('\\', '/').replace(':', '\\:')
             chains.append(f"{vmap if vmap.startswith('[') else '[0:v]'}"
-                          "subtitles=srt.srt:force_style="
-                          "'FontSize=18,OutlineColour=&H80000000,BorderStyle=3'[vout]")
+                          f"subtitles={srt_full}:force_style="
+                          "'FontName=Noto Sans CJK TC,FontSize=20,PrimaryColour=&HFFFFFF,"
+                          "OutlineColour=&H80000000,BorderStyle=3,Outline=1,MarginV=30'[vout]")
             vmap = '[vout]'
+            print(f'  ⧗ 燒錄字幕：{srt_full}')
         # 音訊鏈：原聲墊底 → 補靜音，確保音軌長度啱啱等於目標
         atail = None
         if bg > 0:
@@ -416,11 +458,21 @@ def banner(port, fs):
     print(f'  資料夾    {SCRIPT_DIR}')
 
     if fs:
-        newest = fs[0][0]
-        print(f'  應用程式  {newest}   （{time.strftime("%Y-%m-%d %H:%M", time.localtime(fs[0][1]))}）')
-        if len(fs) > 1:
-            print(f'            ⚠ 仲有 {len(fs) - 1} 個舊 HTML，建議刪走免得搞亂：')
-            for n, m in fs[1:]:
+        picked = find_app()
+        apps = [(n, m) for n, m in fs if not is_doc(n)]
+        docs = [(n, m) for n, m in fs if is_doc(n)]
+        stamp = dict(fs)
+        print(f'  應用程式  {picked}   （{time.strftime("%Y-%m-%d %H:%M", time.localtime(stamp[picked]))}）')
+        # 其他程式檔（舊版）先警告
+        others = [(n, m) for n, m in apps if n != picked]
+        if others:
+            print(f'            ⚠ 仲有 {len(others)} 個舊版程式檔，建議刪走免得搞亂：')
+            for n, m in others:
+                print(f'              {time.strftime("%Y-%m-%d %H:%M", time.localtime(m))}  {n}')
+        # 文檔淨列出，唔警告（係我打包時放入去嘅）
+        if docs:
+            print(f'            文檔（唔會當入口）：')
+            for n, m in docs:
                 print(f'              {time.strftime("%Y-%m-%d %H:%M", time.localtime(m))}  {n}')
     else:
         print(f'  應用程式  ⚠ 呢個資料夾搵唔到 .html 檔')
