@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>粵語配音台 · 完整使用說明書</title>
+<style>
+  :root {
+    --ink: #16181D;
+    --panel: #1E212A;
+    --panel-2: #252936;
+    --line: #2E3340;
+    --paper: #E8E6E1;
+    --muted: #8C93A3;
+    --accent: #5EC8D8;
+    --accent-2: #E8B04B;
+    --bad: #E0685C;
+    --good: #7FB77E;
+    --mono: "IBM Plex Mono", "SF Mono", Consolas, Monaco, ui-monospace, monospace;
+    --sans: "Noto Sans TC", "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+    --serif: "Noto Serif TC", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    line-height: 1.75;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+
+  /* 頁首 */
+  header.doc-head {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 32px;
+    margin-bottom: 40px;
+  }
+  header.doc-head .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  header.doc-head h1 {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  header.doc-head .sub {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* 標題 */
+  h1 {
+    font-family: var(--serif);
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 56px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 20px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1.3;
+    margin: 44px 0 16px;
+    color: var(--paper);
+    scroll-margin-top: 20px;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 32px 0 12px;
+    color: var(--accent);
+    font-weight: 600;
+    scroll-margin-top: 20px;
+  }
+  h4 {
+    font-size: 15px;
+    margin: 24px 0 8px;
+    color: var(--accent-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  p {
+    margin: 12px 0 16px;
+    color: rgba(232, 230, 225, 0.92);
+  }
+
+  /* 連結 */
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(94, 200, 216, 0.3);
+    transition: border-color 0.15s;
+  }
+  a:hover {
+    border-bottom-color: var(--accent);
+  }
+
+  /* 強調 */
+  strong { color: #FFF; font-weight: 600; }
+  em { font-style: italic; color: var(--accent-2); }
+
+  /* 代碼 */
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--panel-2);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+  }
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: var(--paper);
+    font-size: inherit;
+  }
+
+  /* 列表 */
+  ul, ol {
+    padding-left: 28px;
+    margin: 12px 0 20px;
+  }
+  li {
+    margin: 6px 0;
+    color: rgba(232, 230, 225, 0.92);
+  }
+  li > p { margin: 4px 0; }
+  li ul, li ol { margin: 6px 0; }
+
+  /* 表格 */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    background: var(--panel-2);
+    color: var(--accent-2);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: rgba(94, 200, 216, 0.04); }
+
+  /* 水平線 */
+  hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 48px 0;
+  }
+
+  /* 引用（提示框）*/
+  blockquote {
+    border-left: 3px solid var(--accent-2);
+    background: rgba(232, 176, 75, 0.06);
+    padding: 12px 20px;
+    margin: 20px 0;
+    border-radius: 0 4px 4px 0;
+    color: rgba(232, 230, 225, 0.85);
+  }
+  blockquote p { margin: 8px 0; }
+
+  /* ⚠ 警告段落自動着色 */
+  p:has(strong:first-child) { /* 部分瀏覽器可能唔支援，做為漸進增強 */ }
+
+  /* 目錄列表特別排版 */
+  h2 + ol {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 20px 20px 44px;
+    margin: 20px 0 32px;
+  }
+  h2 + ol li { margin: 8px 0; }
+  h2 + ol ul {
+    list-style-type: none;
+    padding-left: 12px;
+    margin-top: 4px;
+  }
+  h2 + ol ul li::before {
+    content: "→ ";
+    color: var(--muted);
+    margin-right: 6px;
+  }
+
+  /* 返到頂 */
+  .to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--panel);
+    color: var(--accent);
+    border: 1px solid var(--line);
+    padding: 10px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .to-top.show {
+    opacity: 0.85;
+    pointer-events: auto;
+  }
+  .to-top:hover {
+    opacity: 1;
+    border-color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+  }
+
+  /* 手機 */
+  @media (max-width: 640px) {
+    .wrap { padding: 32px 20px 64px; }
+    header.doc-head h1 { font-size: 32px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 20px; }
+    table { font-size: 13px; }
+    th, td { padding: 10px 12px; }
+    pre { font-size: 12px; padding: 12px 16px; }
+    .to-top { bottom: 16px; right: 16px; }
+  }
+
+  /* 打印 */
+  @media print {
+    body { background: white; color: black; }
+    .wrap { max-width: 100%; padding: 0; }
+    header.doc-head { border-color: #ccc; }
+    h1, h2, h3, h4 { color: black; page-break-after: avoid; }
+    code { background: #f5f5f5; color: #d63384; border-color: #ddd; }
+    pre { background: #f5f5f5; border-color: #ddd; page-break-inside: avoid; }
+    table { page-break-inside: avoid; border-color: #ccc; }
+    th { background: #f5f5f5; color: black; }
+    a { color: #0066cc; }
+    .to-top { display: none; }
+    blockquote { background: #fff8e1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-head">
+  <div class="kicker">CANTONESE DUBBING DESK · 使用指南</div>
+  <h1>粵語配音台<br>完整使用說明書</h1>
+  <div class="sub">將任何語言嘅節目轉成廣東話配音 · 由零開始 · 大約 30 分鐘搞掂</div>
+</header>
+
+<h1 id="_1">粵語配音台 · 完整使用說明書</h1>
+<p>呢份文件係寫俾<strong>第一次用</strong>呢個程式嘅朋友睇嘅。跟住做，由零開始，大約 30 分鐘可以搞掂所有嘢，之後日常用只係雙擊個掣咁簡單。</p>
+<hr />
+<h2 id="_2">目錄</h2>
+<ol>
+<li><a href="#1-呢個程式做乜">呢個程式做乜？</a></li>
+<li><a href="#2-部電腦要準備乜嘢">部電腦要準備乜嘢</a></li>
+<li><a href="#3-申請-api-key">申請 API Key</a>
+   - <a href="#31-azure-speech--必填免費">3.1 Azure Speech</a>
+   - <a href="#32-google-gemini--必填免費">3.2 Google Gemini</a>
+   - <a href="#33-minimax--選填-想試更自然嘅粵語聲先要">3.3 MiniMax</a></li>
+<li><a href="#4-第一次啟動">第一次啟動</a></li>
+<li><a href="#5-填設定">填設定</a></li>
+<li><a href="#6-日常操作流程">日常操作流程</a></li>
+<li><a href="#7-遇到問題點算">遇到問題點算</a></li>
+<li><a href="#8-進階設定">進階設定</a>
+   <ul>
+   <li><a href="#用真人聲配音聲音克隆">用真人聲配音（聲音克隆）</a></li>
+   </ul>
+</li>
+</ol>
+<hr />
+<h2 id="1">1. 呢個程式做乜？</h2>
+<p>將<strong>任何語言</strong>嘅 podcast 或者影片，轉成<strong>廣東話</strong>配音。</p>
+<ul>
+<li>音檔輸入（mp3/m4a/wav）→ 廣東話 MP3</li>
+<li>影片輸入（mp4/mov/webm）→ 廣東話配音 MP4 + 繁體中文字幕</li>
+</ul>
+<p>適合處理 NotebookLM 產生嘅普通話節目，亦都做到英文、日文、韓文等等嘅內容，一律變成香港觀眾聽得舒服嘅廣東話版本。源語言喺設定入面揀（預設自動偵測）。</p>
+<p><strong>點運作</strong>：轉錄 → 分辨男女講者 → 譯做廣東話 → 你手動校對 → 語音合成 → 貼返落原片</p>
+<p>整個程式喺<strong>你部機本機</strong>行，音檔冇上載去任何雲端（除咗發送去 API 服務嗰陣），金鑰只存喺你部瀏覽器。</p>
+<hr />
+<h2 id="2">2. 部電腦要準備乜嘢</h2>
+<h3 id="_3">一定要有</h3>
+<p><strong>Python 3.8 或以上</strong></p>
+<p>Windows：去 <a href="https://www.python.org/downloads/">python.org/downloads</a> 下載安裝，<strong>安裝時記得勾選「Add python.exe to PATH」</strong>（呢個位好易漏，勾唔到嘅話啟動器揾唔到 Python）。</p>
+<p>macOS：可以喺終端機行 <code>brew install python</code>，或者由 python.org 下載安裝檔。</p>
+<p>安裝完開一個新嘅命令視窗（Windows 用 <code>cmd</code>，Mac 用 Terminal），行呢句確認：</p>
+<pre><code>python --version
+</code></pre>
+<p>見到 <code>Python 3.x.x</code> 就 OK。</p>
+<h3 id="_4">有影片先需要</h3>
+<p><strong>ffmpeg</strong> — 淨係做音檔轉換嘅話唔使裝，處理影片先要。</p>
+<p>Windows（開一個<strong>新嘅</strong> PowerShell 視窗）：</p>
+<pre><code>winget install Gyan.FFmpeg
+</code></pre>
+<p>macOS：</p>
+<pre><code>brew install ffmpeg
+</code></pre>
+<p>裝完<strong>關咗個舊視窗，開返一個新嘅</strong>（舊視窗食唔到新 PATH），確認：</p>
+<pre><code>ffmpeg -version
+</code></pre>
+<p>見到版本號就 OK。</p>
+<hr />
+<h2 id="3-api-key">3. 申請 API Key</h2>
+<p>三個服務，兩個必填（Azure + Google），一個選填（MiniMax）。全部有免費額度，唔使月費。</p>
+<h3 id="31-azure-speech">3.1 Azure Speech — 必填，免費</h3>
+<p>負責<strong>轉錄</strong>（片源語言 → 文字，並且分辨男女講者）同<strong>語音合成</strong>（廣東話文字 → 聲音）。免費層每月夠用 5 小時轉錄同 50 萬字元語音，你自己用完全夠。</p>
+<p><strong>要用信用卡登記，但唔會扣錢</strong>（免費層唔使畀）。</p>
+<h4 id="_5">步驟</h4>
+<ol>
+<li><strong>開戶</strong>：去 <a href="https://azure.microsoft.com/free">azure.microsoft.com/free</a>，撳「Start free」，用 Microsoft 帳戶登入（冇就即場開）。</li>
+<li><strong>驗證信用卡</strong>：Azure 要求填卡確認你係真人，但只要唔升級付費層就唔會扣錢。</li>
+<li><strong>建立 Speech 資源</strong>：
+   - 登入 <a href="https://portal.azure.com">portal.azure.com</a> 之後，撳左上角「Create a resource」
+   - 搜尋「Speech」，揀「<strong>Speech</strong>」（發行者係 Microsoft），撳「Create」
+   - <strong>Subscription</strong>：揀你嘅 Azure subscription（通常只有一個）
+   - <strong>Resource group</strong>：撳「Create new」，隨便改個名，例如 <code>dubbing</code>
+   - <strong>Region</strong>：揀近你嘅，香港用戶建議揀 <strong>Southeast Asia</strong>（新加坡）
+   - <strong>Name</strong>：改個獨特嘅名，例如 <code>mydub2026</code>（會用嚟做網址，全球唯一）
+   - <strong>Pricing tier</strong>：撳「Change pricing tier」→ 揀「<strong>Free F0</strong>」→ Select
+   - 撳「Review + create」→ 「Create」
+   - 等大約一分鐘部署完成</li>
+<li><strong>攞金鑰</strong>：
+   - 撳「Go to resource」
+   - 左邊選單揾「<strong>Keys and Endpoint</strong>」（喺 Resource Management 分類下）
+   - 你會見到：<ul>
+<li><strong>KEY 1</strong>：一串 32 個字元嘅碼 → 呢個係 API Key</li>
+<li><strong>Location/Region</strong>：例如 <code>southeastasia</code> → 呢個係 Region</li>
+<li><strong>Name</strong>（頁面左上角嗰個大字）：例如 <code>mydub2026</code> → 呢個係資源名稱</li>
+<li>撳 KEY 1 旁邊個複製掣</li>
+</ul>
+</li>
+</ol>
+<p><strong>三樣嘢等陣要填</strong>：KEY 1、Region、資源名稱。全部複製落一個備忘錄先，等陣一齊貼。</p>
+<h3 id="32-google-gemini">3.2 Google Gemini — 必填，免費</h3>
+<p>負責<strong>翻譯</strong>（片源語言 → 廣東話口語）。免費層每分鐘 10 次、每日 250 次請求，一集 20 分鐘節目大約用 14 次，非常夠用。</p>
+<p><strong>唔使信用卡</strong>。</p>
+<h4 id="_6">步驟</h4>
+<ol>
+<li>去 <a href="https://aistudio.google.com/apikey">aistudio.google.com/apikey</a>，用你嘅 Gmail 登入</li>
+<li>第一次入去可能要接受條款</li>
+<li>撳右上角「<strong>Create API key</strong>」</li>
+<li>揀「Create API key in new project」（如果你冇 Google Cloud project）</li>
+<li>一串 <code>AIza...</code> 開頭嘅金鑰會顯示出嚟，撳「Copy」</li>
+</ol>
+<p><strong>貼落備忘錄</strong>。呢條 key 之後任何時候都可以喺同一頁揾返，唔會消失。</p>
+<h3 id="33-minimax">3.3 MiniMax — 選填（想試更自然嘅粵語聲先要）</h3>
+<p>Azure 嘅粵語聲已經好穩定，日常用完全夠。但 MiniMax 有真人主持感嘅粵語聲，如果你想成品聽落更似人講，可以加。</p>
+<p><strong>按用量收費</strong>，一集 20 分鐘節目大約 US$0.2–0.4（大陸版價錢類似，但以人民幣計）。</p>
+<p>MiniMax 有<strong>國際版</strong>同<strong>大陸版</strong>兩個獨立系統，可以擇一或者兩邊都填（程式入面隨時切換）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>國際版</th>
+<th>大陸版</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>網址</td>
+<td><code>platform.minimax.io</code></td>
+<td><code>platform.minimaxi.com</code></td>
+</tr>
+<tr>
+<td>收費</td>
+<td>美元計、要外幣信用卡</td>
+<td>人民幣計、支持支付寶/微信</td>
+</tr>
+<tr>
+<td>Group ID</td>
+<td>通常唔需要</td>
+<td><strong>一定要填</strong></td>
+</tr>
+<tr>
+<td>帳戶／key</td>
+<td>兩邊獨立，唔通用</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">國際版步驟</h4>
+<ol>
+<li>去 <a href="https://platform.minimax.io">platform.minimax.io</a>，撳右上角「Console」→ 電郵登入</li>
+<li>左邊選單揾「<strong>API Keys</strong>」（有時叫「Access」），撳「Create new API key」</li>
+<li>改個名（例如 <code>dubbing</code>），複製條 key</li>
+<li><strong>Group ID</strong>（選填）：帳戶管理頁 → 基本信息，揾「<strong>GroupID</strong>」（唔係 UID）。冇顯示就唔理</li>
+<li><strong>增值</strong>：試用 credit 用完要去「Billing」增值</li>
+</ol>
+<h4 id="_8">大陸版步驟</h4>
+<ol>
+<li>去 <a href="https://platform.minimaxi.com">platform.minimaxi.com</a>（注意係 <code>minimaxi</code> 有個 <code>i</code>），用手機號登入</li>
+<li>完成實名認證（大陸版必要）</li>
+<li>上方「接口密鑰」→ 新建 API Key，複製</li>
+<li>賬戶管理 → 「基本信息」揾「<strong>GroupID</strong>」（大陸版<strong>一定要填</strong>）</li>
+<li>充值（支付寶/微信）</li>
+</ol>
+<p><strong>貼落備忘錄</strong>：Key（+ GroupID，大陸版必要）。填設定嗰陣程式會有一個「MiniMax 地區」下拉，隨時切換。</p>
+<blockquote>
+<p>想用<strong>真人聲</strong>（你自己或者已攞到同意嘅人）配音，而唔係機器聲？睇 <a href="#用真人聲配音聲音克隆">8. 進階設定 → 用真人聲配音</a>。呢個都係用 MiniMax，所以上面呢個 key 一定要先申請好。</p>
+</blockquote>
+<hr />
+<h2 id="4">4. 第一次啟動</h2>
+<ol>
+<li>將 zip 檔解壓去一個乾淨資料夾，例如：
+   - Windows：<code>D:\粵語配音台</code>
+   - Mac：<code>~/Documents/粵語配音台</code></li>
+<li>資料夾入面應該有七個檔案：
+   <code>index.html
+   serve.py
+   launch.bat        ← Windows 用呢個
+   launch.command    ← Mac 用呢個
+   README.md
+   速查.md
+   .gitignore</code></li>
+<li><strong>雙擊啟動器</strong>：
+   - Windows：<code>launch.bat</code>
+   - Mac：<code>launch.command</code>（第一次可能要先喺終端機行 <code>chmod +x launch.command</code> 授權）</li>
+<li>會彈出一個黑色視窗，顯示：
+   <code>粵語配音台
+     ──────────────────────────────────────────────
+     資料夾    D:\粵語配音台
+     應用程式  index.html   （2026-XX-XX XX:XX）
+     影片合成  可用
+     ──────────────────────────────────────────────
+     網址      http://localhost:8000
+     停止      喺呢個視窗按 Ctrl+C
+     ──────────────────────────────────────────────</code></li>
+<li>瀏覽器會自動打開 <code>http://localhost:8000</code>，見到界面就成功</li>
+</ol>
+<p>用完想關掉：喺黑色視窗按 <code>Ctrl+C</code>，或者直接閂咗個視窗。</p>
+<p><strong>⚠ 千祈唔好直接雙擊 <code>index.html</code></strong>——噉樣會經 <code>file://</code> 打開，冇代理，所有功能都用唔到。要經 launch 啟動器。</p>
+<hr />
+<h2 id="5">5. 填設定</h2>
+<p>第一次開，撳右上角<strong>「設定」</strong>，填以下欄位：</p>
+<table>
+<thead>
+<tr>
+<th>欄位</th>
+<th>貼咩落去</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google AI Studio Key</td>
+<td>你嘅 <code>AIza...</code></td>
+</tr>
+<tr>
+<td>Azure Speech Key</td>
+<td>你嘅 KEY 1（32 字元）</td>
+</tr>
+<tr>
+<td>Azure 區域</td>
+<td><code>southeastasia</code>（要細楷，冇空格）</td>
+</tr>
+<tr>
+<td>Azure 資源名稱</td>
+<td>你剛才改嗰個名，例如 <code>mydub2026</code></td>
+</tr>
+</tbody>
+</table>
+<p>其他欄位（模型、語氣、字幕字數等）留返預設。撳「儲存」。</p>
+<h3>片源語言</h3>
+<p>設定入面「<strong>片源語言</strong>」話畀程式知條片講緊咩語言。</p>
+<ul>
+<li><strong>自動偵測</strong>（預設）— 送一批常見語言候選去做語言識別。唔肯定就用呢個</li>
+<li>或者直接指定：普通話、粵語、英文、日文、韓文、西班牙文、法文、德文、泰文、印尼文、越南文</li>
+</ul>
+<p>知道係咩語言就直接揀，會準啲亦快啲。輸出永遠係廣東話，唔會因為源語言而變。</p>
+<p>用 ElevenLabs Scribe v2 引擎嘅時候，佢永遠自己偵測語言，唔理呢個設定。</p>
+<p><strong>驗證翻譯通不通</strong>：撳「儲存」旁邊嘅「<strong>測試翻譯</strong>」。</p>
+<ul>
+<li>✔ 出到廣東話譯文：一切 OK，可以開始用</li>
+<li>✘ 出錯：睇下面「<a href="#7-遇到問題點算">遇到問題點算</a>」</li>
+</ul>
+<h3 id="minimax">想用 MiniMax 語音（選填）</h3>
+<p>國際版同大陸版可以只填一個，亦可以兩個都填備用。</p>
+<ol>
+<li>設定入面對應嘅金鑰欄貼你條 key（國際版填 <code>MiniMax 國際版</code>；大陸版填 <code>MiniMax 大陸版</code> 兩欄）</li>
+<li>「<strong>語音引擎</strong>」揀「MiniMax 官方」</li>
+<li>「<strong>MiniMax 地區</strong>」揀國際版或者大陸版</li>
+<li>儲存</li>
+</ol>
+<p>校對頁隨便一句撳 <code>▶</code> 試聽掣，就會用 MiniMax 出聲。同一句切返 Azure 或者切另一個地區再試，直接對比。</p>
+<hr />
+<h2 id="6">6. 日常操作流程</h2>
+<p>主頁面拖入一個檔案（音檔或者影片），跟住六個步驟自動行：</p>
+<pre><code>拖檔案 → 開始轉錄 → 自動翻譯 → 校對 → 合成語音 → 下載成品
+</code></pre>
+<h3 id="_9">校對頁做乜</h3>
+<p>轉錄同翻譯完成後會去到校對頁，逐句顯示：
+- <strong>原文</strong>（片源語言）
+- <strong>譯文</strong>（廣東話）
+- <strong>講者標籤</strong>：<code>男A</code> / <code>女B</code>，撳可以單獨換
+- <strong>▶ 試聽</strong>：即時聽下呢一句廣東話點讀
+- <strong>⇅</strong>：由呢句起，之後全部男女調轉（處理 Azure 分講者錯亂）</p>
+<p>如果整段譯文邊界有紅色（<code>未譯</code>）或者黃色（<code>書面語</code>）標籤，撳頂部「<strong>重譯有問題嘅句子</strong>」——只會動嗰啲句，其他保留。</p>
+<p>滿意先撳「合成廣東話音檔」。</p>
+<h3 id="_10">合成之後</h3>
+<ul>
+<li><strong>音檔</strong>：直接下載 MP3</li>
+<li><strong>影片</strong>：合成完可以揀「內嵌字幕軌」或者「燒錄入畫面」，同時下載 SRT 字幕檔</li>
+</ul>
+<hr />
+<h2 id="7">7. 遇到問題點算</h2>
+<h3 id="_11">頁面頂部出現黃色警告框</h3>
+<p>自檢已經寫明問題，跟住做就得。最常見四種：</p>
+<table>
+<thead>
+<tr>
+<th>情況</th>
+<th>解決</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>「你係直接開檔案」</td>
+<td>唔好雙擊 <code>index.html</code>，要雙擊 <code>launch.bat</code> / <code>launch.command</code></td>
+</tr>
+<tr>
+<td>「serve.py 未行」</td>
+<td>啟動器冇 run，重新雙擊</td>
+</tr>
+<tr>
+<td>「serve.py 係舊版」</td>
+<td>你資料夾入面有舊檔，全部刪走用新版</td>
+</tr>
+<tr>
+<td>「未裝 ffmpeg」</td>
+<td>只影響影片功能，音檔照用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">「測試翻譯」出 ✘</h3>
+<p>睇錯誤訊息第一行：</p>
+<ul>
+<li><strong>401 / 403 / API key not valid</strong>：Google key 錯，去 <a href="https://aistudio.google.com/apikey">aistudio.google.com/apikey</a> 重新複製</li>
+<li><strong>429</strong>：你短時間內請求太多，等 30 秒再試</li>
+<li><strong>quota exceeded</strong>：今日 250 次已經用完，聽日再用</li>
+</ul>
+<h3 id="failed-to-fetch">合成語音一路 Failed to fetch</h3>
+<p>Azure F0 免費層速率限制。設定 → 確認「Azure 定價層」揀咗「F0 免費層」，程式會自動放慢遷就。</p>
+<h3 id="minimax_1">MiniMax 認證失敗</h3>
+<ul>
+<li><strong>1004 / 401</strong>：API Key 錯咗，或者地區揀錯（國際版 key 唔可以打大陸版 API，反之亦然）</li>
+<li><strong>1008</strong>：餘額不足，去對應平台（<code>.io</code> 或者 <code>.minimaxi.com</code>）增值</li>
+<li><strong>提到 group</strong>：Group ID 唔啱。大陸版必填，返「基本信息」頁揾 GroupID（唔係 UID）</li>
+</ul>
+<h3 id="_13">字幕溢出畫面</h3>
+<p>設定 → 調細「字幕每行字數」（16 字適合手機）</p>
+<h3 id="_14">譯文偏書面語</h3>
+<p>校對頁撳「重譯有問題嘅句子」，通常撳兩次會再好啲。</p>
+<h3 id="_15">影片同聲對唔上</h3>
+<p>設定 → 「聲畫對齊方式」預設「壓縮音軌」。壓到盡都仲超出就揀「延長影片」（會凍結尾格補足秒數）。</p>
+<hr />
+<h2 id="8">8. 進階設定</h2>
+<h3 id="_16">語氣選擇（設定入面）</h3>
+<p>五種：
+- <strong>原汁原味</strong>（預設）：忠於原文
+- <strong>生動活潑</strong>：適合輕鬆節目
+- <strong>嚴肅專業</strong>：適合新聞、教學
+- <strong>好奇提問</strong>：適合訪談
+- <strong>溫和親切</strong>：適合輔導、健康話題</p>
+<p>換咗語氣之後校對頁撳「用呢個語氣重譯」，唔會用新嘅轉錄額度。</p>
+<h3>Google Chirp 3: HD — 粵語音色最多（選填）</h3>
+<p><code>yue-HK</code> 有 <strong>30 把粵語聲</strong>，男女都有，係目前粵語音色最多嘅一家。</p>
+<p>用返你已經填咗嘅 <strong>Google AI Studio Key</strong>，但條 key 要另外授權，去 Cloud Console 做兩件事：</p>
+<ol>
+<li><strong>APIs &amp; Services → Library</strong> → 搜 <strong>Cloud Text-to-Speech API</strong> → Enable</li>
+<li><strong>APIs &amp; Services → Credentials</strong> → 撳你條 key → <strong>API restrictions</strong></li>
+</ol>
+<p>⚠ 第 2 步最易中伏。如果你揀咗「Restrict key」，一定要<strong>同時</strong>勾住
+<strong>Generative Language API</strong>（翻譯同 Gemini 轉錄用）同
+<strong>Cloud Text-to-Speech API</strong>。淨係加新嗰個會踢走舊嗰個，翻譯就會靜靜壞。</p>
+<p>做完之後：設定 → 「語音引擎」揀「Google Chirp 3: HD」→ 撳「拎返可用粵語聲」。</p>
+<ul>
+<li>Chirp 3: HD <strong>唔支援 SSML</strong>，語氣嘅音高唔生效，語速有效</li>
+<li><code>yue-HK</code> 仲係 <strong>Preview</strong>，音色同定價都可能變</li>
+<li>按量收費，冇免費層</li>
+</ul>
+<h3 id="_17">男女聲揀選</h3>
+<p><strong>Azure</strong>：
+- 男：WanLung 雲龍 / WanShan 雲山
+- 女：HiuMaan 曉曼 / HiuGaai 曉佳</p>
+<p><strong>MiniMax</strong>：預設官方粵語主持聲。ID 入面個括號係全形（<code>（M)</code> <code>（F)</code>），係官方原樣，唔好改半形。</p>
+<h3 id="用真人聲配音聲音克隆">用真人聲配音（聲音克隆）</h3>
+<p>預設嘅粵語聲（Azure 或者 MiniMax 官方主持聲）都係機器模擬。如果想用<strong>某個真人嘅聲</strong>（你自己、同事、或者已攞到當事人同意嘅人）嚟配音，MiniMax 有「聲音克隆」功能：上載一段呢個人講嘢嘅錄音，幾十秒之後就可以攞到一把聽落似佢嘅聲，之後配音就用呢把聲代替機器聲。</p>
+<blockquote>
+<p><strong>⚠️ 先決條件（一定要睇）</strong></p>
+<ul>
+<li><strong>要用 MiniMax 做語音引擎</strong>（設定 → 語音引擎揀「MiniMax 官方」），呢個功能唔支援 Azure 或 GLM</li>
+<li><strong>一定要先有 MiniMax API Key</strong>，做法見上面 <a href="#33-minimax">3.3 MiniMax</a></li>
+<li><strong>同意問題你要自己把關</strong>：程式會要求你剔一個確認格「已經攞到把聲主人嘅同意」，但呢個純粹提醒，唔係法律保障。用你自己把聲冇問題；用第二個人嘅聲，一定要事先講清楚、攞到佢哋首肯，先好上載。唔好用嚟扮任何冇同意嘅人，尤其係要拎去公開發佈嘅內容</li>
+<li><strong>克隆出嚟嘅聲唔係永久保存</strong>：7 日內冇用嚟合成過語音就會被系統自動刪走。即係話你唔可以「克隆一次，擺一年後先用」——要就快啲用，或者接受每次專案要重新克隆</li>
+</ul>
+</blockquote>
+<h4 id="_clone_prep">準備錄音</h4>
+<ol>
+<li><strong>揀一段呢個人講嘢嘅清晰錄音</strong>：單一講者、環境安靜、冇背景音樂或者回音，唔好用電話免提咁遠嘅收音</li>
+<li>格式要係 <strong>mp3、m4a 或 wav</strong></li>
+<li>長度要 <strong>10 秒至 5 分鐘</strong>（唔使好長，一分鐘左右已經夠；愈清晰通常克隆得愈似）</li>
+<li>檔案唔可以超過 <strong>20MB</strong></li>
+</ol>
+<p>冇現成錄音？用手機錄音 app 錄一分鐘自然講嘢就得，唔使錄稿（讀新聞腔會令克隆出嚟嘅聲太生硬）。</p>
+<h4 id="_clone_steps">步驟</h4>
+<ol>
+<li>撳右上「設定」→ 語音引擎揀 <strong>「MiniMax 官方」</strong>，展開之後捲到最底，會見到「<strong>聲音克隆 — 用真人聲配音</strong>」一區</li>
+<li>剔低「我確認已經攞到呢把聲主人嘅同意」</li>
+<li>撳「Choose File」揀返準備好嘅錄音檔案</li>
+<li>「呢把聲嘅名稱（voice ID）」入一個名，<strong>淨係可以用英文字母／數字／底線</strong>，一定要英文字母開頭，例如 <code>andrew_v1</code>、<code>colleague_wong</code>（呢個名之後用嚟喺男聲／女聲揀返呢把聲，改得有意義啲方便自己記）</li>
+<li>（可選）如果想再準確啲，可以另外上載一段<strong>短過 8 秒</strong>嘅樣本音檔，並喺旁邊填返呢段樣本嘅逐字稿（一字不差，句尾要有標點）——呢步淨係優化相似度，唔加都克隆得到</li>
+<li>（可選）「試聽文字」入一句嘢，克隆完成會即刻用呢把新聲讀呢句畀你聽，方便即場判斷似唔似</li>
+<li>撳「<strong>克隆呢把聲</strong>」，等大約十幾秒到半分鐘</li>
+<li>成功之後，下面會多一行你嘅聲：<code>🗣 andrew_v1（克隆聲）</code>，有幾個掣：
+<ul>
+<li><strong>▶ 試聽</strong>：如果第 6 步填咗試聽文字，撳呢個聽返個效果</li>
+<li><strong>用做男聲／用做女聲</strong>：撳一下就將呢把聲指派做配音嘅男聲或者女聲，同揀官方音色一樣做法</li>
+<li><strong>刪除</strong>：唔要呢把聲就撳呢個，MiniMax 帳戶入面都會刪走（呢步冇得返轉頭）</li>
+</ul>
+</li>
+</ol>
+<p>之後撳「儲存」，拖檔開始轉錄配音，男聲／女聲就會用返你剛克隆嘅聲，唔再係機器聲。</p>
+<h4 id="_clone_notes">留意事項</h4>
+<ul>
+<li><strong>7 日內冇用過會被刪</strong>：如果你隔一排先再用返呢個 voice ID 去合成，可能已經俾系統自動清走，要重新克隆一次</li>
+<li><strong>粵語咬字未必完美</strong>：呢個係普通話／英文為主嘅克隆模型讀廣東話，聲底似唔似真人係一回事，讀粵語嘅咬字準唔準又係另一回事，同官方粵語主持聲比，可能有落差，建議先用「試聽文字」聽下先決定用唔用</li>
+<li><strong>voice ID 唔可以重複用</strong>：如果個名已經俾你（或者第啲人喺呢個帳戶）用過，克隆會失敗，換個新名再試</li>
+<li>想管理已經克隆嘅聲（睇下有邊幾把、刪走舊嘅），可以喺「拎返可用音色清單」度睇到，粵語相關嘅聲同克隆聲都會用 🗣 標記排前</li>
+</ul>
+<h3 id="_18">免費額度用完點算</h3>
+<ul>
+<li><strong>Azure F0</strong>：每月 5 小時轉錄，通常唔會用完。真係用完就等下個月一號重置</li>
+<li><strong>Google Gemini 免費層</strong>：每日 250 次，如果一日做太多集會用完。可以喺 Google Cloud 開 billing 升級到付費層，價錢好平（Flash 每百萬 token 約 US$0.3）</li>
+<li><strong>MiniMax</strong>：本身就按量收費，冇免費層之後嘅限制，只要有 credit 就用到</li>
+</ul>
+<h3 id="_19">分享俾同事用</h3>
+<p><strong>唔好經雲端服務部署</strong>（GitHub Pages、Vercel、Netlify 都行唔到，因為呢個程式需要本機 Python 同 ffmpeg）。</p>
+<p>兩個做法：
+1. 每位同事各自跟呢份說明書裝一次，各自開自己嘅 API 帳戶
+2. 由你集中處理：同事交檔案，你喺自己部機轉，交返成品</p>
+<hr />
+<h2 id="_20">附錄：安全提醒</h2>
+<ul>
+<li><strong>金鑰只存喺你部機嘅瀏覽器 localStorage</strong>，唔會傳去任何雲端（除咗直接發去 API 服務嗰陣）</li>
+<li><strong>千祈唔好將你嘅 API Key 貼落公開網頁、GitHub、群組聊天室</strong></li>
+<li><strong>服務使用者嘅個案內容唔應該經呢個工具</strong>——公開節目、公開講座 OK，但涉及個人資料嘅嘢就唔好</li>
+</ul>
+<p>用得開心 🎙️</p>
+</div>
+
+<a href="#" class="to-top" id="toTop">↑ 返回頂部</a>
+
+<script>
+  const btn = document.getElementById('toTop');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('show', window.scrollY > 400);
+  });
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // 手動加錨點（因為 markdown 對中文 slug 支援不一）
+  document.querySelectorAll('h1, h2, h3, h4').forEach(h => {
+    if (!h.id) {
+      h.id = h.textContent.trim().replace(/\s+/g, '-').replace(/[^\w\u4e00-\u9fff-]/g, '');
+    }
+  });
+</script>
+
+</body>
+</html>

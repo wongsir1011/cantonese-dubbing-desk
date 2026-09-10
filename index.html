@@ -193,7 +193,7 @@ a{color:var(--voiceA)}
 <header class="masthead">
   <div>
     <h1>粵語配音台</h1>
-    <div class="sub">Mandarin podcast → Cantonese dub · build 2026-08-19 16:05 UTC</div>
+    <div class="sub">Mandarin podcast → Cantonese dub · build 2026-09-02 15:15 UTC</div>
   </div>
   <button class="ghost" id="btnCfg">設定</button>
 </header>
@@ -280,6 +280,21 @@ a{color:var(--voiceA)}
         <option value="eleven">ElevenLabs Scribe v2 — 時間碼最準 · 按量收費</option>
         <option value="gemini">Gemini 音頻理解 — 用返翻譯個 key · 時間碼會飄</option>
       </select></label>
+    <label class="f"><span>片源語言</span>
+      <select id="oSrcLang">
+        <option value="auto" selected>自動偵測（多語候選）</option>
+        <option value="zh-CN">普通話 / 華語</option>
+        <option value="zh-HK">粵語（廣東話）</option>
+        <option value="en-US">英文</option>
+        <option value="ja-JP">日文</option>
+        <option value="ko-KR">韓文</option>
+        <option value="es-ES">西班牙文</option>
+        <option value="fr-FR">法文</option>
+        <option value="de-DE">德文</option>
+        <option value="th-TH">泰文</option>
+        <option value="id-ID">印尼文</option>
+        <option value="vi-VN">越南文</option>
+      </select></label>
     <label class="f"><span>翻譯模型</span>
       <input type="text" id="mModel" list="modelList" placeholder="gemini-2.5-flash">
       <datalist id="modelList"></datalist></label>
@@ -299,7 +314,7 @@ a{color:var(--voiceA)}
       </select></label>
     <label class="f"><span>字幕內容</span>
       <select id="oSubSrc">
-        <option value="orig" selected>普通話原文 — 時間碼最準</option>
+        <option value="orig" selected>原文（片源語言）— 時間碼最準</option>
         <option value="zh">廣東話譯文 — 同配音一致</option>
       </select></label>
     <label class="f"><span>字幕字體</span>
@@ -317,6 +332,7 @@ a{color:var(--voiceA)}
       <select id="oTTS">
         <option value="azure" selected>Azure zh-HK — 免費層夠用 · 粵語官方支援</option>
         <option value="minimax">MiniMax 官方 — 有粵語主持聲 · 按量收費</option>
+        <option value="google">Google Chirp 3: HD — yue-HK 30 把粵語聲 · 按量收費</option>
         <option value="glm">GLM-TTS — 主打普通話，粵語未經官方支援（實驗）</option>
       </select></label>
     <label class="f"><span>Azure 定價層</span>
@@ -351,6 +367,37 @@ a{color:var(--voiceA)}
     <span class="hint" id="azVoiceStatus" style="align-self:center"></span>
   </div>
   <div class="hint">預設係 Azure 官方三把 zh-HK 粵語聲。撳上面粒掣會由 Azure 直接查你帳戶實際攞到嘅粵語聲（有時會有新增嘅 HD 聲，例如 Achird HK）。</div>
+
+  <div id="gVoiceBox" class="hidden">
+    <div class="grid2">
+      <label class="f"><span>男聲（講者 A）</span>
+        <select id="oGVoiceA">
+          <option value="yue-HK-Chirp3-HD-Charon" selected>Charon（男）</option>
+          <option value="yue-HK-Chirp3-HD-Achird">Achird（男）</option>
+          <option value="yue-HK-Chirp3-HD-Algenib">Algenib（男）</option>
+          <option value="yue-HK-Chirp3-HD-Algieba">Algieba（男）</option>
+          <option value="yue-HK-Chirp3-HD-Alnilam">Alnilam（男）</option>
+        </select></label>
+      <label class="f"><span>女聲（講者 B）</span>
+        <select id="oGVoiceB">
+          <option value="yue-HK-Chirp3-HD-Achernar" selected>Achernar（女）</option>
+          <option value="yue-HK-Chirp3-HD-Aoede">Aoede（女）</option>
+          <option value="yue-HK-Chirp3-HD-Autonoe">Autonoe（女）</option>
+          <option value="yue-HK-Chirp3-HD-Callirrhoe">Callirrhoe（女）</option>
+          <option value="yue-HK-Chirp3-HD-Despina">Despina（女）</option>
+        </select></label>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button type="button" class="ghost" id="btnGVoices">拎返可用粵語聲</button>
+      <span class="hint" id="gVoiceStatus" style="align-self:center"></span>
+    </div>
+    <div class="hint">用返上面「Google AI Studio Key」嗰條 key，但要求唔同：
+      去 Cloud Console 開啟 <b>Cloud Text-to-Speech API</b>，並且喺條 key 嘅
+      API restrictions 度<b>同時</b>勾住 Generative Language API（翻譯用）同
+      Cloud Text-to-Speech API——淨係勾一個，另一樣就會壞。<br>
+      Chirp 3: HD 唔支援 SSML，所以語氣設定入面嘅音高唔會生效，語速就有效。
+      <code>yue-HK</code> 仲係 Preview，按量收費。</div>
+  </div>
 
   <div id="glmBox" class="hidden">
     <div class="hint">GLM-TTS 內建音色（例如 tongtong）。官方文檔冇列明粵語支援，多數會用普通話腔讀廣東話字，請試聽再決定。</div>
@@ -397,6 +444,56 @@ a{color:var(--voiceA)}
     <div id="mmVoicePicker" class="hidden" style="margin-top:12px;max-height:240px;overflow-y:auto;
          border:1px solid var(--line);border-radius:4px;padding:8px"></div>
     <div class="hint">預設係官方粵語主持聲（ID 入面個括號係全形，係官方原樣，唔好改半形）。撳上面粒掣可以睇返你個帳戶實際用得嘅音色，包括粵語同其他方言標籤。校對頁每句嘅 ▶ 可以即時試聽。</div>
+
+    <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line)">
+      <div class="row" style="justify-content:space-between;align-items:baseline">
+        <b style="font-size:14px">聲音克隆 — 用真人聲配音</b>
+        <span class="hint">MiniMax Voice Clone</span>
+      </div>
+      <div class="warnbox" style="margin-top:10px">
+        上載一段某人講嘢嘅錄音，克隆出嚟嘅聲得返你部機用，唔會公開分享。<br>
+        <b>克隆出嚟嘅聲 7 日內冇用過合成語音會被自動刪走</b>（唔係永久保存，除非你持續用佢）。<br>
+        <b>只可以用你自己把聲，或者已經攞到當事人明確同意嘅人把聲。</b>克隆未經同意人士嘅聲音配公開發佈嘅內容，可能牽涉肖像權／人格權問題，要你自己把關。
+      </div>
+
+      <label class="row" style="margin-top:10px;gap:8px;align-items:center">
+        <input type="checkbox" id="cloneConsent" style="width:auto">
+        <span style="font-size:13px">我確認已經攞到呢把聲主人嘅同意（自己把聲就剔呢格）</span>
+      </label>
+
+      <div class="grid2" style="margin-top:10px">
+        <label class="f"><span>錄音檔案（mp3／m4a／wav，10 秒–5 分鐘，≤20MB）</span>
+          <input type="file" id="cloneAudioFile" accept=".mp3,.m4a,.wav,audio/*"></label>
+        <label class="f"><span>呢把聲嘅名稱（voice ID）</span>
+          <input type="text" id="cloneVoiceId" placeholder="例如 andrew_v1（英文字母開頭，可有數字／底線）"></label>
+      </div>
+
+      <div class="grid2">
+        <label class="f"><span>樣本音檔（可選，&lt;8 秒，提升相似度）</span>
+          <input type="file" id="clonePromptFile" accept=".mp3,.m4a,.wav,audio/*"></label>
+        <label class="f"><span>樣本音檔嘅逐字稿（有上載樣本先需要）</span>
+          <input type="text" id="clonePromptText" placeholder="同樣本音檔內容一字不差，句尾要有標點"></label>
+      </div>
+
+      <label class="f"><span>試聽文字（可選，克隆完即刻讀呢句畀你聽）</span>
+        <input type="text" id="clonePreviewText" placeholder="例如：呢個係測試，睇下把聲似唔似。" maxlength="2000"></label>
+
+      <div class="row" style="margin-top:8px;gap:16px">
+        <label class="row" style="gap:6px;align-items:center">
+          <input type="checkbox" id="cloneNoiseReduction" style="width:auto"><span style="font-size:13px">需要降噪</span></label>
+        <label class="row" style="gap:6px;align-items:center">
+          <input type="checkbox" id="cloneVolumeNorm" style="width:auto"><span style="font-size:13px">需要音量正規化</span></label>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button type="button" class="ghost" id="btnVoiceClone">克隆呢把聲</button>
+        <span class="hint" id="cloneStatus" style="align-self:center"></span>
+      </div>
+
+      <div id="clonedVoiceBox" class="hidden" style="margin-top:12px;max-height:240px;overflow-y:auto;
+           border:1px solid var(--line);border-radius:4px;padding:8px"></div>
+      <div class="hint">克隆成功之後，用返上面「用做男聲／用做女聲」揀返呢把聲，就會出現喺呢度俾你揀。</div>
+    </div>
   </div>
 
   <div class="row"><button class="act" id="btnSaveCfg">儲存</button>
@@ -427,7 +524,7 @@ a{color:var(--voiceA)}
   </div>
 
   <div class="hidden" id="pasteWrap" style="margin-top:16px">
-    <label class="f"><span>普通話文字稿（一行一句）</span>
+    <label class="f"><span>原文文字稿（一行一句）</span>
       <textarea id="pasteTxt" rows="8" placeholder="貼喺呢度…"></textarea></label>
     <button class="act" id="btnPasteGo">用呢份稿</button>
   </div>
@@ -478,7 +575,7 @@ a{color:var(--voiceA)}
   <div id="videoOpts" class="hidden" style="margin-top:26px;border-top:1px solid var(--line);padding-top:20px">
     <p class="eyebrow">Video</p>
     <h2 style="margin-bottom:6px">配返落原片</h2>
-    <p class="hint">廣東話音軌已經按原本嘅時間點對齊。字幕用普通話原文。</p>
+    <p class="hint">廣東話音軌已經按原本嘅時間點對齊。字幕用原文。</p>
     <div class="grid2">
       <label class="f"><span>字幕</span>
         <select id="oBurn">
@@ -583,14 +680,15 @@ function download(blob, name) {
 
 /* ══════════ 設定 ══════════ */
 const CFG_FIELDS = ['pProvider', 'kGoogle', 'kDeepSeek', 'kGLM', 'kMiniMaxChat', 'oMMRegion', 'kMiniMax', 'kMiniMaxGroup', 'kMiniMaxCN', 'kMiniMaxCNGroup', 'oTTS', 'oMMModel', 'oMMVoiceA', 'oMMVoiceB', 'oGLMVoice', 'oGLMVoiceB',
-  'kAzure', 'kAzureRegion', 'kAzureName', 'oASR', 'kEleven', 'oGemASR',
+  'oGVoiceA', 'oGVoiceB',
+  'kAzure', 'kAzureRegion', 'kAzureName', 'oASR', 'oSrcLang', 'kEleven', 'oGemASR',
   'mModel', 'mTone', 'oLen', 'oSubLen', 'oSubSrc', 'oScript', 'oTier', 'mRate', 'vA', 'vB'];
 
 /* 轉錄引擎。keys = 開工前一定要有嘅金鑰欄位 */
 const ASR = {
   azure: {
     name: 'Azure 快速轉錄（分講者）', keys: ['kAzure', 'kAzureName'], chunk: 480,
-    hint: 'Azure Fast Transcription，zh-CN + 分講者。F0 免費層每月 5 個鐘。時間碼由聲學對齊得出，最準。'
+    hint: 'Azure Fast Transcription，跟「片源語言」設定 + 分講者。F0 免費層每月 5 個鐘。時間碼由聲學對齊得出，最準。'
   },
   eleven: {
     name: 'ElevenLabs Scribe v2', keys: ['kEleven'], chunk: 0,
@@ -713,6 +811,9 @@ function markCfg() {
   }
   if (c.oASR === 'eleven' && !c.kEleven) need.push('ElevenLabs key（轉錄用）');
   if (c.oTTS === 'glm' && !c.kGLM) need.push('GLM key（語音用）');
+  if (c.oTTS === 'google' && !c.kGoogle) need.push('Google key（Chirp 3 HD 語音用）');
+  const gBox = $('gVoiceBox');
+  if (gBox) gBox.classList.toggle('hidden', c.oTTS !== 'google');
   const glmBox = $('glmBox');
   if (glmBox) glmBox.classList.toggle('hidden', c.oTTS !== 'glm');
   const azBox = $('azVoiceBox');
@@ -936,11 +1037,31 @@ function azBases(c) {
   return list;
 }
 
+/* 自動偵測嗰陣送去 Azure 嘅候選語言。Azure 快速轉錄靠呢張表做語言識別，
+   開得太多會拖慢兼易認錯，所以只放常見嗰批。 */
+const AUTO_LOCALES = ['zh-CN', 'en-US', 'ja-JP', 'ko-KR', 'yue-CN',
+                      'es-ES', 'fr-FR', 'de-DE', 'th-TH', 'id-ID', 'vi-VN'];
+
+/* 片源語言：BCP-47 代碼陣列（Azure 用），同一個畀 prompt 睇嘅人話標籤 */
+function srcLocales() {
+  const v = (cfg().oSrcLang || 'auto').trim();
+  return v === 'auto' ? AUTO_LOCALES.slice() : [v];
+}
+const LANG_LABEL = {
+  'zh-CN': '普通話', 'zh-HK': '粵語', 'en-US': '英文', 'ja-JP': '日文',
+  'ko-KR': '韓文', 'es-ES': '西班牙文', 'fr-FR': '法文', 'de-DE': '德文',
+  'th-TH': '泰文', 'id-ID': '印尼文', 'vi-VN': '越南文'
+};
+function srcLangLabel() {
+  const v = (cfg().oSrcLang || 'auto').trim();
+  return v === 'auto' ? '' : (LANG_LABEL[v] || v);
+}
+
 function azBody(wav, idx) {
   const fd = new FormData();
   fd.append('audio', wav, `part${idx}.wav`);
   fd.append('definition', JSON.stringify({
-    locales: ['zh-CN'],
+    locales: srcLocales(),
     diarization: { maxSpeakers: 2, enabled: true }
   }));
   return fd;
@@ -1023,8 +1144,8 @@ async function elevenTranscribe(file) {
   const fd = new FormData();
   fd.append('file', file, file.name || 'audio.wav');
   fd.append('model_id', 'scribe_v2');
-  // ElevenLabs 唔收 'cmn'；佢用 zho 代表中文，但唔分普通話／廣東話。
-  // 留空等佢自動偵測最穩陣——你啲片本身就係普通話，佢認得。
+  // 語言留空由佢自己偵測。ElevenLabs 唔收 'cmn'，而且 zho 唔分普通話／
+  // 廣東話，指定反而易搞錯。任何語言嘅片都靠佢自動判斷。
   fd.append('diarize', 'true');
   fd.append('num_speakers', '2');
   fd.append('timestamps_granularity', 'word');
@@ -1063,6 +1184,53 @@ async function elevenTranscribe(file) {
   return out;
 }
 
+/* ── 語言判斷輔助 ──────────────────────────────────
+   源語言由普通話擴闊到任何語言之後，原本按「中文字數」寫嘅啟發式會失效
+   （42 個字符喺中文係一句，喺英文得七八個 word）。集中喺呢度處理。 */
+const CJK_CHAR = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3040-\u30ff]/g;
+/* 唔用空格分詞以外嘅文字系統。韓文、泰文雖然係亞洲語文，但韓文用空格分詞，
+   所以要當「拉丁式」處理，唔可以照中文噉逐字斷行。 */
+const NON_CJK_LETTER = /[A-Za-z\u00c0-\u024f\u0400-\u04ff\uac00-\ud7af\u0e00-\u0e7f\u0600-\u06ff]/g;
+const HAN_CHAR = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+const KANA_HANGUL = /[\u3040-\u30ff\uac00-\ud7af]/;
+const ABBREV_END = /(?:^|[\s(])(mr|mrs|ms|dr|prof|st|vs|etc|inc|ltd|jr|sr|approx|fig|al|no)\.$/i;
+
+/* 一段文字係咪以 CJK 為主。空字串當 CJK，維持舊行為。 */
+function isCJKText(t) {
+  const s = String(t || '');
+  if (!s) return true;
+  const cjk = (s.match(CJK_CHAR) || []).length;
+  const other = (s.match(NON_CJK_LETTER) || []).length;
+  return cjk >= other;
+}
+
+/* 係咪中文（要行簡繁轉換）。日文同韓文都有漢字，但個簡繁表會誤傷佢哋
+   （例如日文「計画」會變「計畫」），所以見到假名或者諺文就即刻否定。 */
+function isChineseText(t) {
+  const s = String(t || '');
+  if (KANA_HANGUL.test(s)) return false;
+  return HAN_CHAR.test(s);
+}
+
+/* 斷句嘅字數安全網。正常應該由句末標點觸發，呢個只係防止冇標點嘅長段失控。 */
+function segCharLimit(t) {
+  return isCJKText(t) ? 42 : 200;
+}
+
+/* 呢段文字係咪去到句末。英文要當句號係句末，但唔可以撞正
+   縮寫（Dr.）、首字母（U.S.）同小數（3.5）。 */
+function endsSentence(t) {
+  const s = String(t || '').trim();
+  if (/[。！？!?]$/.test(s)) return true;
+  if (!/\.$/.test(s)) return false;
+  // 小數點唔使特別處理：ASR 嘅 word token 會將 3.5 / 9.30 當一個字送過嚟，
+  // 所以永遠唔會喺「3.」呢個狀態下問。反而句末年份（…in 2019.）好常見，
+  // 一刀切排除數字會令佢哋斷唔到句。
+  if (/(?:^|[\s(.])[A-Za-z]\.$/.test(s)) return false;   // U.S. / A. / J.
+  if (ABBREV_END.test(s)) return false;
+  return true;
+}
+
 /* 逐字 → 逐句。斷句條件：換講者、句末標點、靜音 0.9 秒、或者夠長 */
 function elGroup(words) {
   const segs = [];
@@ -1073,18 +1241,23 @@ function elGroup(words) {
     const type = w.type || 'word';
     if (type === 'audio_event') continue;
     if (type === 'spacing') {
-      // 中文之間唔加空格，淨係喺英數之後先補返
-      if (cur && /[A-Za-z0-9]$/.test(cur.text)) cur.text += ' ';
+      // 中文（含中文標點）之間唔加空格；其餘一律補返，包括標點之後——
+      // 唔係就會變 "Dr.Chan"、"U.S.team"
+      if (cur && cur.text &&
+          !/[\s\u3000-\u303f\uff00-\uffef\u3400-\u9fff\uf900-\ufaff\u3040-\u30ff]$/.test(cur.text)) {
+        cur.text += ' ';
+      }
       continue;
     }
     const spk = w.speaker_id != null ? String(w.speaker_id) : null;
     const gap = (cur && lastEnd != null) ? (w.start || 0) - lastEnd : 0;
-    if (cur && (spk !== cur.speaker || gap > 0.9 || cur.text.length >= 42)) flush();
+    if (cur && (spk !== cur.speaker || gap > 0.9 ||
+                cur.text.length >= segCharLimit(cur.text))) flush();
     if (!cur) cur = { start: w.start || 0, end: w.end || 0, text: '', speaker: spk };
     cur.text += (w.text || '');
     if (w.end != null) cur.end = w.end;
     lastEnd = cur.end;
-    if (/[。！？!?]$/.test(cur.text)) flush();
+    if (endsSentence(cur.text)) flush();
   }
   flush();
   return segs;
@@ -1122,22 +1295,26 @@ function parseClock(v) {
   return Math.max(0, sec);
 }
 
-const GEM_ASR_PROMPT = `你係語音轉錄引擎，唔係助手。
+function gemAsrPrompt() {
+  const lab = srcLangLabel();
+  return `你係語音轉錄引擎，唔係助手。
 
-呢段音頻係普通話對談節目，通常一男一女兩位主持輪流講。
+呢段音頻係${lab ? lab + '嘅' : ''}對談節目，通常一男一女兩位主持輪流講。${lab ? '' : '\n先自行判斷佢講緊咩語言，然後照嗰種語言轉錄。'}
 將入面所有講話逐句轉成文字，輸出 JSON 陣列，每句一個物件：
 
 - start：句子開始嘅秒數，由呢段音頻嘅 0 秒起計，小數後一位
 - end：句子結束嘅秒數
 - spk：講者。男聲填 "A"，女聲填 "B"。淨係得一個人就全部填 "A"
-- text：原文，保持普通話原樣，唔好翻譯、唔好改寫、唔好修正口語
+- text：原文，用返音頻本身嗰種語言，唔好翻譯做第二種語言、唔好改寫、唔好修正口語
 
 規則：
-1. 逐句斷開，每句大約 5 至 30 個字。唔好成大段拼埋一齊
+1. 一句一個物件，跟返自然句子邊界斷開，唔好成大段拼埋一齊
+   （中文大約 5 至 30 字一句；英文之類跟句號斷一句）
 2. 時間碼會用嚟做字幕同對嘴，盡你所能報準
 3. 唔好輸出任何解釋、標題、開場白、markdown 圍欄
 4. 純音樂、掌聲、靜音、聽唔清嘅位就跳過，唔好編
 5. 完全冇人講嘢就回 []`;
+}
 
 async function geminiTranscribe(wav, idx) {
   const c = cfg();
@@ -1172,7 +1349,7 @@ async function geminiTranscribe(wav, idx) {
         contents: [{
           role: 'user',
           parts: [
-            { text: GEM_ASR_PROMPT },
+            { text: gemAsrPrompt() },
             { inline_data: { mime_type: 'audio/wav', data: b64 } }
           ]
         }],
@@ -1265,7 +1442,7 @@ const TONES = {
     label: '好奇提問',
     pitch: '+3%',
     prompt: `語氣要好奇，似兩位主持一齊探索緊一個問題。
-- 多用確認同追問嘅講法：「即係話…」「噉即係點呢」「係咪即係…」「等等，噉…」
+- 多用確認同追問嘅講法：「即係話…」「咁即係點呢」「係咪即係…」「等等，咁…」
 - 原文係陳述句嘅時候，可以譯成帶疑問語氣嘅講法，但唔好改變意思。
 - 保持一種「我哋一齊諗緊」嘅感覺，唔好變成單向講解。`
   },
@@ -1274,7 +1451,7 @@ const TONES = {
     pitch: '-2%',
     prompt: `語氣要溫和親切，似同熟人慢慢傾偈。
 - 節奏從容，句子唔好太急促。
-- 用軟化語氣嘅講法：「其實呢」「我覺得啦」「可能噉講會好啲」。
+- 用軟化語氣嘅講法：「其實呢」「我覺得啦」「可能咁講會好啲」。
 - 講到人或者處境嘅時候帶關懷感，避免生硬批判嘅語氣。
 - 適合社福、健康、生活題材。`
   },
@@ -1288,14 +1465,14 @@ const TONES = {
 };
 function tone() { return TONES[cfg().mTone] || TONES.faithful; }
 
-const SYS_BASE = `你係香港電台配音組嘅資深編劇，專門將普通話對談節目改寫成地道廣東話對白，畀香港聽眾聽。
+const SYS_BASE = `你係香港電台配音組嘅資深編劇，專門將外語同普通話對談節目改寫成地道廣東話對白，畀香港聽眾聽。
 
 ⚠ 最重要嘅一點：你係「改寫」，唔係「翻譯」。
-唔好保留原文嘅句法骨架逐字換詞——噉樣出嚟一定係書面語。
+唔好保留原文嘅句法骨架逐字換詞——咁樣出嚟一定係書面語。
 正確做法：睇完成句，理解佢想講乜，然後諗「一個香港人講呢個意思會點開口」，重新講一次。
 判斷標準：讀出嚟如果似新聞旁白、似書面文章，就係錯；似兩個香港人喺咖啡店傾偈，先啱。
 
-任務：收到一段普通話逐句文字稿，做兩件事。
+任務：收到一段逐句文字稿（可能係普通話，亦可能係英文、日文或者其他語言），做兩件事。
 
 一、分辨講者
 節目係一男一女兩位主持輪流對談。標籤 A = 男主持，B = 女主持。
@@ -1310,7 +1487,7 @@ const SYS_BASE = `你係香港電台配音組嘅資深編劇，專門將普通�
 的→嘅　是→係　不→唔　了→咗　在→喺　他/她→佢　們→哋　很→好　也→都
 沒有→冇　要不要→使唔使　可以→得/可以　這→呢　那→嗰　什麼→乜嘢/咩
 為什麼→點解　怎麼→點　現在→而家　知道→知　覺得→覺得/我諗
-一些→啲　非常→好/超　已經→已經/都　如果→如果/噉樣　但是→不過
+一些→啲　非常→好/超　已經→已經/都　如果→如果/咁樣　但是→不過
 喜歡→鍾意　東西→嘢　時候→時候/陣　地方→地方　問題→問題
 應該→應該/都係　可能→可能/唔知係咪　開始→開始　完成→搞掂
 
@@ -1357,7 +1534,7 @@ const FEWSHOT_OUT = `[{"i":0,"s":"A","t":"大家好，歡迎收聽我哋今日�
 {"i":1,"s":"A","t":"我哋今日想傾嘅呢樣嘢，真係幾緊要。"},
 {"i":2,"s":"B","t":"係呀，我睇完份報告都幾震驚㗎。"},
 {"i":3,"s":"B","t":"睇返啲數字，參加培訓嘅人升咗兩成。"},
-{"i":4,"s":"A","t":"噉即係話，對殘疾人士搵工實際有咩幫助呢？"}]`;
+{"i":4,"s":"A","t":"咁即係話，對殘疾人士搵工實際有咩幫助呢？"}]`;
 
 function sysPrompt() {
   const t = tone();
@@ -1706,7 +1883,7 @@ async function translateAll(segs) {
     log(`✔ 口語化檢查通過（書面語標記 ${(bs.rate * 100).toFixed(1)}%）`);
   }
   if (done === 0) {
-    log('⚠ 一句都譯唔到，成份稿會係普通話原文。上面嘅錯誤訊息係主因。', 'err');
+    log('⚠ 一句都譯唔到，成份稿會係原文。上面嘅錯誤訊息係主因。', 'err');
   } else if (done < segs.length * 0.6 || same > done * 0.5) {
     log('⚠ 譯得唔完整。可以撳「用呢個語氣重譯」再試一次。', 'err');
   }
@@ -1744,7 +1921,7 @@ function renderScript() {
     if (ln.raw) {
       row.classList.add('untranslated');
       row.querySelector('.mini').insertAdjacentHTML('beforeend',
-        '<span class="flag bad" title="呢句冇譯到，仍然係普通話">未譯</span>');
+        '<span class="flag bad" title="呢句冇譯到，仍然係原文">未譯</span>');
     } else if (bookishScore(ln.zh).rate > 0.03) {
       row.classList.add('bookish');
       row.querySelector('.mini').insertAdjacentHTML('beforeend',
@@ -1774,8 +1951,8 @@ function renderScript() {
   if (raw >= S.lines.length * 0.5) {
     alertBox.className = 'warnbox';
     alertBox.style.borderLeftColor = 'var(--bad)';
-    alertBox.innerHTML = `<b>⚠ ${raw} / ${S.lines.length} 句冇譯到，仍然係普通話原文。</b><br>
-      唔好落去合成——出嚟會係普通話。<br><br>
+    alertBox.innerHTML = `<b>⚠ ${raw} / ${S.lines.length} 句冇譯到，仍然係原文。</b><br>
+      唔好落去合成——出嚟會係原文語言。<br><br>
       多數係模型回應失敗。睇返上一頁嘅紅色錯誤訊息，然後：<br>
       · 設定 → 翻譯模型改做 <code>gemini-2.5-flash</code>（最穩陣）<br>
       · 或者換個供應商<br>
@@ -1881,8 +2058,8 @@ async function speakBatch(lines, c) {
     for (const l of lines) blobs.push(await speak(l, c));
     return new Blob(blobs, { type: 'audio/mpeg' });
   }
-  if (cfg().oTTS === 'minimax') {
-    // MiniMax 一個請求一把聲。同一批可能混男女，所以逐句再合埋。
+  if (cfg().oTTS === 'minimax' || cfg().oTTS === 'google') {
+    // MiniMax 同 Chirp 3 HD 都係一個請求一把聲。同一批可能混男女，逐句再合埋。
     const blobs = [];
     for (const l of lines) blobs.push(await speak(l, c));
     return new Blob(blobs, { type: 'audio/mpeg' });
@@ -1892,8 +2069,113 @@ async function speakBatch(lines, c) {
 
 async function speak(line, c) {
   if (cfg().oTTS === 'minimax') return withRetry(() => mmSpeak(line, c), 3);
+  if (cfg().oTTS === 'google') return withRetry(() => gSpeak(line, c), 3);
   if (cfg().oTTS === 'glm') return withRetry(() => glmSpeak(line, c), 3);
   return withRetry(() => azPost(ssmlFor(line, c), c), 4);
+}
+
+/* ── Google Chirp 3: HD（Cloud Text-to-Speech）─────────────────
+   yue-HK 有 30 把粵語聲，係目前粵語音色最多嘅來源。
+   注意三件事：
+   1. Chirp 3 HD 唔支援 SSML，只收純文字，所以語氣嘅音高調唔到，得語速
+   2. 金鑰要走 X-Goog-Api-Key header——serve.py 會將含 /proxy 嘅請求行印落
+      終端機，放 ?key= 會直接洩出嚟
+   3. 同翻譯共用一條 Google key，但要 Cloud Console 分別授權兩個 API */
+
+/* 「+10%」→ speakingRate 1.1。API 接受 0.25–4.0。
+   fitToSlots 會餵最高 +50% 入嚟，所以一定要夾住上限。 */
+function gvRate(mRate) {
+  const pct = parseInt(mRate, 10) || 0;
+  return Math.max(0.25, Math.min(4, +(1 + pct / 100).toFixed(3)));
+}
+
+function gVoiceOf(line, c) {
+  return line.spk === 'A'
+    ? (c.oGVoiceA || 'yue-HK-Chirp3-HD-Charon')
+    : (c.oGVoiceB || 'yue-HK-Chirp3-HD-Achernar');
+}
+
+async function gSpeak(line, c) {
+  const voice = gVoiceOf(line, c);
+  const r = await callApi('https://texttospeech.googleapis.com/v1/text:synthesize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': c.kGoogle },
+    body: JSON.stringify({
+      input: { text: line.zh },
+      voice: { languageCode: 'yue-HK', name: voice },
+      audioConfig: { audioEncoding: 'MP3', speakingRate: gvRate(c.mRate) }
+    })
+  }, 'Chirp 3 HD');
+
+  if (!r.ok) {
+    const body = (await r.text()).slice(0, 400);
+    let msg = `Chirp 3 HD ${r.status}：${body}`;
+    if (/are blocked|API_KEY_SERVICE_BLOCKED/i.test(body)) {
+      msg = 'Chirp 3 HD：你條 Google key 冇授權用 Cloud Text-to-Speech API。\n' +
+            'Cloud Console → Credentials → 條 key → API restrictions，' +
+            '要同時勾住 Generative Language API（翻譯用）同 Cloud Text-to-Speech API。';
+    } else if (/has not been used in project|SERVICE_DISABLED/i.test(body)) {
+      const proj = (/project (\d{6,})/.exec(body) || [])[1] || '';
+      msg = 'Chirp 3 HD：你個 Google Cloud 專案' + (proj ? ' ' + proj : '') +
+            ' 未開啟 Cloud Text-to-Speech API。\n' +
+            'Cloud Console → APIs & Services → 搜 Text-to-Speech → Enable，等一兩分鐘生效。';
+    } else if (r.status === 401 || /UNAUTHENTICATED|Expected OAuth/i.test(body)) {
+      msg = 'Chirp 3 HD：呢個端點唔收 API key（要 OAuth）。\n原始回覆：' + body;
+    }
+    const e = new Error(msg);
+    if (r.status === 401 || r.status === 403 || r.status === 400) e.fatal = true;
+    if (r.status === 429) { e.wait = 10000; }
+    throw e;
+  }
+
+  const j = await r.json();
+  if (!j.audioContent) throw new Error('Chirp 3 HD 回覆冇 audioContent：' + JSON.stringify(j).slice(0, 200));
+  return new Blob([Uint8Array.from(atob(j.audioContent), ch => ch.charCodeAt(0))], { type: 'audio/mpeg' });
+}
+
+/* 由 Cloud TTS voices 端點攞返實際嘅 yue-HK 音色。同 Azure／MiniMax 做法一樣，
+   唔死記名單——Chirp 3 HD 仲係 Preview，音色會加會減。 */
+async function fetchGVoices() {
+  const c = cfg();
+  if (!c.kGoogle) { alert('先填 Google API Key 先攞得到聲清單。'); return; }
+  const status = $('gVoiceStatus');
+  status.textContent = '攞緊…';
+  try {
+    const r = await callApi('https://texttospeech.googleapis.com/v1/voices?languageCode=yue-HK',
+      { method: 'GET', headers: { 'x-goog-api-key': c.kGoogle } }, 'Chirp 3 HD 聲清單');
+    const body = await r.text();
+    if (!r.ok) {
+      if (/are blocked|API_KEY_SERVICE_BLOCKED/i.test(body))
+        throw new Error('條 key 冇授權用 Cloud Text-to-Speech API（Credentials → API restrictions 要勾埋佢）');
+      if (/has not been used in project|SERVICE_DISABLED/i.test(body))
+        throw new Error('個 Google Cloud 專案未開啟 Cloud Text-to-Speech API');
+      throw new Error(`HTTP ${r.status}：${body.slice(0, 200)}`);
+    }
+    const all = (JSON.parse(body).voices || []).filter(v => /Chirp3-HD/i.test(v.name || ''));
+    if (!all.length) throw new Error('攞唔到任何 Chirp 3 HD 粵語聲');
+    const males = all.filter(v => (v.ssmlGender || '') === 'MALE');
+    const females = all.filter(v => (v.ssmlGender || '') === 'FEMALE');
+    fillGVoiceSelect($('oGVoiceA'), males.length ? males : all);
+    fillGVoiceSelect($('oGVoiceB'), females.length ? females : all);
+    saveCfg();
+    status.textContent = `攞到 ${all.length} 把（男 ${males.length}／女 ${females.length}）`;
+  } catch (e) {
+    status.textContent = '✘ ' + e.message;
+  }
+}
+
+function fillGVoiceSelect(sel, voices) {
+  const keep = sel.value;
+  sel.innerHTML = '';
+  voices.forEach(v => {
+    const o = document.createElement('option');
+    o.value = v.name;
+    const short = (v.name || '').replace(/^yue-HK-Chirp3-HD-/, '');
+    o.textContent = short + (v.ssmlGender === 'MALE' ? '（男）'
+                    : v.ssmlGender === 'FEMALE' ? '（女）' : '');
+    sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
 }
 
 /* GLM-TTS（智譜）。OpenAI audio/speech 相容格式，直接回音頻位元組。
@@ -2094,6 +2376,200 @@ function renderMMVoicePicker(list) {
   });
 }
 
+/* ── 聲音克隆（MiniMax Voice Clone） ──
+   流程：上載錄音攞 file_id → 可選再上載短樣本（<8秒）提升相似度 → 
+   叫 /v1/voice_clone 用個 file_id 生成 voice_id。
+   克隆出嚟嘅聲 7 日內冇用過合成會自動被刪，唔係永久保存。 */
+
+/* 用 <audio> 嘅 loadedmetadata 攞返時長，唔使成個檔解碼，快好多。
+   有啲檔案格式瀏覽器讀唔到 metadata，噉就回 null，唔阻住用戶。 */
+function probeAudioDuration(file) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    const el = document.createElement('audio');
+    el.preload = 'metadata';
+    el.onloadedmetadata = () => { const d = el.duration; URL.revokeObjectURL(url); resolve(isFinite(d) ? d : null); };
+    el.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    el.src = url;
+  });
+}
+
+async function mmUploadFile(file, purpose, ep) {
+  const gid = ep.gid.trim();
+  const url = ep.host + '/v1/files/upload' + (gid ? `?GroupId=${encodeURIComponent(gid)}` : '');
+  const fd = new FormData();
+  fd.append('purpose', purpose);
+  fd.append('file', file, file.name || 'audio');
+  const r = await callApi(url, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + ep.key },
+    body: fd
+  }, 'MiniMax 檔案上載');
+  if (!r.ok) throw new Error(`上載失敗 HTTP ${r.status}：${(await r.text()).slice(0, 300)}`);
+  const j = await r.json();
+  if (j.base_resp && j.base_resp.status_code !== 0) {
+    throw new Error(`${j.base_resp.status_code}：${j.base_resp.status_msg || ''}`);
+  }
+  const fid = j.file && j.file.file_id;
+  if (!fid) throw new Error('上載回應冇 file_id：' + JSON.stringify(j).slice(0, 200));
+  return fid;
+}
+
+async function submitVoiceClone() {
+  const c = cfg();
+  const ep = mmEndpoint(c);
+  const btn = $('btnVoiceClone');
+  const status = $('cloneStatus');
+  const fileInput = $('cloneAudioFile');
+  const voiceIdInput = $('cloneVoiceId');
+  const promptFileInput = $('clonePromptFile');
+  const promptTextInput = $('clonePromptText');
+  const previewTextInput = $('clonePreviewText');
+
+  if (!ep.key) { alert('先揀返 MiniMax 地區同填 API Key（喺上面「MiniMax 地區」）。'); return; }
+  if (!$('cloneConsent').checked) {
+    alert('先剔返「我確認已經攞到呢把聲主人嘅同意」先可以繼續（自己把聲都要剔）。');
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file) { alert('先揀一個錄音檔案（mp3／m4a／wav）。'); return; }
+  if (!/\.(mp3|m4a|wav)$/i.test(file.name)) { alert('錄音格式要係 mp3、m4a 或 wav。'); return; }
+  if (file.size > 20 * 1024 * 1024) { alert('錄音檔案唔可以超過 20MB。'); return; }
+
+  const voiceId = voiceIdInput.value.trim();
+  if (!voiceId) { alert('幫呢把聲改個名（voice ID），例如 andrew_v1。'); return; }
+  if (!/^[A-Za-z][A-Za-z0-9_]{5,}$/.test(voiceId)) {
+    alert('voice ID 要用英文字母開頭，之後淨係可以有英文字母／數字／底線，長度至少 6 個字。');
+    return;
+  }
+
+  const promptFile = promptFileInput.files[0];
+  if (promptFile) {
+    if (!/\.(mp3|m4a|wav)$/i.test(promptFile.name)) { alert('樣本音檔格式要係 mp3、m4a 或 wav。'); return; }
+    if (!promptTextInput.value.trim()) { alert('加咗樣本音檔就一定要填返對應嘅逐字稿。'); return; }
+  }
+
+  status.textContent = '檢查錄音長度…';
+  const dur = await probeAudioDuration(file);
+  if (dur != null && (dur < 10 || dur > 300)) {
+    status.textContent = '';
+    alert(`錄音長度 ${dur.toFixed(1)} 秒，要喺 10 秒至 5 分鐘之間先用得。`);
+    return;
+  }
+  if (promptFile) {
+    const pd = await probeAudioDuration(promptFile);
+    if (pd != null && pd >= 8) {
+      status.textContent = '';
+      alert(`樣本音檔長度 ${pd.toFixed(1)} 秒，要短過 8 秒。`);
+      return;
+    }
+  }
+
+  btn.disabled = true;
+  try {
+    status.textContent = '上載緊錄音…';
+    const fileId = await mmUploadFile(file, 'voice_clone', ep);
+
+    let clonePrompt = null;
+    if (promptFile) {
+      status.textContent = '上載緊樣本音檔…';
+      const promptFileId = await mmUploadFile(promptFile, 'prompt_audio', ep);
+      clonePrompt = { prompt_audio: promptFileId, prompt_text: promptTextInput.value.trim() };
+    }
+
+    status.textContent = '克隆緊把聲（可能要十幾秒）…';
+    const gid = ep.gid.trim();
+    const url = ep.host + '/v1/voice_clone' + (gid ? `?GroupId=${encodeURIComponent(gid)}` : '');
+    const previewText = previewTextInput.value.trim();
+    const body = {
+      file_id: fileId,
+      voice_id: voiceId,
+      need_noise_reduction: !!$('cloneNoiseReduction').checked,
+      need_volume_normalization: !!$('cloneVolumeNorm').checked
+    };
+    if (clonePrompt) body.clone_prompt = clonePrompt;
+    if (previewText) { body.text = previewText; body.model = c.oMMModel || 'speech-2.8-hd'; }
+
+    const r = await callApi(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ep.key },
+      body: JSON.stringify(body)
+    }, 'MiniMax 聲音克隆');
+
+    if (!r.ok) throw new Error(`HTTP ${r.status}：${(await r.text()).slice(0, 300)}`);
+    const j = await r.json();
+    if (j.base_resp && j.base_resp.status_code !== 0) {
+      const code = j.base_resp.status_code, msg = j.base_resp.status_msg || '';
+      throw new Error(
+        code === 1004 ? `認證失敗：API Key 錯。(${msg})` :
+        code === 1008 ? `餘額不足，去 platform.minimax.io 增值。(${msg})` :
+        code === 2013 ? `輸入有問題（呢個 voice ID 可能已經用過，或者錄音本身有問題）：${msg}` :
+        `錯誤 ${code}：${msg}`);
+    }
+
+    status.textContent = `克隆成功！voice_id：${voiceId}（記住 7 日內要用嚟合成過語音先會永久保留）`;
+    renderClonedVoiceEntry(voiceId, j.demo_audio || '');
+    fileInput.value = '';
+    promptFileInput.value = '';
+  } catch (e) {
+    status.textContent = '';
+    alert('聲音克隆失敗：' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderClonedVoiceEntry(voiceId, demoUrl) {
+  const box = $('clonedVoiceBox');
+  box.classList.remove('hidden');
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.style.cssText = 'justify-content:space-between;padding:5px 4px;background:rgba(94,200,216,.08)';
+  row.innerHTML = `
+    <span style="font-size:13px">🗣 ${voiceId}
+      <span style="color:var(--muted);font-family:var(--mono);font-size:11px">（克隆聲）</span></span>
+    <span class="row">
+      ${demoUrl ? '<button type="button" class="ghost mini-btn" data-act="play">▶ 試聽</button>' : ''}
+      <button type="button" class="ghost mini-btn" data-act="a">用做男聲</button>
+      <button type="button" class="ghost mini-btn" data-act="b">用做女聲</button>
+      <button type="button" class="ghost mini-btn" data-act="del">刪除</button>
+    </span>`;
+  row.querySelector('[data-act="a"]').addEventListener('click', () => { $('oMMVoiceA').value = voiceId; saveCfg(); });
+  row.querySelector('[data-act="b"]').addEventListener('click', () => { $('oMMVoiceB').value = voiceId; saveCfg(); });
+  const playBtn = row.querySelector('[data-act="play"]');
+  if (playBtn) playBtn.addEventListener('click', () => {
+    new Audio(demoUrl).play().catch(e => alert('播放失敗：' + e.message));
+  });
+  row.querySelector('[data-act="del"]').addEventListener('click', () => deleteClonedVoice(voiceId, row));
+  box.prepend(row);
+}
+
+async function deleteClonedVoice(voiceId, row) {
+  if (!confirm(`確定刪除克隆聲音「${voiceId}」？呢個動作做咗冇得返轉頭。`)) return;
+  const c = cfg();
+  const ep = mmEndpoint(c);
+  try {
+    const gid = ep.gid.trim();
+    const url = ep.host + '/v1/delete_voice' + (gid ? `?GroupId=${encodeURIComponent(gid)}` : '');
+    const r = await callApi(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ep.key },
+      body: JSON.stringify({ voice_type: 'voice_cloning', voice_id: voiceId })
+    }, 'MiniMax 刪除聲音');
+    if (!r.ok) throw new Error(`HTTP ${r.status}：${(await r.text()).slice(0, 200)}`);
+    const j = await r.json();
+    if (j.base_resp && j.base_resp.status_code !== 0) {
+      throw new Error(`${j.base_resp.status_code}：${j.base_resp.status_msg || ''}`);
+    }
+    row.remove();
+    if ($('oMMVoiceA').value === voiceId) $('oMMVoiceA').value = '';
+    if ($('oMMVoiceB').value === voiceId) $('oMMVoiceB').value = '';
+    saveCfg();
+  } catch (e) {
+    alert('刪除失敗：' + e.message);
+  }
+}
+
 async function mmSpeak(line, c) {
   await mmThrottle();
   const t = TONES[c.mTone] || TONES.faithful;
@@ -2214,6 +2690,18 @@ async function synthesizeBatched() {
     }
     return out;
   }
+  if (c.oTTS === 'google') {
+    const lines = S.lines.filter(l => l.zh.trim());
+    const chars = lines.reduce((a, l) => a + l.zh.length, 0);
+    log(`Chirp 3 HD（yue-HK）：逐句合成 ${lines.length} 句（約 ${chars} 字元）`);
+    const out = [];
+    for (let i = 0; i < lines.length; i++) {
+      out.push(await speak(lines[i], c));
+      progress((i + 1) / lines.length);
+      if ((i + 1) % 5 === 0 || i === lines.length - 1) log(`合成 ${i + 1}/${lines.length} 句`);
+    }
+    return out;
+  }
   if (c.oTTS === 'minimax') {
     const lines = S.lines.filter(l => l.zh.trim());
     const chars = lines.reduce((a, l) => a + l.zh.length, 0);
@@ -2265,7 +2753,7 @@ async function runFromAudio() {
   show('card1', false); show('cardWork', true);
   $('log').innerHTML = '';
   try {
-    stage(2); $('workTitle').textContent = '轉錄普通話'; progress(0);
+    stage(2); $('workTitle').textContent = '轉錄原文'; progress(0);
     let src = S.file;
     if (S.isVideo) {
       if (MUX.ffmpeg) {
@@ -2319,6 +2807,8 @@ async function runSynth() {
   let need;
   if (cfg().oTTS === 'glm') {
     need = ['kGLM'];
+  } else if (cfg().oTTS === 'google') {
+    need = ['kGoogle'];
   } else if (cfg().oTTS === 'minimax') {
     need = cfg().oMMRegion === 'cn' ? ['kMiniMaxCN', 'kMiniMaxCNGroup'] : ['kMiniMax'];
   } else {
@@ -2412,7 +2902,7 @@ function init() {
       const t = res && res[0] && (res[0].t || res[0].text);
       out.innerHTML = t
         ? `<b style="color:var(--voiceA)">✔ 翻譯正常</b><br>譯文：${t}<br><br>` +
-          `如果稿件仲係普通話，去校對頁撳「用呢個語氣重譯」。`
+          `如果稿件仲係原文，去校對頁撳「用呢個語氣重譯」。`
         : `<b style="color:var(--bad)">✘ 有回應但解析唔到</b><br>` + JSON.stringify(res).slice(0, 300);
     } catch (e) {
       out.innerHTML = `<b style="color:var(--bad)">✘ 翻譯失敗</b><br>完整錯誤：<br>` +
@@ -2456,7 +2946,9 @@ function init() {
     $('btnOrig').textContent = on ? '收起原文' : '顯示原文';
   });
   $('btnMMVoices').addEventListener('click', fetchMMVoices);
+  $('btnVoiceClone').addEventListener('click', submitVoiceClone);
   $('btnAzVoices').addEventListener('click', fetchAzVoices);
+  $('btnGVoices').addEventListener('click', fetchGVoices);
 
   $('btnFixBookish').addEventListener('click', async () => {
     const bad = [];
@@ -2543,7 +3035,7 @@ function init() {
   $('btnSynth').addEventListener('click', () => {
     const raw = S.lines.filter(l => l.raw).length;
     if (raw >= S.lines.length * 0.3) {
-      if (!confirm(`${raw} / ${S.lines.length} 句仲係普通話原文，合成出嚟會用粵語聲讀普通話。\n\n` +
+      if (!confirm(`${raw} / ${S.lines.length} 句仲係原文，合成出嚟會用粵語聲讀原文。\n\n` +
                    `建議先修好翻譯。真係要繼續？`)) return;
     }
     runSynth();
@@ -2717,6 +3209,10 @@ function isBreakAt(t, i) {
 function wrapCJK(text, perLine) {
   const t = String(text).replace(/\s+/g, ' ').trim();
   if (!t) return [];
+  // 拉丁字符嘅視覺闊度大約係中文字一半，同一個「每行字數」設定要放寬，
+  // 否則一句英文會拆成四五行。
+  const cjk = isCJKText(t);
+  const per = cjk ? perLine : Math.round(perLine * 2.1);
   const segs = [];
   let cur = '';
   for (let i = 0; i < t.length; i++) {
@@ -2728,10 +3224,17 @@ function wrapCJK(text, perLine) {
   const lines = [];
   let line = '';
   for (let seg of segs) {
-    while (seg.length > perLine) {
+    while (seg.length > per) {
       if (line) { lines.push(line); line = ''; }
-      lines.push(seg.slice(0, perLine));
-      seg = seg.slice(perLine);
+      // 中文可以任意位置斷；拉丁文一定要斷喺空格，唔係就會斬到字中間
+      let cut = per;
+      if (!cjk) {
+        const sp = seg.lastIndexOf(' ', per);
+        if (sp > 0) cut = sp;
+        else { const nx = seg.indexOf(' '); cut = nx > 0 ? nx : per; }  // 單字長過一行
+      }
+      lines.push(seg.slice(0, cut).trim());
+      seg = seg.slice(cut).replace(/^ +/, '');
       // 硬斷之後唔好留個標點喺下一行開頭
       while (seg && /^[，。！？、；：…,.!?;:%）」』]/.test(seg[0]) && lines.length) {
         lines[lines.length - 1] += seg[0];
@@ -2740,7 +3243,7 @@ function wrapCJK(text, perLine) {
     }
     if (!seg) continue;
     if (!line) line = seg;
-    else if (line.length + seg.length <= perLine) line += seg;
+    else if (line.length + seg.length <= per) line += seg;
     else { lines.push(line); line = seg; }
   }
   if (line) lines.push(line);
@@ -2748,7 +3251,7 @@ function wrapCJK(text, perLine) {
   // 尾巴太短就併返上一行，好過孤零零佔一格
   if (lines.length > 1 && lines[lines.length - 1].length <= 4) {
     const tail = lines.pop();
-    if (lines[lines.length - 1].length + tail.length <= perLine + 4) {
+    if (lines[lines.length - 1].length + tail.length <= per + 4) {
       lines[lines.length - 1] += tail;
     } else lines.push(tail);
   }
@@ -2777,7 +3280,7 @@ function toCues(text, start, end, limit, perLine, maxLines) {
   return cues;
 }
 
-/* 字幕用返普通話原文，時間碼用轉錄嗰陣嘅原始時間 */
+/* 字幕用返原文，時間碼用轉錄嗰陣嘅原始時間 */
 function srtOriginal(lines, useZh) {
   if (useZh === undefined) useZh = cfg().oSubSrc === 'zh';
   const perLine = parseInt(cfg().oSubLen, 10) || 20;
@@ -2786,7 +3289,9 @@ function srtOriginal(lines, useZh) {
   lines.forEach((l, i) => {
     let txt = useZh ? l.zh : l.orig;
     if (!txt || !txt.trim()) return;
-    if (trad) txt = toTraditional(txt);
+    // 譯文一定係中文；原文就未必——英文、日文行簡繁轉換冇意義，
+    // 而且個轉換表會誤傷日文漢字（計画 → 計畫）。
+    if (trad && (useZh || isChineseText(txt))) txt = toTraditional(txt);
     const limit = i + 1 < lines.length ? lines[i + 1].start : Infinity;
     toCues(txt, l.start, l.end, limit, perLine, 2)
       .forEach(c => out.push(c));
@@ -2910,7 +3415,7 @@ async function runVideoMux() {
   $('log').innerHTML = ''; $('workTitle').textContent = '合成影片'; progress(0);
   try {
     if (burn !== 'none') {
-      log('上載字幕（普通話原文）…');
+      log('上載字幕（原文）…');
       await uploadPart('srt', new Blob([srtOriginal(S.lines)], { type: 'text/plain;charset=utf-8' }));
     }
     log('上載廣東話音軌…');
@@ -3022,7 +3527,15 @@ function toTraditional(text) {
     out += _s2tChar.get(ch) !== undefined ? _s2tChar.get(ch) : ch;
     i++;
   }
-  return out;
+  return hkYueNormalize(out);
+}
+
+/* 香港粵語用字統一。喺簡繁轉換之後、輸出之前跑一次，
+   所以無論 AI 出乜、行邊條路徑（校對顯示 / 合成前）都會經呢度。
+   噉(gam2 如此/那樣) → 咁(gam3 這樣)：用戶要求一律用「咁」。 */
+function hkYueNormalize(text) {
+  if (!text) return text;
+  return text.replaceAll('噉', '咁');
 }
 </script>
 </body>

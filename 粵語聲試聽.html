@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>粵語聲試聽台 · 粵語配音台配套工具</title>
+<style>
+  :root{
+    --ink:#16181D; --panel:#1E212A; --panel2:#252936; --line:#2E3340;
+    --paper:#E8E6E1; --muted:#8C93A3; --accent:#5EC8D8; --accent2:#E8B04B;
+    --bad:#E0685C; --good:#7FB77E;
+    --mono:"IBM Plex Mono","SF Mono",Consolas,Monaco,ui-monospace,monospace;
+    --sans:"Noto Sans TC","PingFang HK","Microsoft JhengHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ink);color:var(--paper);font-family:var(--sans);
+       line-height:1.7;margin:0;padding:28px 20px 80px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 4px}
+  h2{font-size:17px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:22px}
+  .eyebrow{color:var(--accent);font-family:var(--mono);font-size:11px;
+           letter-spacing:.16em;text-transform:uppercase;margin:0 0 2px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:16px 18px;margin-bottom:14px}
+  label.f{display:block;margin-bottom:10px}
+  label.f span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  input,select,textarea{width:100%;background:var(--panel2);color:var(--paper);
+        border:1px solid var(--line);border-radius:6px;padding:8px 10px;
+        font-family:var(--sans);font-size:14px}
+  textarea{font-size:15px;line-height:1.8;resize:vertical}
+  input[type=number]{width:90px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+  @media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+  button{background:var(--panel2);color:var(--paper);border:1px solid var(--line);
+         border-radius:6px;padding:7px 14px;font-family:var(--sans);font-size:14px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button:disabled{opacity:.45;cursor:default}
+  button.act{background:var(--accent);color:#0d1013;border-color:var(--accent);font-weight:600}
+  button.sm{padding:3px 9px;font-size:12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .hint{color:var(--muted);font-size:13px}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);
+       padding:1px 5px;border-radius:3px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+  tr.ok td{background:rgba(127,183,126,.05)}
+  tr.err td{background:rgba(224,104,92,.07)}
+  .tag{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:3px;
+       border:1px solid var(--line);color:var(--muted)}
+  .tag.m{color:#8FB8E8;border-color:#3A4A61}
+  .tag.f{color:#E6A0C4;border-color:#5E3A4C}
+  .st-ok{color:var(--good)} .st-err{color:var(--bad)} .st-run{color:var(--accent2)}
+  audio{height:30px;vertical-align:middle}
+  .warn{background:rgba(232,176,75,.1);border:1px solid var(--accent2);
+        border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:14px}
+  .bad{background:rgba(224,104,92,.1);border-color:var(--bad)}
+  .good{background:rgba(127,183,126,.1);border-color:var(--good)}
+  .hidden{display:none}
+  #log{font-family:var(--mono);font-size:12px;background:#12141a;border:1px solid var(--line);
+       border-radius:8px;padding:12px;max-height:220px;overflow:auto;white-space:pre-wrap;
+       color:var(--muted);margin-top:10px}
+  .lg-err{color:var(--bad)} .lg-ok{color:var(--good)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">Companion tool</p>
+<h1>粵語聲試聽台</h1>
+<p class="sub">同一句話，派去各家 TTS 嘅每一把粵語聲讀一次，並排試聽。<br>
+用嚟決定「粵語配音台」應該用邊個引擎、邊幾把聲——特別係打算做多講者之前。</p>
+
+<div id="envBox" class="warn hidden"></div>
+
+<h2>1 · 金鑰</h2>
+<div class="card">
+  <p class="hint" style="margin-top:0">同「粵語配音台」共用 <code>localStorage</code>，主程式填過就會自動帶過嚟，
+  喺呢度改亦會寫返落去。金鑰只留喺你部瀏覽器。</p>
+  <div class="grid3">
+    <label class="f"><span>Azure Speech Key</span><input type="password" id="kAzure" placeholder="32 字元"></label>
+    <label class="f"><span>Azure 區域</span><input type="text" id="kAzureRegion" placeholder="southeastasia"></label>
+    <label class="f"><span>Google API Key</span><input type="password" id="kGoogle" placeholder="AIza…"></label>
+  </div>
+  <label class="f" style="max-width:220px"><span>MiniMax 區域</span>
+    <select id="oMMRegion"><option value="global">國際版</option><option value="cn">大陸版</option></select></label>
+  <div class="grid2" id="mmGlobal">
+    <label class="f"><span>MiniMax 國際版 Key</span><input type="password" id="kMiniMax"></label>
+    <label class="f"><span>MiniMax 國際版 Group ID（通常唔使填）</span><input type="text" id="kMiniMaxGroup"></label>
+  </div>
+  <div class="grid2 hidden" id="mmCN">
+    <label class="f"><span>MiniMax 大陸版 Key</span><input type="password" id="kMiniMaxCN"></label>
+    <label class="f"><span>MiniMax 大陸版 Group ID（一定要填）</span><input type="text" id="kMiniMaxCNGroup"></label>
+  </div>
+  <div class="row"><button id="btnSave">儲存</button>
+    <span class="hint" id="saveMsg"></span></div>
+</div>
+
+<h2>2 · 測試句</h2>
+<div class="card">
+  <label class="f"><span>讀呢句（三種預設都試一次，先睇得出分別）</span>
+    <textarea id="txt" rows="3"></textarea></label>
+  <div class="row">
+    <button class="sm" data-preset="0">日常口語</button>
+    <button class="sm" data-preset="1">數字 + 英文夾雜</button>
+    <button class="sm" data-preset="2">正式書面</button>
+    <span class="hint">第二句最考功夫——數字、英文、年份最容易讀錯。</span>
+  </div>
+</div>
+
+<h2>3 · 引擎</h2>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between">
+    <div><b>Google Chirp 3: HD</b> <span class="tag">yue-HK</span> <span class="tag">Preview</span>
+      <div class="hint">Cloud TTS。官方列咗 30 把粵語聲。<b>順便驗證 API key 收唔收</b>——
+        「攞聲清單」成功即係收，可以整合落主程式。</div></div>
+    <div class="row">
+      <button id="gFetch">攞聲清單</button>
+      <button class="act" id="gRun" disabled>全部合成</button>
+    </div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <span class="hint">只試頭</span><input type="number" id="gLimit" value="30" min="1" max="40">
+    <span class="hint">把（Chirp 3 HD 係收費音色，一句字數唔多，但一次過 30 把都係 30 個請求）</span>
+  </div>
+  <div id="gMsg" class="hint" style="margin-top:6px"></div>
+</div>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between">
+    <div><b>Azure Speech</b> <span class="tag">zh-HK</span>
+      <div class="hint">你而家用緊嘅預設引擎。F0 免費層每分鐘 20 次，程式會自動放慢。</div></div>
+    <div class="row">
+      <button id="aFetch">攞聲清單</button>
+      <button class="act" id="aRun" disabled>全部合成</button>
+    </div>
+  </div>
+  <div id="aMsg" class="hint" style="margin-top:6px"></div>
+</div>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between">
+    <div><b>MiniMax</b> <span class="tag">Chinese,Yue</span>
+      <div class="hint">按量收費。只會列出名有 Cantonese / Yue 嘅音色。</div></div>
+    <div class="row">
+      <button id="mFetch">攞聲清單</button>
+      <button class="act" id="mRun" disabled>全部合成</button>
+    </div>
+  </div>
+  <div id="mMsg" class="hint" style="margin-top:6px"></div>
+</div>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between">
+    <div><b>Gemini TTS</b> <span class="tag">實驗</span>
+      <div class="hint">24kHz，可以用自然語言指示語氣。<b>官方語言清單冇粵語</b>，
+        而且 <b class="st-err">香港封鎖咗呢個 API</b>（<code>User location is not supported</code>）。
+        除非你行 VPN，否則呢條路行唔通——試嚟確認咗就算。</div></div>
+    <div class="row">
+      <button class="act" id="xRun">試 6 把聲</button>
+    </div>
+  </div>
+  <label class="f" style="margin-top:8px"><span>語氣指示（Gemini TTS 專用，會加喺文字前面）</span>
+    <input type="text" id="xStyle" value="用自然、親切嘅香港廣東話讀出以下句子："></label>
+  <div id="xMsg" class="hint"></div>
+</div>
+
+<h2>4 · 結果</h2>
+<div class="row" style="margin-bottom:8px">
+  <button id="btnClear">清空</button>
+  <button id="btnExport">匯出結果</button>
+  <span class="hint" id="sum"></span>
+</div>
+<table id="tbl">
+  <thead><tr><th style="width:30px">#</th><th>引擎</th><th>音色</th><th style="width:52px">性別</th>
+    <th style="width:180px">試聽</th><th style="width:70px">耗時</th><th>狀態</th></tr></thead>
+  <tbody id="tb"></tbody>
+</table>
+
+<div id="log"></div>
+
+<script>
+/* ══════════ 基本 ══════════ */
+const $ = id => document.getElementById(id);
+const CFG_KEY = 'candub.cfg.v1';   // 同主程式共用
+const FIELDS = ['kAzure','kAzureRegion','kGoogle','oMMRegion',
+                'kMiniMax','kMiniMaxGroup','kMiniMaxCN','kMiniMaxCNGroup'];
+
+const PRESETS = [
+  '喂，你今日得唔得閒呀？我哋一齊食個飯，順便傾下嗰單嘢好唔好？',
+  '今日係 2026 年 9 月 10 號，我哋個 job matching 計劃行咗三年，幫到超過 1,200 位服務使用者搵到工。',
+  '根據最新調查結果，僱主對聘用殘疾人士嘅信心指數，較去年上升咗百分之十二點五。'
+];
+
+let PROXY = false;
+let rows = [];
+
+function log(msg, cls) {
+  const d = document.createElement('div');
+  if (cls) d.className = 'lg-' + cls;
+  d.textContent = new Date().toTimeString().slice(0,8) + '  ' + msg;
+  $('log').appendChild(d);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+function apiUrl(u) { return PROXY ? '/proxy?url=' + encodeURIComponent(u) : u; }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ══════════ 設定 ══════════ */
+function loadCfg() {
+  let c = {};
+  try { c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch (e) {}
+  FIELDS.forEach(f => { if (c[f] != null) $(f).value = c[f]; });
+  return c;
+}
+function cfg() {
+  const o = {};
+  FIELDS.forEach(f => o[f] = ($(f).value || '').trim());
+  return o;
+}
+function saveCfg() {
+  // 保留主程式其他欄位，只覆蓋我哋呢幾個
+  let c = {};
+  try { c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch (e) {}
+  Object.assign(c, cfg());
+  localStorage.setItem(CFG_KEY, JSON.stringify(c));
+  $('saveMsg').textContent = '已儲存 ' + new Date().toTimeString().slice(0,5);
+}
+
+/* ══════════ 環境自檢 ══════════ */
+async function envCheck() {
+  const box = $('envBox');
+  if (location.protocol === 'file:') {
+    box.className = 'warn bad';
+    box.innerHTML = '<b>⚠ 唔可以直接雙擊開呢個檔。</b><br>' +
+      '要同 <code>serve.py</code> 擺埋一齊，行 <code>python3 serve.py</code>，' +
+      '再由 <code>http://localhost:8000/粵語聲試聽.html</code> 開。' +
+      '<code>file://</code> 之下所有 API 呼叫都會畀瀏覽器擋。';
+    box.classList.remove('hidden');
+    return;
+  }
+  try {
+    const r = await fetch('/proxy/health');
+    PROXY = r.ok;
+  } catch (e) { PROXY = false; }
+  if (!PROXY) {
+    box.className = 'warn bad';
+    box.innerHTML = '<b>⚠ 搵唔到 serve.py 嘅代理。</b><br>' +
+      '你可能開緊第二個伺服器。冇代理就會撞 CORS，全部請求都會失敗。';
+    box.classList.remove('hidden');
+    return;
+  }
+  // 代理支唔支援 GET？舊版 serve.py 只支援 POST，攞聲清單會 404
+  try {
+    const t = await fetch('/proxy?url=' + encodeURIComponent('https://texttospeech.googleapis.com/v1/voices'));
+    if (t.status === 404) {
+      box.className = 'warn';
+      box.innerHTML = '<b>⚠ 你部 serve.py 係舊版，代理淨係支援 POST。</b><br>' +
+        '「攞聲清單」（GET）會 404。換返新版 <code>serve.py</code> 就得，' +
+        '順便亦修好主程式「拎返可用粵語聲」嗰粒掣。';
+      box.classList.remove('hidden');
+    }
+  } catch (e) {}
+}
+
+/* ══════════ 結果表 ══════════ */
+function addRow(engine, voice, gender) {
+  const r = { engine, voice, gender, status: 'run', ms: 0, blob: null, err: '' };
+  rows.push(r);
+  render();
+  return r;
+}
+function render() {
+  const tb = $('tb');
+  tb.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.className = r.status === 'ok' ? 'ok' : r.status === 'err' ? 'err' : '';
+    const g = r.gender === 'MALE' ? '<span class="tag m">男</span>'
+            : r.gender === 'FEMALE' ? '<span class="tag f">女</span>'
+            : '<span class="tag">—</span>';
+    let play = '<span class="hint">—</span>';
+    if (r.blob) play = '<audio controls preload="none" src="' + URL.createObjectURL(r.blob) + '"></audio>';
+    const st = r.status === 'ok' ? '<span class="st-ok">✔ ' + Math.round(r.blob.size/1024) + 'KB</span>'
+             : r.status === 'err' ? '<span class="st-err">✘ ' + esc(r.err) + '</span>'
+             : '<span class="st-run">合成緊…</span>';
+    tr.innerHTML = '<td>' + (i+1) + '</td><td>' + esc(r.engine) + '</td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + esc(r.voice) + '</td>' +
+      '<td>' + g + '</td><td>' + play + '</td>' +
+      '<td class="hint">' + (r.ms ? (r.ms/1000).toFixed(1) + 's' : '') + '</td><td>' + st + '</td>';
+    tb.appendChild(tr);
+  });
+  const ok = rows.filter(r => r.status === 'ok').length;
+  const er = rows.filter(r => r.status === 'err').length;
+  $('sum').textContent = rows.length ? (ok + ' 把成功 · ' + er + ' 把失敗') : '';
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+/* ══════════ Google Chirp 3: HD ══════════ */
+let gVoices = [];
+
+async function gFetchVoices() {
+  const c = cfg();
+  if (!c.kGoogle) { $('gMsg').innerHTML = '<span class="st-err">先填 Google API Key。</span>'; return; }
+  $('gMsg').textContent = '攞緊…';
+  try {
+    const r = await fetch(apiUrl('https://texttospeech.googleapis.com/v1/voices?languageCode=yue-HK'),
+      { method: 'GET', headers: { 'X-Goog-Api-Key': c.kGoogle } });
+    const body = await r.text();
+    if (!r.ok) {
+      // 呢度就係認證嘅答案
+      // 401 UNAUTHENTICATED = 佢根本唔收 API key。
+      // 403 PERMISSION_DENIED = 佢收咗個 key、認得你個 project，只係權限未開——
+      //   呢個其實係好消息，代表整合得，剩返 Console 度撳兩下。
+      const proj = (/project (\d{6,})/.exec(body) || [])[1] || '';
+      let hint = '';
+      if (r.status === 401 || /UNAUTHENTICATED|Expected OAuth|access token/i.test(body)) {
+        hint = '<b class="st-err">Cloud TTS 唔收 API key，要 OAuth／service account。</b>' +
+               '噉就唔可以照主程式嘅方式整合，要另外諗過。';
+      } else if (r.status === 403) {
+        hint = '<b class="st-ok">個 API key 係收得嘅</b>——Google 認得你個 project' +
+               (proj ? ' <code>' + proj + '</code>' : '') +
+               '，只係權限未開。403 唔係 401，即係<b>整合得</b>，剩返兩件事要喺 Console 做：';
+        const steps = [];
+        if (/has not been used in project|SERVICE_DISABLED/i.test(body))
+          steps.push('① <b>開啟 API</b>：' +
+            (proj ? '<code>https://console.developers.google.com/apis/api/texttospeech.googleapis.com/overview?project=' + proj + '</code>'
+                  : 'Cloud Console → APIs &amp; Services → 搜 Text-to-Speech → Enable'));
+        if (/are blocked|API_KEY_SERVICE_BLOCKED/i.test(body))
+          steps.push('② <b>解除 key 嘅 API 限制</b>：Credentials → 撳你條 key → API restrictions → ' +
+            '加埋「Cloud Text-to-Speech API」（多數人淨係勾咗 Generative Language API）');
+        if (!steps.length)
+          steps.push('睇下面原始回覆講咩權限唔夠。');
+        hint += '<br>' + steps.join('<br>');
+        hint += '<br><span class="hint">兩個問題可以同時存在——撳多幾次會交替出唔同訊息就係噉。</span>';
+      } else if (/API key not valid|API_KEY_INVALID/i.test(body)) {
+        hint = '個 key 本身唔啱（打漏字？）。';
+      } else if (/User location is not supported/i.test(body)) {
+        hint = '<b>你所在地區用唔到呢個 API。</b>Cloud TTS 一般冇地區限制，' +
+               '如果真係撞到，就要諗 VPN 或者換引擎。';
+      }
+      $('gMsg').innerHTML = '<span class="st-err">HTTP ' + r.status + '</span> ' + hint +
+        '<br><code>' + esc(body.slice(0, 400)) + '</code>';
+      log('Google 聲清單失敗 ' + r.status + '：' + body.slice(0, 200), 'err');
+      return;
+    }
+    const j = JSON.parse(body);
+    gVoices = (j.voices || []).filter(v => /Chirp3-HD/i.test(v.name || ''));
+    const std = (j.voices || []).filter(v => /Standard/i.test(v.name || ''));
+    $('gMsg').innerHTML = '<span class="st-ok">✔ API key 收得 —— 可以整合落主程式。</span> ' +
+      'Chirp 3 HD 粵語聲 <b>' + gVoices.length + '</b> 把，另有 Standard ' + std.length + ' 把。';
+    $('gRun').disabled = !gVoices.length;
+    $('gLimit').value = Math.min(30, gVoices.length || 30);
+    log('Google：Chirp3-HD yue-HK ' + gVoices.length + ' 把', 'ok');
+  } catch (e) {
+    $('gMsg').innerHTML = '<span class="st-err">' + esc(e.message) + '</span>';
+    log('Google 聲清單例外：' + e.message, 'err');
+  }
+}
+
+async function gSpeak(voiceName, text, key) {
+  const r = await fetch(apiUrl('https://texttospeech.googleapis.com/v1/text:synthesize'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': key },
+    body: JSON.stringify({
+      input: { text },
+      voice: { languageCode: 'yue-HK', name: voiceName },
+      audioConfig: { audioEncoding: 'MP3' }
+    })
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status + '：' + (await r.text()).slice(0, 160));
+  const j = await r.json();
+  if (!j.audioContent) throw new Error('回覆冇 audioContent');
+  return new Blob([Uint8Array.from(atob(j.audioContent), ch => ch.charCodeAt(0))], { type: 'audio/mpeg' });
+}
+
+/* ══════════ Azure ══════════ */
+let aVoices = [];
+
+async function aFetchVoices() {
+  const c = cfg();
+  if (!c.kAzure || !c.kAzureRegion) { $('aMsg').innerHTML = '<span class="st-err">先填 Azure key 同區域。</span>'; return; }
+  $('aMsg').textContent = '攞緊…';
+  try {
+    const r = await fetch(apiUrl('https://' + c.kAzureRegion + '.tts.speech.microsoft.com/cognitiveservices/voices/list'),
+      { method: 'GET', headers: { 'Ocp-Apim-Subscription-Key': c.kAzure } });
+    if (!r.ok) throw new Error('HTTP ' + r.status + '：' + (await r.text()).slice(0, 200));
+    const all = await r.json();
+    aVoices = all.filter(v => (v.Locale || '').toLowerCase() === 'zh-hk');
+    $('aMsg').innerHTML = '<span class="st-ok">✔</span> zh-HK 粵語聲 <b>' + aVoices.length + '</b> 把。';
+    $('aRun').disabled = !aVoices.length;
+    log('Azure：zh-HK ' + aVoices.length + ' 把', 'ok');
+  } catch (e) {
+    $('aMsg').innerHTML = '<span class="st-err">' + esc(e.message) + '</span>';
+    log('Azure 聲清單失敗：' + e.message, 'err');
+  }
+}
+
+async function aSpeak(voiceName, text, c) {
+  const ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-HK">' +
+    '<voice name="' + voiceName + '">' + esc(text) + '</voice></speak>';
+  const r = await fetch(apiUrl('https://' + c.kAzureRegion + '.tts.speech.microsoft.com/cognitiveservices/v1'), {
+    method: 'POST',
+    headers: {
+      'Ocp-Apim-Subscription-Key': c.kAzure,
+      'Content-Type': 'application/ssml+xml',
+      'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3'
+    },
+    body: ssml
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status + '：' + (await r.text()).slice(0, 160));
+  return r.blob();
+}
+
+/* ══════════ MiniMax ══════════ */
+let mVoices = [];
+/* 大陸版同國際版係兩套獨立帳戶：域名、key、Group ID 全部唔通用。
+   主程式分開兩組欄位存，呢度一定要跟返，唔可以齋換 host。 */
+function mmEp(c) {
+  const cn = c.oMMRegion === 'cn';
+  return {
+    host: cn ? 'https://api.minimaxi.com' : 'https://api.minimax.io',
+    key:  cn ? c.kMiniMaxCN : c.kMiniMax,
+    gid:  cn ? c.kMiniMaxCNGroup : c.kMiniMaxGroup,
+    label: cn ? '大陸版' : '國際版'
+  };
+}
+function syncMMRegion() {
+  const cn = $('oMMRegion').value === 'cn';
+  $('mmGlobal').classList.toggle('hidden', cn);
+  $('mmCN').classList.toggle('hidden', !cn);
+}
+
+async function mFetchVoices() {
+  const c = cfg(); const ep = mmEp(c);
+  if (!ep.key) {
+    $('mMsg').innerHTML = '<span class="st-err">先填 MiniMax ' + ep.label + ' 嘅 API Key。</span>' +
+      '（你而家揀緊 ' + ep.label + '，佢讀嘅係 ' + ep.label + ' 嗰欄）';
+    return;
+  }
+  $('mMsg').textContent = '攞緊…';
+  try {
+    const url = ep.host + '/v1/get_voice' + (ep.gid ? '?GroupId=' + encodeURIComponent(ep.gid) : '');
+    const r = await fetch(apiUrl(url), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ep.key },
+      body: JSON.stringify({ voice_type: 'system' })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status + '：' + (await r.text()).slice(0, 200));
+    const j = await r.json();
+    if (j.base_resp && j.base_resp.status_code !== 0)
+      throw new Error(j.base_resp.status_code === 1004
+        ? 'MiniMax 1004 認證失敗（' + ep.label + '）：key 貼錯，或者你揀錯區域——'
+          + '大陸版同國際版嘅 key 唔通用，大陸版仲一定要填 Group ID。'
+        : 'MiniMax ' + j.base_resp.status_code + '：' + (j.base_resp.status_msg || ''));
+    const list = [].concat(j.system_voice || [], j.voice_slots || []);
+    mVoices = list.filter(v => /cantonese|yue|粵/i.test((v.voice_id || '') + ' ' + (v.voice_name || '')));
+    $('mMsg').innerHTML = '<span class="st-ok">✔</span> 粵語音色 <b>' + mVoices.length +
+      '</b> 把（帳戶總共 ' + list.length + ' 把）。';
+    $('mRun').disabled = !mVoices.length;
+    log('MiniMax：粵語 ' + mVoices.length + ' 把', 'ok');
+  } catch (e) {
+    $('mMsg').innerHTML = '<span class="st-err">' + esc(e.message) + '</span>';
+    log('MiniMax 聲清單失敗：' + e.message, 'err');
+  }
+}
+
+async function mSpeak(voiceId, text, c) {
+  const ep = mmEp(c);
+  const url = ep.host + '/v1/t2a_v2' + (ep.gid ? '?GroupId=' + encodeURIComponent(ep.gid) : '');
+  const r = await fetch(apiUrl(url), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ep.key },
+    body: JSON.stringify({
+      model: 'speech-2.8-hd', text, stream: false, language_boost: 'Chinese,Yue',
+      voice_setting: { voice_id: voiceId, speed: 1, vol: 1, pitch: 0 },
+      audio_setting: { sample_rate: 32000, bitrate: 128000, format: 'mp3' }
+    })
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status + '：' + (await r.text()).slice(0, 160));
+  const j = await r.json();
+  if (j.base_resp && j.base_resp.status_code !== 0)
+    throw new Error(j.base_resp.status_code + '：' + (j.base_resp.status_msg || ''));
+  const hex = j.data && j.data.audio;
+  if (!hex) throw new Error('回覆冇音頻');
+  const isHex = /^[0-9a-fA-F]+$/.test(hex.slice(0, 64));
+  const bytes = isHex
+    ? Uint8Array.from({ length: hex.length >> 1 }, (_, i) => parseInt(hex.substr(i*2, 2), 16))
+    : Uint8Array.from(atob(hex), ch => ch.charCodeAt(0));
+  return new Blob([bytes], { type: 'audio/mpeg' });
+}
+
+/* ══════════ Gemini TTS（實驗）══════════ */
+const X_VOICES = ['Kore', 'Puck', 'Charon', 'Aoede', 'Leda', 'Orus'];
+
+/* Gemini TTS 回 raw PCM（L16 24kHz 單聲道），要包返 WAV header 先播得 */
+function pcmToWav(pcm, rate) {
+  const buf = new ArrayBuffer(44 + pcm.length);
+  const v = new DataView(buf);
+  const w = (off, str) => { for (let i = 0; i < str.length; i++) v.setUint8(off + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length, true); w(8, 'WAVE');
+  w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+  v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, 'data'); v.setUint32(40, pcm.length, true);
+  new Uint8Array(buf, 44).set(pcm);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+async function xSpeak(voiceName, text, key) {
+  const model = 'gemini-2.5-flash-preview-tts';
+  const r = await fetch(apiUrl('https://generativelanguage.googleapis.com/v1beta/models/' +
+      model + ':generateContent'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text }] }],
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+      }
+    })
+  });
+  if (!r.ok) {
+    const body = await r.text();
+    // 呢兩個都係環境層面，逐把聲試都係同一個結果
+    if (/User location is not supported/i.test(body)) {
+      const e = new Error('香港（同部分地區）用唔到 Gemini API 嘅 TTS');
+      e.stopBatch = true;
+      throw e;
+    }
+    if (/are blocked|API_KEY_SERVICE_BLOCKED/i.test(body)) {
+      const e = new Error('個 API key 冇授權用 Generative Language API');
+      e.keyRestricted = true;
+      e.stopBatch = true;
+      throw e;
+    }
+    throw new Error('HTTP ' + r.status + '：' + body.slice(0, 200));
+  }
+  const j = await r.json();
+  const part = (((j.candidates || [])[0] || {}).content || {}).parts || [];
+  const inline = (part.find(p => p.inlineData) || {}).inlineData;
+  if (!inline || !inline.data) throw new Error('回覆冇音頻：' + JSON.stringify(j).slice(0, 160));
+  const m = /rate=(\d+)/.exec(inline.mimeType || '');
+  const rate = m ? parseInt(m[1], 10) : 24000;
+  return pcmToWav(Uint8Array.from(atob(inline.data), ch => ch.charCodeAt(0)), rate);
+}
+
+/* ══════════ 跑批 ══════════ */
+let running = false;
+async function runBatch(label, items, fn, gapMs) {
+  if (running) { alert('等緊上一批做完。'); return; }
+  const text = $('txt').value.trim();
+  if (!text) { alert('先填測試句。'); return; }
+  running = true;
+  let aborted = false;
+  document.querySelectorAll('button').forEach(b => b.disabled = true);
+  log('▶ ' + label + '：' + items.length + ' 把聲');
+  for (const it of items) {
+    const row = addRow(label, it.label, it.gender);
+    const t0 = Date.now();
+    try {
+      row.blob = await fn(it, text);
+      row.ms = Date.now() - t0;
+      row.status = 'ok';
+    } catch (e) {
+      row.ms = Date.now() - t0;
+      row.status = 'err';
+      row.err = e.message.slice(0, 90);
+      log('  ✘ ' + it.label + '：' + e.message.slice(0, 160), 'err');
+      if (e.keyRestricted) {
+        $('xMsg').innerHTML = '<span class="st-err">⚠ 你條 Google API key 冇授權用 ' +
+          '<code>generativelanguage.googleapis.com</code>。</span><br>' +
+          '<b>呢個唔止影響試聽台——主程式嘅翻譯同 Gemini 轉錄都係用呢個 API，一樣會壞。</b><br>' +
+          'Cloud Console → APIs &amp; Services → Credentials → 你條 key → API restrictions，' +
+          '<b>Generative Language API</b> 同 <b>Cloud Text-to-Speech API</b> 兩個都要勾' +
+          '（淨係加新嗰個會踢走舊嗰個）。<br>' +
+          '<span class="hint">補充：就算勾返，Gemini TTS 喺香港仍然會回 ' +
+          '<code>User location is not supported</code>。呢條路本身行唔通，勾返只係為咗救返翻譯。</span>';
+      }
+      if (e.stopBatch) {
+        aborted = true;
+        log('  ↯ 呢個係環境層面嘅問題，剩低嘅聲試都係一樣，停手。', 'err');
+        render();
+        break;
+      }
+    }
+    render();
+    if (gapMs) await sleep(gapMs);
+  }
+  log(aborted ? '■ ' + label + ' 中止' : '■ ' + label + ' 完成', aborted ? 'err' : 'ok');
+  running = false;
+  document.querySelectorAll('button').forEach(b => b.disabled = false);
+  $('gRun').disabled = !gVoices.length;
+  $('aRun').disabled = !aVoices.length;
+  $('mRun').disabled = !mVoices.length;
+}
+
+/* ══════════ 匯出 ══════════ */
+function exportResults() {
+  const lines = ['# 粵語聲試聽結果', '', '測試句：' + $('txt').value.trim(), '',
+    '| 引擎 | 音色 | 性別 | 結果 | 耗時 |', '|---|---|---|---|---|'];
+  rows.forEach(r => lines.push('| ' + r.engine + ' | ' + r.voice + ' | ' +
+    (r.gender === 'MALE' ? '男' : r.gender === 'FEMALE' ? '女' : '—') + ' | ' +
+    (r.status === 'ok' ? '✔ ' + Math.round(r.blob.size/1024) + 'KB' : '✘ ' + r.err) + ' | ' +
+    (r.ms/1000).toFixed(1) + 's |'));
+  const blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '粵語聲試聽結果.md';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ══════════ 起機 ══════════ */
+$('txt').value = PRESETS[1];
+loadCfg();
+envCheck();
+
+document.querySelectorAll('[data-preset]').forEach(b =>
+  b.addEventListener('click', () => { $('txt').value = PRESETS[+b.dataset.preset]; }));
+$('btnSave').addEventListener('click', saveCfg);
+$('oMMRegion').addEventListener('change', syncMMRegion);
+syncMMRegion();
+$('btnClear').addEventListener('click', () => { rows = []; render(); $('log').innerHTML = ''; });
+$('btnExport').addEventListener('click', exportResults);
+
+$('gFetch').addEventListener('click', gFetchVoices);
+$('aFetch').addEventListener('click', aFetchVoices);
+$('mFetch').addEventListener('click', mFetchVoices);
+
+$('gRun').addEventListener('click', () => {
+  const c = cfg();
+  const n = Math.max(1, Math.min(gVoices.length, parseInt($('gLimit').value, 10) || 30));
+  runBatch('Chirp 3 HD', gVoices.slice(0, n).map(v => ({ label: v.name, gender: v.ssmlGender })),
+    (it, text) => gSpeak(it.label, text, c.kGoogle), 200);
+});
+$('aRun').addEventListener('click', () => {
+  const c = cfg();
+  runBatch('Azure zh-HK', aVoices.map(v => ({ label: v.ShortName, gender: (v.Gender || '').toUpperCase() })),
+    (it, text) => aSpeak(it.label, text, c), 3200);   // F0 每分鐘 20 次
+});
+$('mRun').addEventListener('click', () => {
+  const c = cfg();
+  runBatch('MiniMax', mVoices.map(v => ({ label: v.voice_id || v.voice_name, gender: '' })),
+    (it, text) => mSpeak(it.label, text, c), 400);
+});
+$('xRun').addEventListener('click', () => {
+  const c = cfg();
+  if (!c.kGoogle) { $('xMsg').innerHTML = '<span class="st-err">先填 Google API Key。</span>'; return; }
+  const style = ($('xStyle').value || '').trim();
+  runBatch('Gemini TTS', X_VOICES.map(v => ({ label: v, gender: '' })),
+    (it, text) => xSpeak(it.label, style ? style + '\n' + text : text, c.kGoogle), 6500);
+});
+</script>
+</div>
+</body>
+</html>

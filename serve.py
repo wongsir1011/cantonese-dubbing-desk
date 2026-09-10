@@ -70,7 +70,8 @@ def run_ffmpeg(args, label, cwd=None):
     return p
 
 # 只准轉發去呢幾個網域，避免變成開放式代理
-ALLOWED = ('generativelanguage.googleapis.com', 'api.minimax.io', 'api-uw.minimax.io', 'api.minimaxi.com', 'api.deepseek.com', 'open.bigmodel.cn',
+ALLOWED = ('generativelanguage.googleapis.com', 'texttospeech.googleapis.com',
+           'api.minimax.io', 'api-uw.minimax.io', 'api.minimaxi.com', 'api.deepseek.com', 'open.bigmodel.cn',
            'api.elevenlabs.io',
            '.cognitiveservices.azure.com', '.api.cognitive.microsoft.com',
            '.tts.speech.microsoft.com', '.stt.speech.microsoft.com')
@@ -96,8 +97,9 @@ def html_files():
     return sorted(out, key=lambda x: -x[1])
 
 
-# 明顯係文檔嘅 HTML（唔應該當程式入口）
-DOC_KEYWORDS = ('說明', '说明', 'readme', 'manual', 'guide', '手冊', '手册')
+# 明顯係文檔或者配套工具嘅 HTML（唔應該當程式入口，亦唔應該當舊版警告）
+DOC_KEYWORDS = ('說明', '说明', 'readme', 'manual', 'guide', '手冊', '手册',
+                '試聽', '试听', '工具', 'tool')
 
 
 def is_doc(name):
@@ -149,6 +151,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self):
+        if self.path.startswith('/proxy?'):
+            self._proxy('GET')
+            return
         if self.path == '/proxy/health':
             self._json(200, {'ok': True})
             return
@@ -342,24 +347,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self._json(200, {'ok': True})
 
 
-    def do_POST(self):
-        route = urllib.parse.urlparse(self.path).path
-        if route in ('/upload', '/extract', '/mux', '/cleanup'):
-            if not ffmpeg_path():
-                self._fail(503, '部機揾唔到 ffmpeg。安裝之後重開 serve.py。')
-                return
-            sweep_sessions()
-            try:
-                {'/upload': self.handle_upload, '/extract': self.handle_extract,
-                 '/mux': self.handle_mux, '/cleanup': self.handle_cleanup}[route]()
-            except Exception as e:
-                self._fail(500, str(e))
-            return
-
-        if not self.path.startswith('/proxy?'):
-            self.send_error(404)
-            return
-
+    def _proxy(self, method):
         target = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('url', [''])[0]
         host = urllib.parse.urlparse(target).hostname or ''
         if not allowed(host):
@@ -372,7 +360,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         headers = {k: v for k, v in self.headers.items()
                    if k.lower() in PASS_HEADERS}
 
-        req = urllib.request.Request(target, data=body, headers=headers, method='POST')
+        req = urllib.request.Request(target, data=body, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=600) as r:
                 data = r.read()
@@ -399,6 +387,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             print(f'  → {e.code} {host}')
         except Exception as e:
             self._fail(502, f'連唔到 {host}：{e}')
+
+    def do_POST(self):
+        route = urllib.parse.urlparse(self.path).path
+        if route in ('/upload', '/extract', '/mux', '/cleanup'):
+            if not ffmpeg_path():
+                self._fail(503, '部機揾唔到 ffmpeg。安裝之後重開 serve.py。')
+                return
+            sweep_sessions()
+            try:
+                {'/upload': self.handle_upload, '/extract': self.handle_extract,
+                 '/mux': self.handle_mux, '/cleanup': self.handle_cleanup}[route]()
+            except Exception as e:
+                self._fail(500, str(e))
+            return
+
+        if not self.path.startswith('/proxy?'):
+            self.send_error(404)
+            return
+        self._proxy('POST')
 
     def _json(self, code, obj):
         body = json.dumps(obj, ensure_ascii=False).encode()
@@ -471,7 +478,7 @@ def banner(port, fs):
                 print(f'              {time.strftime("%Y-%m-%d %H:%M", time.localtime(m))}  {n}')
         # 文檔淨列出，唔警告（係我打包時放入去嘅）
         if docs:
-            print(f'            文檔（唔會當入口）：')
+            print(f'            文檔／工具（唔會當入口）：')
             for n, m in docs:
                 print(f'              {time.strftime("%Y-%m-%d %H:%M", time.localtime(m))}  {n}')
     else:

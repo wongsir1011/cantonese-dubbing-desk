@@ -2,9 +2,10 @@
 
 > 想快速上手？睇 **[速查.md](速查.md)** 就夠，一頁紙。
 
-將普通話 podcast 或者影片，轉成一男一女對話嘅廣東話配音，並可以配返落原片加中文字幕。
+將**任何語言**嘅 podcast 或者影片，轉成一男一女對話嘅廣東話配音，並可以配返落原片加字幕。
 
-專為處理 NotebookLM 產生嘅普通話 Audio Overview 同 Video Overview 而做。
+原本專為 NotebookLM 產生嘅普通話 Audio Overview 同 Video Overview 而做，
+而家源語言可以係英文、日文、韓文等等——輸出一律係廣東話。
 
 ---
 
@@ -12,8 +13,8 @@
 
 | 輸入 | 輸出 |
 |---|---|
-| 普通話 podcast（mp3 / m4a / wav） | 廣東話配音 MP3 |
-| 普通話影片（mp4 / mov / webm） | 廣東話配音 MP4 + 繁體中文字幕 |
+| 任何語言嘅 podcast（mp3 / m4a / wav） | 廣東話配音 MP3 |
+| 任何語言嘅影片（mp4 / mov / webm） | 廣東話配音 MP4 + 字幕 |
 | 直接貼文字稿 | 廣東話稿件 + 配音 |
 
 處理流程：**轉錄 → 分講者 → 譯廣東話 → 人手校對 → 語音合成 → 影片合成**
@@ -105,21 +106,60 @@ ffmpeg -version
 
 > Azure 三個欄（Key、區域、資源名）就算轉錄改用第二個引擎都建議照填 —— 佢同時係預設嘅語音合成引擎。
 
+### 片源語言（設定可揀）
+
+設定入面「**片源語言**」決定轉錄嗰陣點對待條片：
+
+- **自動偵測**（預設）— 送一批常見語言候選畀 Azure 做語言識別
+- 或者直接指定：普通話、粵語、英文、日文、韓文、西班牙文、法文、德文、泰文、印尼文、越南文
+
+指定咗會準啲、快啲；唔肯定就留返自動。ElevenLabs 引擎永遠自己偵測，唔受呢個設定影響。
+
+輸出永遠係廣東話，唔會因為源語言而變。
+
 ### 轉錄引擎（設定可揀）
 
 | 引擎 | 收費 | 切段 | 時間碼 | 備註 |
 |---|---|---|---|---|
-| **Azure 快速轉錄**（預設）| F0 免費層每月 5 鐘 | 8 分鐘 | 聲學對齊，準 | zh-CN + diarization，最多 2 個講者 |
+| **Azure 快速轉錄**（預設）| F0 免費層每月 5 鐘 | 8 分鐘 | 聲學對齊，準 | 跟「片源語言」設定 + diarization，最多 2 個講者 |
 | **ElevenLabs Scribe v2** | 約 US$0.22/鐘 | **唔切段** | 逐字，最準 | 冇免費層，要先充值 |
 | **Gemini 音頻理解** | 用返翻譯個 key | 4 分鐘 | 模型估，會飄 | 唔使另外開戶 |
 
 **ElevenLabs**：去 [elevenlabs.io](https://elevenlabs.io) 個人頁 → API Keys 攞 key，填落設定「ElevenLabs API Key」。
-成個檔一次過送去 `api.elevenlabs.io/v1/speech-to-text`（`model_id=scribe_v2`、`language_code=cmn`、`diarize=true`）。
+成個檔一次過送去 `api.elevenlabs.io/v1/speech-to-text`（`model_id=scribe_v2`、`diarize=true`，語言留空由佢自己偵測）。
 因為唔切段，講者標籤可以貫穿全片，唔會好似 Azure 咁逐段重新編號。上限 250MB（本機代理一次過轉發嘅限制），超過就要剪短或者轉用 Azure。
 
 **Gemini**：用返「翻譯供應商 = Google Gemini」嗰個 `kGoogle` key，另外可以喺「Gemini 轉錄模型」指定型號（預設 `gemini-2.5-flash`）。
 切段 4 分鐘係為咗避開 `inline_data` 20MB 請求上限；免費層 10 RPM，程式每段之間自動隔 7 秒。
 ⚠ **時間碼係模型估出嚟嘅，唔係聲學對齊**。短片可以接受，長片會愈估愈飄，做字幕同聲畫對齊要留意。
+
+### 語音（可選升級）— Google Chirp 3: HD
+
+粵語音色最多嘅一家：`yue-HK` 有 **30 把聲**，男女都有。設定入面「語音引擎」轉
+「Google Chirp 3: HD」，用返你填咗嘅 **Google AI Studio Key**——但條 key 要另外授權。
+
+去 [Cloud Console](https://console.cloud.google.com)：
+
+1. **APIs & Services → Library** → 搜 **Cloud Text-to-Speech API** → Enable
+2. **APIs & Services → Credentials** → 撳你條 key → **API restrictions**
+
+⚠ 第 2 步最易中伏：如果你揀咗「Restrict key」，一定要**同時**勾住
+**Generative Language API**（翻譯同 Gemini 轉錄用）同 **Cloud Text-to-Speech API**。
+淨係加新嗰個會踢走舊嗰個，噉樣翻譯就會靜靜壞，錯誤訊息係
+`Requests to this API ... are blocked`。
+
+設定入面撳「拎返可用粵語聲」會由 Google 直接查實際攞到嘅音色，男女分開兩個下拉。
+
+限制：
+
+- Chirp 3: HD **唔支援 SSML**，所以語氣設定嘅音高唔會生效，語速就有效
+  （聲畫對齊嘅自動加速照樣行得）
+- `yue-HK` 仲係 **Preview**，音色同定價都可能變
+- 按量收費，冇免費層。逐句合成，速度慢過 Azure 批次
+
+> Google 另外有個 **Gemini TTS**（24kHz、可以用自然語言指示語氣）。**香港用唔到**——
+> 回 `User location is not supported for the API use`，而且佢官方語言清單本來就冇粵語。
+> 所以呢個程式用嘅係 Cloud TTS 嘅 Chirp 3: HD，唔係 Gemini TTS。
 
 ### 語音（可選升級）— MiniMax 官方 API
 
@@ -130,6 +170,19 @@ ffmpeg -version
 - 已自動設 `language_boost: Chinese,Yue`，確保當粵語讀
 - 收費按字元計，HD 每千字約 US$0.05–0.10，一集 20 分鐘節目約 US$0.2–0.4
 - 逐句合成，速度慢過 Azure 批次；音高語速有效，但語氣選項只影響翻譯用詞
+
+#### 聲音克隆 — 用真人聲配音
+
+揀咗 MiniMax 語音之後，設定最底有「聲音克隆」一區，可以用真人錄音生成專屬音色，代替機器聲。
+
+- 流程：上載錄音（`/v1/files/upload`，`purpose=voice_clone`）攞 `file_id` → 叫 `/v1/voice_clone` 生成 `voice_id` → 之後 TTS 用呢個 `voice_id`
+- 錄音要求：mp3／m4a／wav，10 秒–5 分鐘，≤20MB，單一講者、環境安靜
+- 可選加短樣本音檔（`purpose=prompt_audio`，<8 秒）+ 逐字稿提升相似度
+- `voice_id` 格式：英文字母開頭，只可用英文字母／數字／底線，至少 6 字，同一帳戶內唔可以重複
+- 克隆完可以即場試聽、指派做男聲或女聲、或者叫 `/v1/delete_voice` 刪走
+- **⚠️ 克隆出嚟嘅聲 7 日內冇用嚟合成過語音會被系統自動刪走**，唔係永久保存
+- **⚠️ 同意問題**：程式有確認格提醒，但唔係法律保障。只應該用自己把聲，或者已明確攞到當事人同意嘅人
+- 粵語咬字未必完美：呢個係普通話／英文為主嘅克隆模型讀廣東話，建議先用試聽功能判斷
 
 ### 翻譯 — Google Gemini
 
@@ -157,7 +210,7 @@ Azure Fast Transcription 自動分辨兩位主持，男聲配 `zh-HK-WanLungNeur
 譯完會自動掃描「的、是、不、了、我們、非常」呢類書面語標記；超標會警告，校對頁亦會將有問題嘅句子標黃。「重譯書面語句子」只重譯標黃嗰啲，而且新譯文冇改善就唔會覆蓋。
 
 ### 聲畫對齊
-廣東話同普通話長度唔同，直接接駁會同畫面脫節。三種對齊方式：
+廣東話同原文長度唔同，直接接駁會同畫面脫節。三種對齊方式：
 
 - **壓縮音軌**（預設）— 超出槽位嘅句子自動加快語速，音軌啱啱等於影片
 - **延長影片** — 凍結最後一格補足秒數
@@ -166,7 +219,14 @@ Azure Fast Transcription 自動分辨兩位主持，男聲配 `zh-HK-WanLungNeur
 三種都保證輸出嘅視訊同音訊等長。
 
 ### 字幕
-用普通話原文，時間碼跟轉錄嘅原始時間，所以同畫面完全同步。預設輸出繁體中文（香港用字），每行 20 字、每格最多兩行，過長嘅句子會拆成多個時間段。可以選內嵌字幕軌（快）或者燒錄入畫面（慢但一定睇到）。
+用原文（片源語言），時間碼跟轉錄嘅原始時間，所以同畫面完全同步。亦可以改用廣東話譯文。
+每行 20 字、每格最多兩行，過長嘅句子會拆成多個時間段。可以選內嵌字幕軌（快）或者燒錄入畫面（慢但一定睇到）。
+
+**排版按語言自動調整**：中文逐字斷行；英文之類按空格斷，唔會斬到字中間，而且每行字數會自動放寬
+（拉丁字符闊度大約係中文字一半）。
+
+**簡繁轉換只會對真正嘅中文原文做**。日文同韓文都有漢字，但個轉換表會誤傷（例如日文「計画」會變「計畫」），
+所以偵測到假名或者諺文就會跳過。廣東話譯文一定會轉。
 
 簡繁轉換表源自 [zhconv](https://github.com/gumblex/zhconv) 嘅 MediaWiki 轉換表，包含 2797 個單字對應同 4539 條消歧詞組（頭髮、乾淨、麵條、幹活 呢類逐字轉會出錯嘅）。完全離線運作。
 
@@ -180,8 +240,11 @@ Azure Fast Transcription 自動分辨兩位主持，男聲配 `zh-HK-WanLungNeur
 單一 Python 檔，只用標準庫，唔使 `pip install`：
 
 1. **派發靜態檔案** — 鎖定自己所在嘅資料夾，唔跟命令列嘅工作目錄
-2. **API 代理** — 繞過 CORS。有網域白名單，只轉發去 Google、Azure 同 MiniMax
+2. **API 代理** — 繞過 CORS，GET 同 POST 都支援。有網域白名單，只轉發去 Google、Azure、
+   MiniMax、DeepSeek、智譜同 ElevenLabs
 3. **影片處理** — 呼叫 ffmpeg 抽音軌同合成成品
+
+> 金鑰一定要經 header 傳，唔好放 query string——代理會將請求行印落終端機。
 
 金鑰喺瀏覽器同伺服器之間經 `localhost` 傳遞，唔會寫入任何檔案或者日誌。伺服器只綁定 `127.0.0.1`，同一個網絡嘅其他裝置連唔到。
 
@@ -198,13 +261,40 @@ Azure Fast Transcription 自動分辨兩位主持，男聲配 `zh-HK-WanLungNeur
 **合成語音途中不斷 `Failed to fetch`**
 Azure F0 層速率限制。確認設定入面「Azure 定價層」揀咗 F0，app 會自動節流。純音檔模式會將多句合併成一個請求。
 
-**輸出全部係普通話原文**
+**輸出全部係原文**
 翻譯靜靜失敗咗。睇 log 尾段嘅「翻譯完成：N/M 句成功」同錯誤訊息。多數係模型名唔啱該供應商。
 
 **字幕溢出畫面**
 設定入面調細「字幕每行字數」（16 字適合手機）。
 
 ---
+
+## 配套工具：粵語聲試聽台
+
+`粵語聲試聽.html` — 同一句話，派去各家 TTS 嘅每一把粵語聲讀一次，並排試聽。
+
+開法：擺喺同一個資料夾，起咗 `serve.py` 之後去 `http://localhost:8000/粵語聲試聽.html`。
+金鑰同主程式共用，唔使重新填。
+
+涵蓋 Azure `zh-HK`、MiniMax 粵語音色、Google Chirp 3: HD `yue-HK`（30 把），
+另外可以試 Gemini TTS（官方冇列粵語，當實驗）。
+
+用嚟決定應該用邊個引擎、邊幾把聲——特別係打算做多講者之前。結果可以匯出做 markdown。
+
+> Chirp 3: HD 係 Google Cloud TTS 嘅收費音色，而且 `yue-HK` 仲係 Preview。
+> 「攞聲清單」順便會驗證你個 Google API key 收唔收 Cloud TTS——收就可以整合落主程式。
+
+## 開發
+
+```bash
+node test.js     # 純邏輯回歸測試，唔使 API key、唔使瀏覽器
+```
+
+`test.js` 直接由 `index.html` 抽頂層函數出嚟跑，所以測試永遠對住真實 code。
+改完 `index.html` 一定要跑一次。新增嘅頂層函數要加入 `test.js` 嘅 `NEEDED` / `CONSTS` 先抽到。
+
+`CLAUDE.md` 記低咗架構紅線、語言處理集中喺邊幾個函數、同埋已知限制（講者硬性兩個、
+`bg` 參數唔係真・保留背景音樂）。改 code 之前值得睇一次。
 
 ## 授權
 
