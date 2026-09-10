@@ -2089,6 +2089,50 @@ function gvRate(mRate) {
   return Math.max(0.25, Math.min(4, +(1 + pct / 100).toFixed(3)));
 }
 
+/* Chirp 3 HD 會逐句檢查長度，太長就成個請求 400。冇官方數字，而且
+   佢似乎係量度加咗拼音註解之後嘅長度（錯誤訊息會回 ⟪佢⧸ke… 呢種格式），
+   所以粵語嘅實際上限遠短過字面字數。
+
+   做法：切成短句，每段一定以句末標點結尾——Chirp 就係靠句末標點分句。
+   次級標點（，、；）優先做切點，冇先硬斷。 */
+/* Chirp 冇公佈上限，所以第一次撞到「太長」就記低，之後成個 run 都用返
+   個較短嘅上限——唔使逐句都白撞一次 400。 */
+let gMaxLen = 45;
+
+function gSplitForTTS(text, maxLen) {
+  maxLen = maxLen || gMaxLen;
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!t) return [];
+
+  // 先按句末標點切開
+  const sents = [];
+  let cur = '';
+  for (const ch of t) {
+    cur += ch;
+    if (/[。！？!?]/.test(ch)) { sents.push(cur.trim()); cur = ''; }
+  }
+  if (cur.trim()) sents.push(cur.trim());
+
+  const out = [];
+  for (let sent of sents) {
+    while (sent.length > maxLen) {
+      const head = sent.slice(0, maxLen);
+      let cut = -1;
+      for (let i = head.length - 1; i >= 0; i--) {
+        if (/[，、；：,;:]/.test(head[i])) { cut = i; break; }
+      }
+      if (cut < 8) cut = maxLen - 1;          // 冇標點，或者切點太前，硬斷
+      out.push(sent.slice(0, cut + 1).trim());
+      sent = sent.slice(cut + 1).trim();
+    }
+    if (sent) out.push(sent);
+  }
+
+  // 每段補返句末標點。尾巴嘅逗號要換走，唔係會變「…，。」
+  return out.map(x => /[。！？!?]$/.test(x)
+    ? x : x.replace(/[，、；：,;:]+$/, '') + '。');
+}
+
 function gVoiceOf(line, c) {
   return line.spk === 'A'
     ? (c.oGVoiceA || 'yue-HK-Chirp3-HD-Charon')
@@ -2097,11 +2141,20 @@ function gVoiceOf(line, c) {
 
 async function gSpeak(line, c) {
   const voice = gVoiceOf(line, c);
+  const chunks = gSplitForTTS(line.zh);   // 用返學到嘅 gMaxLen
+  if (!chunks.length) throw new Error('Chirp 3 HD：呢句冇文字');
+  if (chunks.length > 1) log(`  ⧉ 一句太長，切成 ${chunks.length} 段合成`);
+  const blobs = [];
+  for (const chunk of chunks) blobs.push(await gSynthOne(chunk, voice, c, 0));
+  return blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });
+}
+
+async function gSynthOne(text, voice, c, depth) {
   const r = await callApi('https://texttospeech.googleapis.com/v1/text:synthesize', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': c.kGoogle },
     body: JSON.stringify({
-      input: { text: line.zh },
+      input: { text },
       voice: { languageCode: 'yue-HK', name: voice },
       audioConfig: { audioEncoding: 'MP3', speakingRate: gvRate(c.mRate) }
     })
@@ -2109,8 +2162,29 @@ async function gSpeak(line, c) {
 
   if (!r.ok) {
     const body = (await r.text()).slice(0, 400);
+
+    // 「太長」唔應該當死症。冇官方上限可以計，所以對半再切，最多三層。
+    if (/too long/i.test(body) && depth < 3 && text.length > 10) {
+      // 收窄成個 run 嘅上限，下一句就唔使再撞
+      const learned = Math.max(12, Math.floor(text.length * 0.6));
+      if (learned < gMaxLen) {
+        gMaxLen = learned;
+        log(`  ⧉ Chirp 3 HD 嫌句子太長，之後每段收窄到 ${gMaxLen} 字以內`);
+      }
+      const half = gSplitForTTS(text, Math.max(10, Math.ceil(text.length / 2)));
+      if (half.length > 1) {
+        const bs = [];
+        for (const h of half) bs.push(await gSynthOne(h, voice, c, depth + 1));
+        return new Blob(bs, { type: 'audio/mpeg' });
+      }
+    }
+
     let msg = `Chirp 3 HD ${r.status}：${body}`;
-    if (/are blocked|API_KEY_SERVICE_BLOCKED/i.test(body)) {
+    if (/too long/i.test(body)) {
+      msg = 'Chirp 3 HD 話呢段字太長，切到最短都仲係唔收：\n「' +
+            text.slice(0, 40) + '」\n' +
+            '呢句可能有異常字元或者超長冇標點嘅內容，去校對頁手動斷開佢。';
+    } else if (/are blocked|API_KEY_SERVICE_BLOCKED/i.test(body)) {
       msg = 'Chirp 3 HD：你條 Google key 冇授權用 Cloud Text-to-Speech API。\n' +
             'Cloud Console → Credentials → 條 key → API restrictions，' +
             '要同時勾住 Generative Language API（翻譯用）同 Cloud Text-to-Speech API。';

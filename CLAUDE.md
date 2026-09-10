@@ -49,6 +49,11 @@ node test.js              # 純邏輯回歸測試，唔使 API key。改完 inde
   `gSpeak()`）。Cloud TTS 收 API key，唔使 service account。要喺 Cloud Console 開啟
   API + 喺 key 嘅 API restrictions 加埋 Cloud Text-to-Speech。
   Chirp 3 HD **唔收 SSML**，所以只可以用純文字 + `speakingRate`，音高調唔到。
+  仲有個**未公開嘅句子長度上限**：太長會回 400 `sentences that are too long`。
+  錯誤訊息會回 `⟪佢⧸ke…` 呢種格式，睇落佢係量度加咗拼音註解之後嘅長度，
+  所以粵語嘅實際上限遠短過字面字數。`gSplitForTTS()` 負責切成短句並補句末標點
+  （Chirp 靠句末標點分句）；`gMaxLen` 會喺第一次撞到之後自動收窄，
+  唔使成個 run 逐句白撞一次 400。
 - **Gemini TTS**（`generativelanguage.googleapis.com`）— **香港封鎖**，回
   `User location is not supported for the API use`。而且官方語言清單本來就冇粵語。
   唔好行呢條路。

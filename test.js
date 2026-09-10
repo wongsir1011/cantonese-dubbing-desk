@@ -13,12 +13,13 @@ function grab(name) {
   return SRC.slice(st, en + 1).join('\n');
 }
 function grabConst(name) {
-  const l = SRC.find(x => new RegExp('^const\\s+' + name + '\\s*=').test(x));
+  const l = SRC.find(x => new RegExp('^(?:const|let)\\s+' + name + '\\s*=').test(x));
   if (!l) throw new Error('揾唔到常數 ' + name);
   return l;
 }
-const CONSTS = ['CJK_CHAR', 'NON_CJK_LETTER', 'HAN_CHAR', 'KANA_HANGUL', 'ABBREV_END'];
-const NEEDED = ['isCJKText', 'isChineseText', 'endsSentence', 'gvRate', 'segCharLimit', 'absorbSegs', 'elGroup',
+const CONSTS = ['CJK_CHAR', 'NON_CJK_LETTER', 'HAN_CHAR', 'KANA_HANGUL', 'ABBREV_END',
+                'gMaxLen'];
+const NEEDED = ['isCJKText', 'isChineseText', 'endsSentence', 'gvRate', 'gSplitForTTS', 'segCharLimit', 'absorbSegs', 'elGroup',
                 'isBreakAt', 'wrapCJK', 'toCues', 'slotOf'];
 let SNIPPETS = '';
 try {
@@ -165,6 +166,40 @@ group('gvRate — mRate → Cloud TTS speakingRate');
   eq('fitToSlots 加速唔會爆上限', gvRate('+50%'), 1.5);
   eq('離譜嘅快唔會超過 4', gvRate('+900%'), 4);
   eq('離譜嘅慢唔會低過 0.25', gvRate('-95%'), 0.25);
+}
+
+/* ─────────── Chirp 3 HD 斷句 ─────────── */
+group('gSplitForTTS — Chirp 3 HD 要短句 + 句末標點');
+{
+  eq('短句原樣', gSplitForTTS('呢個計劃行咗三年。'), ['呢個計劃行咗三年。']);
+  eq('冇句末標點會補返', gSplitForTTS('呢個計劃行咗三年'), ['呢個計劃行咗三年。']);
+  eq('尾巴逗號換成句號', gSplitForTTS('呢個計劃行咗三年，'), ['呢個計劃行咗三年。']);
+  eq('本身多句就分開', gSplitForTTS('第一句。第二句！第三句？'), ['第一句。', '第二句！', '第三句？']);
+}
+{
+  // 長句冇句末標點——就係 Chirp 400 嘅成因
+  const long = '佢哋話呢個職業復康計劃行咗三年，幫到好多服務使用者搵到工，而且僱主嘅態度都有明顯改變，真係唔容易';
+  const out = gSplitForTTS(long, 45);
+  ok('長句會切開', out.length > 1, JSON.stringify(out));
+  ok('每段都唔超過上限', out.every(x => x.length <= 46), JSON.stringify(out.map(x => x.length)));
+  ok('每段都有句末標點', out.every(x => /[。！？!?]$/.test(x)), JSON.stringify(out));
+  const strip = x => x.replace(/[。，、；：！？!?,;:\s]/g, '');
+  eq('切完拼返去一個字都冇少', strip(out.join('')), strip(long));
+}
+{
+  // 完全冇標點嘅長串，唔可以死循環
+  const n = gSplitForTTS('一二三四五六七八九十'.repeat(8), 45);
+  ok('冇標點都切到，唔會死循環', n.length >= 2 && n.every(x => x.length <= 46),
+     JSON.stringify(n.map(x => x.length)));
+  ok('冇標點切完一樣有句號', n.every(x => /。$/.test(x)), JSON.stringify(n));
+}
+{
+  eq('空字串回空陣列', gSplitForTTS(''), []);
+  eq('淨係空白回空陣列', gSplitForTTS('   '), []);
+  // 遞迴重試會用一半長度再切，唔可以回單一段（否則會無限遞迴）
+  const t = '一二三四五六七八九十一二三四五六七八九十';
+  ok('用一半長度再切一定多過一段', gSplitForTTS(t, Math.ceil(t.length / 2)).length > 1,
+     JSON.stringify(gSplitForTTS(t, Math.ceil(t.length / 2))));
 }
 
 /* ─────────── toCues / slotOf 回歸 ─────────── */
